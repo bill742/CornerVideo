@@ -177,7 +177,7 @@ const SinglePerson = async ({ params }: PageProps) => {
   const crewByDepartment = credits ? groupCrewByDepartment(credits.crew) : [];
 
   return (
-    <ViewTransition default="none" enter="slide-up">
+    <ViewTransition default="none" enter="fade-in">
       <div className="container mx-auto space-y-12 py-8">
         {/* Person header */}
         <div className="flex flex-col gap-6 sm:flex-row">

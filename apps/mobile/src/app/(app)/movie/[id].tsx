@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import type { CastAndCrew, Movie } from "@moviewatchlist/shared";
 
 import { WatchlistButton } from "@/components/watchlist-button";
 import { tmdb } from "@/lib/tmdb";
-import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 function CastRow({ cast }: { cast: CastAndCrew[] }) {
   if (cast.length === 0) return null;
@@ -46,7 +46,6 @@ function CastRow({ cast }: { cast: CastAndCrew[] }) {
 }
 
 export default function MovieDetailScreen() {
-  const { colors } = useBrand();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [cast, setCast] = useState<CastAndCrew[]>([]);
@@ -69,9 +68,9 @@ export default function MovieDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg">
+      <View className="flex-1 bg-bg">
         <Stack.Screen options={{ headerShown: true, title: "" }} />
-        <ActivityIndicator color={colors.primary} />
+        <VhsLoader />
       </View>
     );
   }

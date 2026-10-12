@@ -4,8 +4,8 @@ import { ViewTransition, startTransition, useEffect, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
+import { VhsLoader } from "@/components/brand/vhs-loader";
 import { MediaList, ShelfHeading } from "@/components/media/media-list";
-import { SkeletonCardList } from "@/components/skeletons/skeleton-card-list";
 
 import { getSearchResults } from "@/data/client-loaders";
 import type { MediaCardItem, MultiSearchItem } from "@/types";
@@ -43,25 +43,20 @@ function ClientSearch() {
 
   if (searchResults === null) {
     return (
-      <ViewTransition key="skeleton" default="none" exit="slide-down">
+      <ViewTransition key="loading" default="none" exit="fade-out">
         {/* The heading only needs the term, so it renders while results
             load: the page always has its <h1>, and nothing shifts when
             the cards arrive. */}
         <div className="space-y-6 py-8">
-          <SkeletonCardList
-            heading={
-              <ShelfHeading level={1}>
-                Results for &quot;{term}&quot;
-              </ShelfHeading>
-            }
-          />
+          <ShelfHeading level={1}>Results for &quot;{term}&quot;</ShelfHeading>
+          <VhsLoader label="Loading search results" />
         </div>
       </ViewTransition>
     );
   }
 
   return (
-    <ViewTransition enter="slide-up" default="none" key="content">
+    <ViewTransition enter="fade-in" default="none" key="content">
       <div className="space-y-12 py-8">
         <MediaList
           heading={`Results for "${term}"`}

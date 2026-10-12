@@ -1,11 +1,11 @@
 import { ViewTransition } from "react";
 
-import { MoviePageSkeleton } from "@/components/skeletons/movie-page-skeleton";
+import { VhsLoader } from "@/components/brand/vhs-loader";
 
 export default function Loading() {
   return (
-    <ViewTransition exit="slide-down">
-      <MoviePageSkeleton />
+    <ViewTransition exit="fade-out">
+      <VhsLoader />
     </ViewTransition>
   );
 }

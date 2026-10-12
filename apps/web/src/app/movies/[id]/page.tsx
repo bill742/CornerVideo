@@ -90,7 +90,7 @@ const SingleMovie = async ({ params }: PageProps) => {
   const trailerKey = await getMovieTrailer(id);
 
   return (
-    <ViewTransition default="none" enter="slide-up">
+    <ViewTransition default="none" enter="fade-in">
       <div className="min-h-screen pb-12">
         {/* Backdrop with gradient */}
         <div className="relative h-[60vh] w-full">

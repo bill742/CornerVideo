@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -20,6 +19,7 @@ import {
 import { tmdb } from "@/lib/tmdb";
 import { getWatchlist } from "@/lib/watchlist";
 import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 interface ResolvedItem {
   id: string;
@@ -170,9 +170,7 @@ export default function WatchlistScreen() {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color={colors.primary} />
-        </View>
+        <VhsLoader label="Loading your shelf" />
       ) : (
         <FlatList
           contentContainerStyle={{ paddingBottom: 24, paddingTop: 12 }}

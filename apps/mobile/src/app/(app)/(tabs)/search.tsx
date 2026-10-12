@@ -1,18 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { FlatList, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { MultiSearchItem } from "@moviewatchlist/shared";
 
 import { PosterCard } from "@/components/poster-card";
 import { tmdb } from "@/lib/tmdb";
 import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 const NUM_COLUMNS = 3;
 
@@ -77,9 +72,7 @@ export default function SearchScreen() {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color={colors.primary} />
-        </View>
+        <VhsLoader label="Loading search results" />
       ) : (
         <FlatList
           columnWrapperStyle={{ gap: 12, paddingHorizontal: 16 }}

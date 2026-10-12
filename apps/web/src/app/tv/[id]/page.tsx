@@ -61,7 +61,7 @@ export default async function TVShowPage({
   const seasons = show.seasons.filter((s) => s.season_number > 0);
 
   return (
-    <ViewTransition default="none" enter="slide-up">
+    <ViewTransition default="none" enter="fade-in">
       <div className="min-h-screen pb-12">
         {/* Backdrop */}
         <div className="relative h-[60vh] w-full">

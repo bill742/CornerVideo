@@ -20,6 +20,7 @@ import {
 } from "@/lib/episodes";
 import { tmdb } from "@/lib/tmdb";
 import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 export default function SeasonScreen() {
   const { colors } = useBrand();
@@ -179,9 +180,9 @@ export default function SeasonScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg">
+      <View className="flex-1 bg-bg">
         <Stack.Screen options={{ headerShown: true, title: "" }} />
-        <ActivityIndicator color={colors.primary} />
+        <VhsLoader />
       </View>
     );
   }

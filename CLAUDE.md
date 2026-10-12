@@ -195,7 +195,7 @@ apps/web/src/
 │   ├── auth/, header/, footer/, hero/, home/
 │   ├── media/, movies/, tv/, episodes/
 │   ├── watchlist/           # add/remove/status-select buttons
-│   └── skeletons/           # loading skeletons
+│   └── brand/               # brand motifs: RentalSticker, VhsLoader
 ├── data/
 │   ├── loaders.ts           # TMDB movie/person loaders
 │   └── tv-loaders.ts        # TMDB TV loaders
@@ -292,8 +292,12 @@ adding a loader a client component needs, add the route handler and the
 
 - **Hydration:** root `<html>` has `suppressHydrationWarning` for theming; use a
   `mounted` gate for theme-dependent client rendering.
-- **Loading:** use the shared `Loader` component (`@/components/ui/loader`) and route
-  `loading.tsx` files / skeletons in `components/skeletons/` — don't hand-roll spinners.
+- **Loading:** use `VhsLoader` (`@/components/brand/vhs-loader`) — in route
+  `loading.tsx` files and for client-side loading states. Keep the page's heading
+  rendered and swap only the content area, so nothing above it moves. No
+  skeletons and no hand-rolled spinners. Mobile has a matching `VhsLoader`
+  (`apps/mobile/src/components/vhs-loader.tsx`, Views + Reanimated) for
+  full-screen loads; small inline spinners there stay as `ActivityIndicator`.
 - **Images:** always `next/image`; remote hosts are configured in `next.config.ts`
   (`image.tmdb.org`). `next.config.ts` also sets `turbopack.root`/`outputFileTracingRoot`
   to the monorepo root — leave those as `path.join(__dirname, "../..")`.

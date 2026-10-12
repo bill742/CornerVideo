@@ -1,21 +1,14 @@
 import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import type { TVShow } from "@moviewatchlist/shared";
 
 import { WatchlistButton } from "@/components/watchlist-button";
 import { tmdb } from "@/lib/tmdb";
-import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 export default function TVDetailScreen() {
-  const { colors } = useBrand();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [show, setShow] = useState<TVShow | null>(null);
@@ -35,9 +28,9 @@ export default function TVDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg">
+      <View className="flex-1 bg-bg">
         <Stack.Screen options={{ headerShown: true, title: "" }} />
-        <ActivityIndicator color={colors.primary} />
+        <VhsLoader />
       </View>
     );
   }

@@ -6,12 +6,13 @@ import { Slot, useRouter, useSegments, type Href } from "expo-router";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { reminderUrl } from "@/lib/reminders";
 import { restoreTheme } from "@/lib/appearance";
 import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 // Hold the splash until the display font is in, so titles never flash in the
 // system font first.
@@ -29,7 +30,6 @@ Notifications.setNotificationHandler({
 
 function RootNavigator() {
   const { initializing, session } = useAuth();
-  const { colors } = useBrand();
   const segments = useSegments();
   const router = useRouter();
 
@@ -71,8 +71,8 @@ function RootNavigator() {
 
   if (initializing) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg">
-        <ActivityIndicator color={colors.primary} />
+      <View className="flex-1 bg-bg">
+        <VhsLoader />
       </View>
     );
   }

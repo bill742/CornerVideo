@@ -1,19 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { Movie, TVShow } from "@moviewatchlist/shared";
 
 import { PosterCard } from "@/components/poster-card";
 import { getRegion } from "@/lib/profile";
 import { tmdb } from "@/lib/tmdb";
-import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 function Row<T>({
   data,
@@ -56,7 +50,6 @@ function Row<T>({
 }
 
 export default function BrowseScreen() {
-  const { colors } = useBrand();
   const router = useRouter();
   const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
   const [nowPlaying, setNowPlaying] = useState<Movie[]>([]);
@@ -114,9 +107,7 @@ export default function BrowseScreen() {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color={colors.primary} />
-        </View>
+        <VhsLoader />
       ) : (
         <ScrollView
           className="flex-1"
