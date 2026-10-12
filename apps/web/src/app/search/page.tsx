@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import type { Metadata } from "next";
 
+import { ShelfHeading } from "@/components/media/media-list";
 import { SkeletonCardList } from "@/components/skeletons/skeleton-card-list";
 
 import { BRAND } from "@/types";
@@ -33,12 +34,22 @@ export async function generateMetadata({
   };
 }
 
-export default function SearchPage() {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const { term } = await searchParams;
+
+  // Same heading ClientSearch renders, so the page has its <h1> from the
+  // first paint through to results.
   return (
     <Suspense
       fallback={
-        <div className="space-y-12 py-8">
-          <SkeletonCardList />
+        <div className="space-y-6 py-8">
+          <SkeletonCardList
+            heading={
+              <ShelfHeading level={1}>
+                Results for &quot;{term ?? ""}&quot;
+              </ShelfHeading>
+            }
+          />
         </div>
       }
     >

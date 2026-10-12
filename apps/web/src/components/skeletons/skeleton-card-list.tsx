@@ -7,11 +7,21 @@ const SkeletonCard = () => (
   </div>
 );
 
-const SkeletonCardList = () => (
+interface SkeletonCardListProps {
+  /**
+   * A real heading to show in place of the placeholder bar, when the title
+   * is known before the data — search knows its term from the URL.
+   */
+  heading?: React.ReactNode;
+}
+
+const SkeletonCardList = ({ heading }: SkeletonCardListProps) => (
   <>
-    <div className="border-primary h-8 w-48 border-l-4 pl-3">
-      <div className="bg-muted h-full w-full animate-pulse rounded-sm" />
-    </div>
+    {heading ?? (
+      <div className="border-primary h-8 w-48 border-l-4 pl-3">
+        <div className="bg-muted h-full w-full animate-pulse rounded-sm" />
+      </div>
+    )}
 
     <div className="grid grid-cols-2 gap-x-4 gap-y-10 [--shelf-gap:1rem] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       <SkeletonCard />

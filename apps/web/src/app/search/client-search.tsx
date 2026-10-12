@@ -4,7 +4,7 @@ import { ViewTransition, startTransition, useEffect, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
-import { MediaList } from "@/components/media/media-list";
+import { MediaList, ShelfHeading } from "@/components/media/media-list";
 import { SkeletonCardList } from "@/components/skeletons/skeleton-card-list";
 
 import { getSearchResults } from "@/data/client-loaders";
@@ -44,8 +44,17 @@ function ClientSearch() {
   if (searchResults === null) {
     return (
       <ViewTransition key="skeleton" default="none" exit="slide-down">
-        <div className="space-y-12 py-8">
-          <SkeletonCardList />
+        {/* The heading only needs the term, so it renders while results
+            load: the page always has its <h1>, and nothing shifts when
+            the cards arrive. */}
+        <div className="space-y-6 py-8">
+          <SkeletonCardList
+            heading={
+              <ShelfHeading level={1}>
+                Results for &quot;{term}&quot;
+              </ShelfHeading>
+            }
+          />
         </div>
       </ViewTransition>
     );

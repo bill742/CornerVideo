@@ -4,6 +4,24 @@ import type { MediaCardItem } from "@/types";
 
 import { MediaCard } from "./media-card";
 
+interface ShelfHeadingProps {
+  children: React.ReactNode;
+  level?: 1 | 2;
+}
+
+/** The sign over a run of shelves. Shared with the loading skeletons. */
+function ShelfHeading({ children, level = 2 }: ShelfHeadingProps) {
+  const Heading = level === 1 ? "h1" : "h2";
+
+  return (
+    <Heading className="font-display border-primary border-l-4 pl-3 text-3xl leading-none font-semibold tracking-wide">
+      {children}
+    </Heading>
+  );
+}
+
+ShelfHeading.displayName = "ShelfHeading";
+
 interface MediaListProps {
   emptyMessage?: string;
   heading: string;
@@ -24,13 +42,9 @@ const MediaList = memo(
     headingLevel = 2,
     items,
   }: MediaListProps) => {
-    const Heading = headingLevel === 1 ? "h1" : "h2";
-
     return (
       <section className="space-y-6">
-        <Heading className="font-display border-primary border-l-4 pl-3 text-3xl leading-none font-semibold tracking-wide">
-          {heading}
-        </Heading>
+        <ShelfHeading level={headingLevel}>{heading}</ShelfHeading>
 
         {items.length === 0 ? (
           <div className="flex min-h-48 items-center justify-center rounded-sm border-2 border-dashed">
@@ -58,4 +72,4 @@ const MediaList = memo(
 
 MediaList.displayName = "MediaList";
 
-export { MediaList };
+export { MediaList, ShelfHeading };
