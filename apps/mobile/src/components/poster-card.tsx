@@ -24,7 +24,7 @@ function PosterCard({
       className={`${widthClassName} active:opacity-70`}
       onPress={onPress}
     >
-      <View className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-neutral-800">
+      <View className="aspect-[2/3] w-full overflow-hidden rounded-sm bg-line">
         {poster ? (
           <Image
             cachePolicy="memory-disk"
@@ -34,16 +34,16 @@ function PosterCard({
           />
         ) : (
           <View className="flex-1 items-center justify-center px-2">
-            <Text
-              className="text-center text-xs text-neutral-500"
-              numberOfLines={3}
-            >
+            <Text className="text-center text-xs text-muted" numberOfLines={3}>
               {title}
             </Text>
           </View>
         )}
       </View>
-      <Text className="mt-2 text-sm text-neutral-200" numberOfLines={1}>
+      {/* The shelf the tape stands on. It overhangs by half the 12px row gap
+          so neighbouring cards join into one plank. */}
+      <View className="-mx-1.5 h-[5px] bg-shelf" />
+      <Text className="mt-2 text-sm text-fg" numberOfLines={1}>
         {title}
       </Text>
     </Pressable>

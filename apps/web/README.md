@@ -1,8 +1,8 @@
-# Movie Watchlist — Web
+# Corner Video — Web
 
 The Next.js web client. Browse trending, now-playing and upcoming movies plus currently airing TV — filtered by region — search the TMDB catalog, keep a personal watchlist, and mark episodes watched.
 
-Part of the [Movie Watchlist monorepo](../../README.md); it shares a Supabase project and the TMDB client (`@moviewatchlist/shared`) with the [Expo app](../mobile/README.md), so accounts and data are the same on both.
+Part of the [Corner Video monorepo](../../README.md); it shares a Supabase project and the TMDB client (`@moviewatchlist/shared`) with the [Expo app](../mobile/README.md), so accounts and data are the same on both.
 
 ## Features
 
@@ -40,15 +40,14 @@ Copy [`.env.example`](.env.example) to `.env` in this directory and fill it in:
 cp .env.example .env
 ```
 
-| Variable | Purpose |
-| --- | --- |
-| `TMDB_API_KEY` | TMDB read access token. **Server-only** |
-| `NEXT_PUBLIC_API_URL` | TMDB API base URL |
-| `NEXT_PUBLIC_API_IMAGE_PATH` | TMDB image CDN base |
-| `NEXT_PUBLIC_SITE_URL` | Absolute site URL, used for `metadataBase` and canonicals. No trailing slash |
-| `NEXT_PUBLIC_SITE_NAME` | Site name, used in page titles |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| Variable                        | Purpose                                                                      |
+| ------------------------------- | ---------------------------------------------------------------------------- |
+| `TMDB_API_KEY`                  | TMDB read access token. **Server-only**                                      |
+| `NEXT_PUBLIC_API_URL`           | TMDB API base URL                                                            |
+| `NEXT_PUBLIC_API_IMAGE_PATH`    | TMDB image CDN base                                                          |
+| `NEXT_PUBLIC_SITE_URL`          | Absolute site URL, used for `metadataBase` and canonicals. No trailing slash |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                                                         |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key                                                            |
 
 A free TMDB read access token comes from [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api). Use the long **API Read Access Token**, not the short v3 API key — it is sent as a bearer token. Store it on its own: the `Bearer ` prefix is added in code.
 

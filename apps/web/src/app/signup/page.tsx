@@ -1,10 +1,11 @@
 import Link from "next/link";
 
-import { signup } from "@/app/auth/actions";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import { signup } from "@/app/auth/actions";
 
 interface Props {
   searchParams: Promise<{ error?: string; message?: string }>;
@@ -17,9 +18,11 @@ export default async function SignupPage({ searchParams }: Props) {
     <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold">Create an account</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-wide">
+            Create an account
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Start tracking what you want to watch
+            Keep every movie and show you want to see on one shelf.
           </p>
         </div>
 
@@ -29,7 +32,7 @@ export default async function SignupPage({ searchParams }: Props) {
           </p>
         )}
         {message && (
-          <p className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
+          <p className="bg-new-release/10 text-new-release rounded-md px-3 py-2 text-sm">
             {message}
           </p>
         )}

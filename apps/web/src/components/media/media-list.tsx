@@ -7,34 +7,47 @@ import { MediaCard } from "./media-card";
 interface MediaListProps {
   emptyMessage?: string;
   heading: string;
+  /** 1 when the list is the page's subject, as on search results. */
+  headingLevel?: 1 | 2;
   items: MediaCardItem[];
 }
 
 /**
- * The one card grid. Takes already-normalized items so it can render movies,
- * TV, or a mix of both; MovieList and TVShowList are thin wrappers over it.
+ * The one card grid — a run of shelves. Takes already-normalized items so it
+ * can render movies, TV, or a mix of both; MovieList and TVShowList are thin
+ * wrappers over it.
  */
 const MediaList = memo(
-  ({ emptyMessage = "No results found", heading, items }: MediaListProps) => {
+  ({
+    emptyMessage = "No results found",
+    heading,
+    headingLevel = 2,
+    items,
+  }: MediaListProps) => {
+    const Heading = headingLevel === 1 ? "h1" : "h2";
+
     return (
       <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">{heading}</h2>
-            <div className="from-primary mt-1 h-1 w-16 rounded-full bg-linear-to-r to-purple-600" />
-          </div>
-        </div>
+        <Heading className="font-display border-primary border-l-4 pl-3 text-3xl leading-none font-semibold tracking-wide">
+          {heading}
+        </Heading>
 
         {items.length === 0 ? (
-          <div className="border-muted-foreground/25 flex min-h-75 items-center justify-center rounded-xl border-2 border-dashed">
+          <div className="flex min-h-48 items-center justify-center rounded-sm border-2 border-dashed">
             <p className="text-muted-foreground">{emptyMessage}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          // --shelf-gap must match gap-x so each card's stretch of shelf
+          // meets its neighbour's.
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 [--shelf-gap:1rem] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {items.map((item) => (
               // Ids are only unique within a media type, so a film and a show
               // can collide in a mixed list.
-              <MediaCard item={item} key={`${item.media_type}-${item.id}`} />
+              <MediaCard
+                item={item}
+                key={`${item.media_type}-${item.id}`}
+                titleLevel={headingLevel === 1 ? 2 : 3}
+              />
             ))}
           </div>
         )}

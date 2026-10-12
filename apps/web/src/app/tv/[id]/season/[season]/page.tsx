@@ -22,7 +22,7 @@ export async function generateMetadata({
   if (!show || !seasonData) return { title: "Season Not Found" };
   return {
     description: seasonData.overview || `${show.name} — ${seasonData.name}`,
-    title: `${show.name}: ${seasonData.name} - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+    title: `${show.name}: ${seasonData.name}`,
   };
 }
 
@@ -47,7 +47,9 @@ export default async function TVSeasonPage({
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   let watchedEpisodes: number[] = [];
   if (user) {
@@ -61,11 +63,11 @@ export default async function TVSeasonPage({
   }
 
   const watchedCount = watchedEpisodes.filter((n) =>
-    seasonData.episodes.some((e) => e.episode_number === n),
+    seasonData.episodes.some((e) => e.episode_number === n)
   ).length;
 
   return (
-    <div className="py-8 space-y-8">
+    <div className="space-y-8 py-8">
       {/* Back link */}
       <Link
         href={`/tv/${id}`}
@@ -78,7 +80,7 @@ export default async function TVSeasonPage({
       {/* Season header */}
       <div className="flex flex-col gap-6 sm:flex-row">
         {seasonData.poster_path && (
-          <div className="relative h-48 w-32 shrink-0 overflow-hidden rounded-xl shadow-lg">
+          <div className="relative h-48 w-32 shrink-0 overflow-hidden rounded-sm shadow-lg">
             <Image
               src={`${process.env.NEXT_PUBLIC_API_IMAGE_PATH}w342${seasonData.poster_path}`}
               alt={seasonData.name}
@@ -93,7 +95,9 @@ export default async function TVSeasonPage({
         <div className="space-y-3">
           <div>
             <p className="text-muted-foreground text-sm">{show.name}</p>
-            <h1 className="text-3xl font-bold">{seasonData.name}</h1>
+            <h1 className="font-display text-4xl font-semibold tracking-wide">
+              {seasonData.name}
+            </h1>
           </div>
 
           <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
@@ -109,7 +113,7 @@ export default async function TVSeasonPage({
               {seasonData.episodes.length !== 1 ? "s" : ""}
             </span>
             {user && (
-              <span className="text-green-600 dark:text-green-400">
+              <span className="text-new-release font-medium">
                 {watchedCount}/{seasonData.episodes.length} watched
               </span>
             )}

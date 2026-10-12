@@ -39,29 +39,29 @@ function ReminderDevTools() {
   }
 
   return (
-    <View className="mt-3 gap-2 rounded-lg border border-dashed border-amber-700 p-3">
-      <Text className="text-xs uppercase tracking-wide text-amber-500">
+    <View className="mt-3 gap-2 rounded-md border border-dashed border-highlight p-3">
+      <Text className="text-xs uppercase tracking-wide text-muted">
         Dev tools
       </Text>
       <View className="flex-row gap-2">
         <Pressable
           accessibilityRole="button"
-          className="flex-1 items-center rounded-md bg-neutral-800 px-3 py-2 active:opacity-80"
+          className="flex-1 items-center rounded-md bg-line px-3 py-2 active:opacity-80"
           onPress={sendTest}
         >
-          <Text className="text-sm font-semibold text-white">Test in 5s</Text>
+          <Text className="text-sm font-semibold text-fg">Test in 5s</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          className="flex-1 items-center rounded-md bg-neutral-800 px-3 py-2 active:opacity-80"
+          className="flex-1 items-center rounded-md bg-line px-3 py-2 active:opacity-80"
           onPress={syncAndList}
         >
-          <Text className="text-sm font-semibold text-white">Sync & list</Text>
+          <Text className="text-sm font-semibold text-fg">Sync & list</Text>
         </Pressable>
       </View>
-      {status && <Text className="text-sm text-neutral-400">{status}</Text>}
+      {status && <Text className="text-sm text-muted">{status}</Text>}
       {scheduled.map((line) => (
-        <Text className="text-xs text-neutral-500" key={line}>
+        <Text className="text-xs text-muted" key={line}>
           {line}
         </Text>
       ))}

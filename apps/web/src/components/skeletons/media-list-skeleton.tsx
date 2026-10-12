@@ -8,7 +8,7 @@ const SkeletonSection = () => (
 
 const MediaListSkeleton = () => (
   <section className="space-y-16">
-    <div className="h-125 w-full animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-700" />
+    <div className="bg-muted h-125 w-full animate-pulse rounded-sm" />
     <SkeletonSection />
     <SkeletonSection />
   </section>

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import AxeBuilder from "@axe-core/playwright";
+import { BRAND } from "@moviewatchlist/shared";
 import { expect, test } from "@playwright/test";
 
 import { switchToDarkMode } from "./helpers/theme";
@@ -42,9 +43,7 @@ test.describe("Page Metadata and Document Structure", () => {
     const lang = await page.locator("html").getAttribute("lang");
     expect(lang).toBe("en");
 
-    await expect(page).toHaveTitle(
-      `${KNOWN_PERSON_NAME} - ${process.env.NEXT_PUBLIC_SITE_NAME}`
-    );
+    await expect(page).toHaveTitle(`${KNOWN_PERSON_NAME} | ${BRAND.name}`);
 
     // Description is derived from the person's biography (sliced to 160 chars)
     const descriptionMeta = await page

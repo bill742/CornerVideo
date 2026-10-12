@@ -6,14 +6,19 @@ import Link from "next/link";
  */
 const NotFound = () => {
   return (
-    <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 sm:p-20">
-      <div className="row-start-2 flex flex-col items-center gap-16">
-        <h2 className="text-3xl font-bold">404 - Not Found</h2>
-        <p className="text-xl">This page could not be found.</p>
-        <Link href="/" className="text-xl underline">
-          Return Home
-        </Link>
-      </div>
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 py-16 text-center">
+      <h1 className="font-display text-4xl font-semibold tracking-wide">
+        Page not found
+      </h1>
+      <p className="text-muted-foreground">
+        This page doesn&apos;t exist or has moved.
+      </p>
+      <Link
+        className="text-primary font-semibold underline underline-offset-4"
+        href="/"
+      >
+        Go to Browse
+      </Link>
     </div>
   );
 };

@@ -21,7 +21,7 @@ function RemoveFromWatchlistButton({ mediaType, title, tmdbId }: Props) {
 
   return (
     <Button
-      aria-label={`Remove ${title} from watchlist`}
+      aria-label={`Remove ${title} from shelf`}
       disabled={pending}
       onClick={() =>
         startTransition(() => removeFromWatchlist(tmdbId, mediaType))

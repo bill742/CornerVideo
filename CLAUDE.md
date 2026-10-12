@@ -4,7 +4,8 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-MovieWatchlist is a cross-platform product (web + mobile) for browsing
+**Corner Video** (formerly the placeholder "MovieWatchlist", which survives in
+package names, the repo folder and the Cloudflare Worker name) is a cross-platform product (web + mobile) for browsing
 TMDB movie/TV data, tracking a personal watchlist, and marking episodes watched.
 It is being built out per `PLAN.md` — **Phases 1 and 2 are complete** (monorepo,
 Supabase auth + database, watchlist, TV shows). **Phase 3 (Expo mobile app) is in
@@ -15,6 +16,39 @@ premium-gated release-day reminders as local notifications (item 6). Still
 outstanding: EAS Build/store submission (item 7). Payments and Trakt sync are future
 phases. Read `PLAN.md` for the roadmap, schema rationale, and
 the free/premium feature split.
+
+## Brand
+
+Follow the brand guide at `docs/corner-video-brand-guide.md` for any UI, copy or
+naming work, and update the guide when a brand decision changes. The essentials:
+
+- **Name and copy** come from `BRAND` in `packages/shared/src/brand.ts` — never
+  hard-code "Corner Video" or the tagline. Canadian spelling (neighbourhood,
+  theatre, colour). Page titles are bare (`"My Shelf"`); the root layout's title
+  template appends `| Corner Video`.
+- **Vocabulary** on visible labels: watchlist → **My Shelf**, add → **Add to
+  shelf**, profile → **Membership**, premiere reminders → **New release alerts**,
+  upcoming premieres → **Coming Soon**. Accessible names match the visible label
+  (no generic-term `aria-label`/`accessibilityLabel` overrides) so voice-control
+  users can say what they see (WCAG 2.5.3). Sign-in,
+  errors, settings and payments copy stays plain — no video-store jokes there.
+  "Staff Picks" is reserved for the future AI assistant.
+- **Palette** is `BRAND_COLORS` (light + dark), mirrored as CSS variables in
+  `apps/web/src/app/globals.css` and as NativeWind variables via
+  `apps/mobile/src/lib/theme.ts` (`bg-bg`, `text-fg`, `bg-primary`, …; use
+  `useBrand().colors` for props that take a raw colour). The light/dark/system choice
+  is `profiles.theme`, shared by both apps; mobile applies it with
+  `Appearance.setColorScheme` via `src/lib/appearance.ts` (cached in
+  AsyncStorage for launch, re-synced from the profile after sign-in). No raw hex or
+  `neutral-*`/`gray-*` classes in UI code.
+- **Type:** Oswald (`font-display`) for titles, logo and shelf labels; Public Sans
+  for web body text, platform font for mobile body text.
+- **Motifs:** poster rows stand on a shelf (`.shelf-slot` on web, the plank in
+  mobile `PosterCard`); `RentalSticker` (web) for short dates/states; the striped
+  awning (`.awning`) tops the header.
+- **Icons** are generated from one SVG by `node scripts/generate-brand-icons.mjs`
+  (web favicon/manifest/apple icons and all Expo icons). Edit the script, not
+  the PNGs.
 
 ## Monorepo layout
 
@@ -109,7 +143,7 @@ Expo changes fast. Key facts:
   but throw instead of `revalidatePath`). Env vars must be `EXPO_PUBLIC_` prefixed; copy
   values from `apps/web/.env` into `apps/mobile/.env` (same Supabase project = shared
   accounts). See `apps/mobile/.env.example`.
-- **Release reminders:** `src/lib/reminders.ts` schedules *local* notifications
+- **Release reminders:** `src/lib/reminders.ts` schedules _local_ notifications
   (`expo-notifications`) — no push server or push tokens. `syncReminders()` reads the
   watchlist, looks up each title's next date on TMDB, and replaces every scheduled
   reminder (ids prefixed `release:`, capped at 60 for iOS's 64-pending limit). It runs
@@ -218,7 +252,7 @@ Defined in `apps/web/.env` (see `.env.example`):
 - `TMDB_API_KEY` — TMDB read access token, server-only, bare token (no `Bearer ` prefix)
 - `NEXT_PUBLIC_API_URL` — TMDB base URL
 - `NEXT_PUBLIC_API_IMAGE_PATH` — TMDB image base
-- `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_NAME`
+- `NEXT_PUBLIC_SITE_URL` (the brand name is `BRAND.name` in `@moviewatchlist/shared`, not an env var)
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 The TMDB token no longer reaches the browser. `src/data/loaders.ts`,
@@ -255,6 +289,7 @@ adding a loader a client component needs, add the route handler and the
   apply there (`displayName` is also unnecessary since they aren't reused).
   `components/ui/**` is generated shadcn code and is exempt from these conventions
   (it is also excluded from linting).
+
 - **Hydration:** root `<html>` has `suppressHydrationWarning` for theming; use a
   `mounted` gate for theme-dependent client rendering.
 - **Loading:** use the shared `Loader` component (`@/components/ui/loader`) and route

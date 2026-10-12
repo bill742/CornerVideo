@@ -16,7 +16,7 @@ test.describe("Cast and crew person page", () => {
 
     // Main name heading
     await expect(
-      page.getByRole("heading", { level: 2, name: KNOWN_PERSON_NAME })
+      page.getByRole("heading", { level: 1, name: KNOWN_PERSON_NAME })
     ).toBeVisible();
 
     // IMDb link is present

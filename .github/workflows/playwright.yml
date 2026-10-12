@@ -36,7 +36,6 @@ jobs:
           NEXT_PUBLIC_API_URL: https://api.themoviedb.org/3
           NEXT_PUBLIC_API_IMAGE_PATH: https://image.tmdb.org/t/p/
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
-          NEXT_PUBLIC_SITE_NAME: ${{ vars.NEXT_PUBLIC_SITE_NAME }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_TELEMETRY_DISABLED: "1"
@@ -53,7 +52,6 @@ jobs:
           # Both are asserted against directly by the metadata specs, so they
           # must match what the app renders. No trailing slash on the URL.
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
-          NEXT_PUBLIC_SITE_NAME: ${{ vars.NEXT_PUBLIC_SITE_NAME }}
           # proxy.ts builds a Supabase client on every page request and
           # non-null-asserts these, so the app 500s without them.
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

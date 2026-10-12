@@ -1,13 +1,21 @@
 import "../global.css";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Oswald_600SemiBold, useFonts } from "@expo-google-fonts/oswald";
 import { Slot, useRouter, useSegments, type Href } from "expo-router";
 import * as Notifications from "expo-notifications";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { reminderUrl } from "@/lib/reminders";
+import { restoreTheme } from "@/lib/appearance";
+import { useBrand } from "@/lib/theme";
+
+// Hold the splash until the display font is in, so titles never flash in the
+// system font first.
+SplashScreen.preventAutoHideAsync();
 
 // Show release reminders as a banner even when the app is open.
 Notifications.setNotificationHandler({
@@ -21,6 +29,7 @@ Notifications.setNotificationHandler({
 
 function RootNavigator() {
   const { initializing, session } = useAuth();
+  const { colors } = useBrand();
   const segments = useSegments();
   const router = useRouter();
 
@@ -62,8 +71,8 @@ function RootNavigator() {
 
   if (initializing) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950">
-        <ActivityIndicator color="#ffffff" />
+      <View className="flex-1 items-center justify-center bg-bg">
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -72,10 +81,31 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
+  const { themeVars } = useBrand();
+  const [fontsLoaded, fontError] = useFonts({ Oswald_600SemiBold });
+  const [themeRestored, setThemeRestored] = useState(false);
+  // A font that fails to load falls back to the system face; don't strand the
+  // user on the splash over it.
+  const ready = (fontsLoaded || fontError !== null) && themeRestored;
+
+  // Apply the saved light/dark choice while the splash is still up, so the
+  // first frame is already in the right scheme.
+  useEffect(() => {
+    restoreTheme().finally(() => setThemeRestored(true));
+  }, []);
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
   return (
     <AuthProvider>
-      <StatusBar style="light" />
-      <RootNavigator />
+      <StatusBar style="auto" />
+      <View className="flex-1 bg-bg" style={themeVars}>
+        <RootNavigator />
+      </View>
     </AuthProvider>
   );
 }

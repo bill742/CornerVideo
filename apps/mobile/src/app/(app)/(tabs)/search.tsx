@@ -12,6 +12,7 @@ import type { MultiSearchItem } from "@moviewatchlist/shared";
 
 import { PosterCard } from "@/components/poster-card";
 import { tmdb } from "@/lib/tmdb";
+import { useBrand } from "@/lib/theme";
 
 const NUM_COLUMNS = 3;
 
@@ -24,6 +25,7 @@ function padToColumns(items: MultiSearchItem[]): (MultiSearchItem | null)[] {
 }
 
 export default function SearchScreen() {
+  const { colors } = useBrand();
   const router = useRouter();
   const [term, setTerm] = useState("");
   const [results, setResults] = useState<MultiSearchItem[]>([]);
@@ -58,17 +60,17 @@ export default function SearchScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-950" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-bg" edges={["top"]}>
       <View className="px-4 py-3">
-        <Text className="mb-3 text-2xl font-bold text-white">Search</Text>
+        <Text className="mb-3 font-display text-3xl text-fg">Search</Text>
         <TextInput
           autoCapitalize="none"
           autoCorrect={false}
-          className="rounded-xl bg-neutral-900 px-4 py-3 text-white"
+          className="rounded-md bg-surface px-4 py-3 text-fg"
           clearButtonMode="while-editing"
           onChangeText={setTerm}
           placeholder="Movies and TV shows"
-          placeholderTextColor="#737373"
+          placeholderTextColor={colors.muted}
           returnKeyType="search"
           value={term}
         />
@@ -76,7 +78,7 @@ export default function SearchScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#ffffff" />
+          <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -88,7 +90,7 @@ export default function SearchScreen() {
           }
           ListEmptyComponent={
             term.trim().length >= 2 ? (
-              <Text className="px-4 text-neutral-500">No results.</Text>
+              <Text className="px-4 text-muted">No results.</Text>
             ) : null
           }
           numColumns={NUM_COLUMNS}

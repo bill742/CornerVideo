@@ -32,7 +32,7 @@ export async function generateMetadata({
   return {
     alternates: { canonical: `/tv/${id}` },
     description: show.overview,
-    title: `${show.name} (${show.first_air_date ? new Date(show.first_air_date).getFullYear() : "TBA"}) - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+    title: `${show.name} (${show.first_air_date ? new Date(show.first_air_date).getFullYear() : "TBA"})`,
   };
 }
 
@@ -87,7 +87,7 @@ export default async function TVShowPage({
           <div className="flex flex-col gap-8 md:flex-row">
             {/* Poster */}
             <div className="shrink-0">
-              <div className="relative h-112.5 w-75 overflow-hidden rounded-xl shadow-2xl">
+              <div className="relative h-112.5 w-75 overflow-hidden rounded-sm shadow-2xl">
                 {show.poster_path ? (
                   <Image
                     src={`${process.env.NEXT_PUBLIC_API_IMAGE_PATH}w500${show.poster_path}`}
@@ -97,8 +97,8 @@ export default async function TVShowPage({
                     sizes="(max-width: 300px) 100vw, 300px"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gray-200 text-center dark:bg-gray-700">
-                    <span className="px-4 text-sm text-gray-600 dark:text-gray-300">
+                  <div className="bg-muted flex h-full w-full items-center justify-center text-center">
+                    <span className="text-muted-foreground px-4 text-sm">
                       No Image Available
                     </span>
                   </div>
@@ -109,7 +109,9 @@ export default async function TVShowPage({
             {/* Details */}
             <div className="flex-1 space-y-6">
               <div>
-                <h1 className="text-4xl font-bold md:text-5xl">{show.name}</h1>
+                <h1 className="font-display text-4xl font-semibold tracking-wide md:text-5xl">
+                  {show.name}
+                </h1>
                 <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-4">
                   {show.first_air_date && (
                     <div className="flex items-center gap-1.5">
@@ -119,7 +121,7 @@ export default async function TVShowPage({
                   )}
                   {show.vote_average && show.vote_average > 0 ? (
                     <div className="flex items-center gap-1.5">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star className="fill-highlight text-highlight h-4 w-4" />
                       <span className="text-foreground font-semibold">
                         {show.vote_average.toFixed(1)}
                       </span>
@@ -181,7 +183,7 @@ export default async function TVShowPage({
                         href={`/tv/${show.id}/season/${season.season_number}`}
                         className="group space-y-1"
                       >
-                        <div className="bg-muted relative aspect-2/3 overflow-hidden rounded-lg">
+                        <div className="bg-muted relative aspect-2/3 overflow-hidden rounded-sm">
                           {season.poster_path ? (
                             <Image
                               src={`${process.env.NEXT_PUBLIC_API_IMAGE_PATH}w185${season.poster_path}`}

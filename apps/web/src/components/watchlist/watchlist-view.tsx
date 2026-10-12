@@ -82,7 +82,7 @@ function WatchlistView({ entries }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex w-fit gap-1 rounded-lg border p-1">
+      <div className="bg-card flex w-fit gap-1 rounded-sm border p-1">
         {MEDIA_TABS.map((tab) => (
           <TabButton
             active={tab.value === mediaTab}
@@ -113,7 +113,7 @@ function WatchlistView({ entries }: Props) {
         <p className="text-muted-foreground py-8 text-sm">
           No {noun}
           {statusFilter === "all"
-            ? " on your watchlist yet."
+            ? " on your shelf yet."
             : ` marked "${WATCH_STATUS_LABELS[statusFilter]}".`}
         </p>
       ) : (
@@ -121,21 +121,23 @@ function WatchlistView({ entries }: Props) {
           {visible.map((entry) => (
             <li className="flex items-center gap-4 py-4" key={entry.id}>
               <Link className="shrink-0" href={entry.href}>
-                <Image
-                  alt={entry.title}
-                  className="rounded object-cover"
-                  height={90}
-                  src={
-                    entry.posterPath
-                      ? `${process.env.NEXT_PUBLIC_API_IMAGE_PATH}w92${entry.posterPath}`
-                      : "/placeholder-poster.png"
-                  }
-                  width={60}
-                />
+                {entry.posterPath ? (
+                  <Image
+                    alt={entry.title}
+                    className="rounded-sm object-cover shadow-sm"
+                    height={90}
+                    src={`${process.env.NEXT_PUBLIC_API_IMAGE_PATH}w92${entry.posterPath}`}
+                    width={60}
+                  />
+                ) : (
+                  <div className="bg-muted h-[90px] w-[60px] rounded-sm">
+                    <span className="sr-only">{entry.title}</span>
+                  </div>
+                )}
               </Link>
               <div className="min-w-0 flex-1">
                 <Link href={entry.href}>
-                  <p className="truncate font-medium hover:underline">
+                  <p className="truncate font-semibold hover:underline">
                     {entry.title}
                   </p>
                 </Link>

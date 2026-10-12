@@ -1,15 +1,19 @@
 const SkeletonCard = () => (
-  <div className="relative aspect-2/3 animate-pulse overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-700" />
+  <div>
+    <div className="shelf-slot relative pb-[5px]">
+      <div className="bg-muted aspect-2/3 animate-pulse rounded-sm" />
+    </div>
+    <div className="bg-muted mt-3 h-4 w-3/4 animate-pulse rounded-sm" />
+  </div>
 );
 
 const SkeletonCardList = () => (
   <>
-    <div className="flex flex-col justify-between">
-      <div className="h-9 w-41 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-      <div className="from-primary mt-1 h-1 w-16 rounded-full bg-linear-to-r to-purple-600" />
+    <div className="border-primary h-8 w-48 border-l-4 pl-3">
+      <div className="bg-muted h-full w-full animate-pulse rounded-sm" />
     </div>
 
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-10 [--shelf-gap:1rem] sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       <SkeletonCard />
       <SkeletonCard />
       <SkeletonCard />

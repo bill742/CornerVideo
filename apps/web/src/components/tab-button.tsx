@@ -13,7 +13,7 @@ function TabButton({ active, icon, label, onClick }: TabButtonProps) {
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+      className={`flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold transition-colors ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground"

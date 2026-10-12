@@ -54,7 +54,11 @@ function ClientSearch() {
   return (
     <ViewTransition enter="slide-up" default="none" key="content">
       <div className="space-y-12 py-8">
-        <MediaList items={searchResults} heading={`Results for "${term}"`} />
+        <MediaList
+          heading={`Results for "${term}"`}
+          headingLevel={1}
+          items={searchResults}
+        />
       </div>
     </ViewTransition>
   );

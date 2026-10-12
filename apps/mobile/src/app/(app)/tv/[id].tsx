@@ -12,8 +12,10 @@ import type { TVShow } from "@moviewatchlist/shared";
 
 import { WatchlistButton } from "@/components/watchlist-button";
 import { tmdb } from "@/lib/tmdb";
+import { useBrand } from "@/lib/theme";
 
 export default function TVDetailScreen() {
+  const { colors } = useBrand();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [show, setShow] = useState<TVShow | null>(null);
@@ -33,18 +35,18 @@ export default function TVDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950">
+      <View className="flex-1 items-center justify-center bg-bg">
         <Stack.Screen options={{ headerShown: true, title: "" }} />
-        <ActivityIndicator color="#ffffff" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
 
   if (!show) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950 px-6">
+      <View className="flex-1 items-center justify-center bg-bg px-6">
         <Stack.Screen options={{ headerShown: true, title: "Not found" }} />
-        <Text className="text-center text-neutral-400">
+        <Text className="text-center text-muted">
           We couldn&apos;t load this show.
         </Text>
       </View>
@@ -55,7 +57,7 @@ export default function TVDetailScreen() {
   const year = show.first_air_date ? show.first_air_date.slice(0, 4) : null;
 
   return (
-    <View className="flex-1 bg-neutral-950">
+    <View className="flex-1 bg-bg">
       <Stack.Screen options={{ headerShown: true, title: show.name }} />
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         {backdrop ? (
@@ -68,8 +70,8 @@ export default function TVDetailScreen() {
         ) : null}
 
         <View className="px-4 pt-4">
-          <Text className="text-2xl font-bold text-white">{show.name}</Text>
-          <Text className="mt-1 text-sm text-neutral-400">
+          <Text className="font-display text-3xl text-fg">{show.name}</Text>
+          <Text className="mt-1 text-sm text-muted">
             {[
               year,
               `${show.number_of_seasons} season${show.number_of_seasons === 1 ? "" : "s"}`,
@@ -82,11 +84,8 @@ export default function TVDetailScreen() {
           {show.genres?.length ? (
             <View className="mt-3 flex-row flex-wrap gap-2">
               {show.genres.map((genre) => (
-                <View
-                  className="rounded-full bg-neutral-800 px-3 py-1"
-                  key={genre.id}
-                >
-                  <Text className="text-xs text-neutral-300">{genre.name}</Text>
+                <View className="rounded-full bg-line px-3 py-1" key={genre.id}>
+                  <Text className="text-xs text-fg">{genre.name}</Text>
                 </View>
               ))}
             </View>
@@ -97,12 +96,14 @@ export default function TVDetailScreen() {
           </View>
 
           {show.overview ? (
-            <Text className="mt-6 text-base leading-6 text-neutral-200">
+            <Text className="mt-6 text-base leading-6 text-fg">
               {show.overview}
             </Text>
           ) : null}
 
-          <Text className="mb-3 mt-8 text-lg font-bold text-white">Seasons</Text>
+          <Text className="mb-3 mt-8 font-display text-xl text-fg">
+            Seasons
+          </Text>
           {show.seasons.map((season) => {
             const poster = tmdb.imageUrl(season.poster_path, "w185");
             return (
@@ -116,7 +117,7 @@ export default function TVDetailScreen() {
                   })
                 }
               >
-                <View className="h-20 w-14 overflow-hidden rounded-lg bg-neutral-800">
+                <View className="h-20 w-14 overflow-hidden rounded-md bg-line">
                   {poster ? (
                     <Image
                       cachePolicy="memory-disk"
@@ -127,15 +128,15 @@ export default function TVDetailScreen() {
                   ) : null}
                 </View>
                 <View className="flex-1">
-                  <Text className="text-base font-semibold text-white">
+                  <Text className="text-base font-semibold text-fg">
                     {season.name}
                   </Text>
-                  <Text className="mt-1 text-xs text-neutral-500">
+                  <Text className="mt-1 text-xs text-muted">
                     {season.episode_count} episode
                     {season.episode_count === 1 ? "" : "s"}
                   </Text>
                 </View>
-                <Text className="text-xl text-neutral-600">›</Text>
+                <Text className="text-xl text-muted">›</Text>
               </Pressable>
             );
           })}

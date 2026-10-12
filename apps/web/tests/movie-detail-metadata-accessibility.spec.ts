@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import AxeBuilder from "@axe-core/playwright";
+import { BRAND } from "@moviewatchlist/shared";
 import { expect, test } from "@playwright/test";
 
 import { switchToDarkMode } from "./helpers/theme";
@@ -44,7 +45,7 @@ test.describe("Page Metadata and Document Structure", () => {
     expect(lang).toBe("en");
 
     await expect(page).toHaveTitle(
-      `${KNOWN_MOVIE_TITLE} (${KNOWN_MOVIE_YEAR}) - ${process.env.NEXT_PUBLIC_SITE_NAME}`
+      `${KNOWN_MOVIE_TITLE} (${KNOWN_MOVIE_YEAR}) | ${BRAND.name}`
     );
 
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(

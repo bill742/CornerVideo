@@ -1,22 +1,27 @@
 import { Tabs } from "expo-router";
 
+import { useBrand } from "@/lib/theme";
+
 export default function TabsLayout() {
+  const { colors } = useBrand();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#ffffff",
-        tabBarInactiveTintColor: "#737373",
+        sceneStyle: { backgroundColor: colors.bg },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: "#0a0a0a",
-          borderTopColor: "#262626",
+          backgroundColor: colors.surface,
+          borderTopColor: colors.line,
         },
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Browse" }} />
       <Tabs.Screen name="search" options={{ title: "Search" }} />
-      <Tabs.Screen name="watchlist" options={{ title: "Watchlist" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      <Tabs.Screen name="watchlist" options={{ title: "My Shelf" }} />
+      <Tabs.Screen name="profile" options={{ title: "Membership" }} />
     </Tabs>
   );
 }

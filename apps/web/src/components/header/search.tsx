@@ -36,7 +36,8 @@ function Search({ onSubmit }: SearchProps = {}) {
       <form id="searchForm" action="/search" onSubmit={handleSubmit}>
         <div className="flex w-full gap-4">
           <Input
-            placeholder="Search by Title"
+            aria-label="Search movies and TV shows"
+            placeholder="Search movies and shows"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
             id="search"

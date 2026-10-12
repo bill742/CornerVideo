@@ -1,10 +1,11 @@
 import Link from "next/link";
 
-import { login } from "@/app/auth/actions";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import { login } from "@/app/auth/actions";
 
 interface Props {
   searchParams: Promise<{ error?: string; message?: string; next?: string }>;
@@ -17,9 +18,11 @@ export default async function LoginPage({ searchParams }: Props) {
     <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-semibold">Sign in</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-wide">
+            Sign in
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Welcome back to Movie Watchlist
+            Welcome back to Corner Video
           </p>
         </div>
 
@@ -29,7 +32,7 @@ export default async function LoginPage({ searchParams }: Props) {
           </p>
         )}
         {message && (
-          <p className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
+          <p className="bg-new-release/10 text-new-release rounded-md px-3 py-2 text-sm">
             {message}
           </p>
         )}

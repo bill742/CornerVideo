@@ -6,12 +6,13 @@ import type { CastAndCrew, Movie } from "@moviewatchlist/shared";
 
 import { WatchlistButton } from "@/components/watchlist-button";
 import { tmdb } from "@/lib/tmdb";
+import { useBrand } from "@/lib/theme";
 
 function CastRow({ cast }: { cast: CastAndCrew[] }) {
   if (cast.length === 0) return null;
   return (
     <View className="mt-6">
-      <Text className="mb-3 text-lg font-bold text-white">Cast</Text>
+      <Text className="mb-3 font-display text-xl text-fg">Cast</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {cast.slice(0, 15).map((person) => {
           const photo = tmdb.imageUrl(person.profile_path, "w185");
@@ -20,7 +21,7 @@ function CastRow({ cast }: { cast: CastAndCrew[] }) {
               className="mr-4 w-20"
               key={`${person.id}-${person.character}`}
             >
-              <View className="h-20 w-20 overflow-hidden rounded-full bg-neutral-800">
+              <View className="h-20 w-20 overflow-hidden rounded-full bg-line">
                 {photo ? (
                   <Image
                     cachePolicy="memory-disk"
@@ -31,7 +32,7 @@ function CastRow({ cast }: { cast: CastAndCrew[] }) {
                 ) : null}
               </View>
               <Text
-                className="mt-2 text-center text-xs text-neutral-200"
+                className="mt-2 text-center text-xs text-fg"
                 numberOfLines={2}
               >
                 {person.name}
@@ -45,6 +46,7 @@ function CastRow({ cast }: { cast: CastAndCrew[] }) {
 }
 
 export default function MovieDetailScreen() {
+  const { colors } = useBrand();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [cast, setCast] = useState<CastAndCrew[]>([]);
@@ -67,18 +69,18 @@ export default function MovieDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950">
+      <View className="flex-1 items-center justify-center bg-bg">
         <Stack.Screen options={{ headerShown: true, title: "" }} />
-        <ActivityIndicator color="#ffffff" />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
 
   if (!movie) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950 px-6">
+      <View className="flex-1 items-center justify-center bg-bg px-6">
         <Stack.Screen options={{ headerShown: true, title: "Not found" }} />
-        <Text className="text-center text-neutral-400">
+        <Text className="text-center text-muted">
           We couldn&apos;t load this movie.
         </Text>
       </View>
@@ -89,7 +91,7 @@ export default function MovieDetailScreen() {
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
 
   return (
-    <View className="flex-1 bg-neutral-950">
+    <View className="flex-1 bg-bg">
       <Stack.Screen options={{ headerShown: true, title: movie.title }} />
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
         {backdrop ? (
@@ -102,8 +104,8 @@ export default function MovieDetailScreen() {
         ) : null}
 
         <View className="flex-1 px-4 pt-4">
-          <Text className="text-2xl font-bold text-white">{movie.title}</Text>
-          <Text className="mt-1 text-sm text-neutral-400">
+          <Text className="font-display text-3xl text-fg">{movie.title}</Text>
+          <Text className="mt-1 text-sm text-muted">
             {[
               year,
               movie.runtime ? `${movie.runtime} min` : null,
@@ -116,11 +118,8 @@ export default function MovieDetailScreen() {
           {movie.genres?.length ? (
             <View className="mt-3 flex-row flex-wrap gap-2">
               {movie.genres.map((genre) => (
-                <View
-                  className="rounded-full bg-neutral-800 px-3 py-1"
-                  key={genre.id}
-                >
-                  <Text className="text-xs text-neutral-300">{genre.name}</Text>
+                <View className="rounded-full bg-line px-3 py-1" key={genre.id}>
+                  <Text className="text-xs text-fg">{genre.name}</Text>
                 </View>
               ))}
             </View>
@@ -131,7 +130,7 @@ export default function MovieDetailScreen() {
           </View>
 
           {movie.overview ? (
-            <Text className="mt-6 text-base leading-6 text-neutral-200">
+            <Text className="mt-6 text-base leading-6 text-fg">
               {movie.overview}
             </Text>
           ) : null}

@@ -26,7 +26,7 @@ interface Props {
 function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
   const [pending, startTransition] = useTransition();
   // `undefined` until resolved, so we render nothing rather than flashing
-  // "Add to Watchlist" at a signed-out visitor.
+  // "Add to shelf" at a signed-out visitor.
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined);
   // Own the state this button changes rather than waiting for the server.
   // Neither revalidatePath on this route nor router.refresh() relabels the
@@ -98,8 +98,9 @@ function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
   };
 
   return (
+    // No aria-label: the accessible name is the visible text, so voice-control
+    // users can say exactly what they see (WCAG 2.5.3).
     <Button
-      aria-label={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
       disabled={pending}
       onClick={handleClick}
       // Matches TrailerButton, which sits beside this on both detail pages and
@@ -112,7 +113,7 @@ function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
       ) : (
         <BookPlus className="mr-1.5 h-4 w-4" />
       )}
-      {isInWatchlist ? "In Watchlist" : "Add to Watchlist"}
+      {isInWatchlist ? "Remove from shelf" : "Add to shelf"}
     </Button>
   );
 }

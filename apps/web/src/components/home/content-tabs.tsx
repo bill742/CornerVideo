@@ -15,9 +15,17 @@ function ContentTabs() {
 
   return (
     <div className="space-y-8">
-      {/* Tab bar */}
-      <div className="flex flex-col justify-between gap-y-8 md:flex-row md:gap-y-0">
-        <div className="flex w-fit gap-1 rounded-lg border p-1">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="font-display text-4xl font-semibold tracking-wide md:text-5xl">
+            Browse the aisles
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            What&apos;s new, what&apos;s coming, and what everyone&apos;s
+            renting.
+          </p>
+        </div>
+        <div className="bg-card flex w-fit gap-1 rounded-sm border p-1">
           <TabButton
             active={activeTab === "movies"}
             icon={<Clapperboard className="h-4 w-4" />}

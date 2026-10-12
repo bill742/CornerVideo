@@ -96,9 +96,9 @@ function MovieFetcher() {
         {featured && (
           <HeroBanner item={featured.item} trailerKey={featured.trailerKey} />
         )}
-        <MovieList movies={inTheaters} heading="In Theaters" />
+        <MovieList movies={inTheaters} heading="In Theatres" />
         <MovieList movies={newOnDigital} heading="New on Digital" />
-        <MovieList movies={upcomingMovies} heading="Upcoming Releases" />
+        <MovieList movies={upcomingMovies} heading="Coming Soon" />
       </div>
     </ViewTransition>
   );

@@ -48,7 +48,7 @@ export async function generateMetadata({
   if (!movie) {
     return {
       description: "The requested movie could not be found.",
-      title: `Movie Not Found - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+      title: "Movie Not Found",
     };
   }
 
@@ -59,7 +59,7 @@ export async function generateMetadata({
     description:
       movie.overview ||
       `Watch ${movie.title} and discover more information about this film.`,
-    title: `${movie.title} (${movie.release_date ? new Date(movie.release_date).getFullYear() : "TBA"}) - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+    title: `${movie.title} (${movie.release_date ? new Date(movie.release_date).getFullYear() : "TBA"})`,
   };
 }
 
@@ -71,7 +71,7 @@ const SingleMovie = async ({ params }: PageProps) => {
   if (!movie) {
     return (
       <div className="container mx-auto p-6">
-        <h2 className="mb-4 text-2xl font-bold">Movie not found</h2>
+        <h1 className="mb-4 text-2xl font-bold">Movie not found</h1>
         <p>
           The requested movie could not be found or failed to load from the
           database.
@@ -116,7 +116,7 @@ const SingleMovie = async ({ params }: PageProps) => {
           <div className="flex flex-col gap-8 md:flex-row">
             {/* Poster */}
             <div className="shrink-0">
-              <div className="relative h-112.5 w-75 overflow-hidden rounded-xl shadow-2xl">
+              <div className="relative h-112.5 w-75 overflow-hidden rounded-sm shadow-2xl">
                 {movie.poster_path ? (
                   <Image
                     src={`${process.env.NEXT_PUBLIC_API_IMAGE_PATH}w500${movie.poster_path}`}
@@ -126,8 +126,8 @@ const SingleMovie = async ({ params }: PageProps) => {
                     sizes="(max-width: 300px) 100vw, 300px"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gray-200 text-center dark:bg-gray-700">
-                    <span className="px-4 text-sm text-gray-600 dark:text-gray-300">
+                  <div className="bg-muted flex h-full w-full items-center justify-center text-center">
+                    <span className="text-muted-foreground px-4 text-sm">
                       No Image Available
                     </span>
                   </div>
@@ -138,9 +138,9 @@ const SingleMovie = async ({ params }: PageProps) => {
             {/* Details */}
             <div className="flex-1 space-y-6">
               <div>
-                <h2 className="text-4xl font-bold md:text-5xl">
+                <h1 className="font-display text-4xl font-semibold tracking-wide md:text-5xl">
                   {movie.title}
-                </h2>
+                </h1>
 
                 {/* Meta info */}
                 <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-4">
@@ -158,7 +158,7 @@ const SingleMovie = async ({ params }: PageProps) => {
                   ) : null}
                   {movie.vote_average && movie.vote_average > 0 ? (
                     <div className="flex items-center gap-1.5">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star className="fill-highlight text-highlight h-4 w-4" />
                       <span className="text-foreground font-semibold">
                         {movie.vote_average.toFixed(1)}
                       </span>
