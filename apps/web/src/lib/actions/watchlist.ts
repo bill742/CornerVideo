@@ -20,16 +20,15 @@ async function getAuthenticatedUser() {
 }
 
 /**
- * The detail pages render watchlist state too, so their cached copies go stale
- * if only /watchlist is revalidated.
- *
- * This does not drive the detail-page button's own label: the RSC refetch it
- * triggers comes back with pre-click markup, so that button tracks its state
- * locally instead.
+ * Only /watchlist renders saved rows on the server. The movie and TV pages
+ * are identical for every visitor — their shelf button reads its own state in
+ * the browser — so revalidating them here bought nothing. It did cost plenty:
+ * each add or remove threw away the page's shared ISR copy and re-rendered it
+ * (TMDB fetches, cast, images) into the action's response, which made that
+ * response slow enough to still be streaming when the user moved on.
  */
-function revalidateWatchlist(tmdbId: number, mediaType: MediaType) {
+function revalidateWatchlist() {
   revalidatePath("/watchlist");
-  revalidatePath(mediaType === "tv" ? `/tv/${tmdbId}` : `/movies/${tmdbId}`);
 }
 
 export async function addToWatchlist(
@@ -62,7 +61,7 @@ export async function addToWatchlist(
     );
 
   if (error) throw new Error(error.message);
-  revalidateWatchlist(tmdbId, mediaType);
+  revalidateWatchlist();
 }
 
 export async function removeFromWatchlist(
@@ -79,7 +78,7 @@ export async function removeFromWatchlist(
     .eq("media_type", mediaType);
 
   if (error) throw new Error(error.message);
-  revalidateWatchlist(tmdbId, mediaType);
+  revalidateWatchlist();
 }
 
 export async function updateWatchStatus(
@@ -97,7 +96,7 @@ export async function updateWatchStatus(
     .eq("media_type", mediaType);
 
   if (error) throw new Error(error.message);
-  revalidateWatchlist(tmdbId, mediaType);
+  revalidateWatchlist();
 }
 
 export async function getWatchlistItems() {
