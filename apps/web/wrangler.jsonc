@@ -48,6 +48,24 @@
   // variables in the Cloudflare build configuration — by the time the Worker
   // runs, the bundle has already baked in whatever was present at build time.
 
+  // The ISR revalidation queue (see open-next.config.ts). Without it a stale
+  // page throws instead of re-rendering. DOQueueHandler is exported by the
+  // OpenNext worker; SQLite-backed Durable Objects are on the free plan.
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DOQueueHandler"],
+    },
+  ],
+
   // Required for ISR: the Worker calls itself to revalidate a stale page.
   "services": [
     {
@@ -66,8 +84,10 @@
     },
   ],
 
+  // On so production errors leave a record; without it the only way to see a
+  // Worker exception is a live `wrangler tail` at the moment it happens.
   "observability": {
-    "enabled": false,
+    "enabled": true,
     "head_sampling_rate": 1,
     "logs": {
       "enabled": true,

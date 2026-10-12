@@ -1,6 +1,8 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 import r2IncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache";
 import { withRegionalCache } from "@opennextjs/cloudflare/overrides/incremental-cache/regional-cache";
+import doQueue from "@opennextjs/cloudflare/overrides/queue/do-queue";
+import queueCache from "@opennextjs/cloudflare/overrides/queue/queue-cache";
 
 /**
  * Cloudflare adapter config.
@@ -24,12 +26,24 @@ import { withRegionalCache } from "@opennextjs/cloudflare/overrides/incremental-
  * Two constraints, both fine here: it does not support PPR, which this app does
  * not use, and it consults the tag cache to decide whether a path is stale.
  *
- * There is no tag cache, deliberately — along with `queue` and `cachePurge`,
- * those serve on-demand revalidation, and the only `revalidatePath` calls here
- * target /profile and /watchlist, which are dynamic and never cached. Nothing
- * invalidates the detail pages by tag; they revalidate on a timer, which the
- * default queue handles through the WORKER_SELF_REFERENCE binding in
- * wrangler.jsonc. Add a tag cache before introducing revalidateTag, or the
+ * The queue is what makes time-based revalidation work, and it is not
+ * optional. When a cached page goes stale, the adapter hands its path to the
+ * queue to re-render in the background. Left unset, the queue defaults to
+ * OpenNext's "dummy" queue, which throws by design — so every detail page
+ * served fine until its first revalidation, then returned a bare
+ * "Internal Server Error" ("FatalError: Dummy queue is not implemented" in the
+ * Worker logs) for as long as its stale entry sat in R2. The Durable Object
+ * queue is the one the adapter recommends for production; it de-dupes across
+ * isolates and re-renders through WORKER_SELF_REFERENCE. Its binding and
+ * migration live in wrangler.jsonc. queueCache skips re-sending a path the
+ * colo has queued in the last few seconds, so a burst of requests for one
+ * stale page queues a single revalidation.
+ *
+ * There is no tag cache, deliberately — along with `cachePurge`, it serves
+ * on-demand revalidation, and the only `revalidatePath` calls here target
+ * /profile and /watchlist, which are dynamic and never cached. Nothing
+ * invalidates the detail pages by tag; they revalidate on a timer through the
+ * queue above. Add a tag cache before introducing revalidateTag, or the
  * intercepted responses will not know they are stale.
  *
  * Middleware is unaffected: it matches only /watchlist, /profile and
@@ -41,4 +55,5 @@ export default defineCloudflareConfig({
   incrementalCache: withRegionalCache(r2IncrementalCache, {
     mode: "long-lived",
   }),
+  queue: queueCache(doQueue),
 });
