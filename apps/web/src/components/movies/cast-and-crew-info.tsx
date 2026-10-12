@@ -21,8 +21,8 @@ function CastAndCrewInfo({
           className="mb-2 h-auto w-full rounded-md md:w-32"
         />
       ) : (
-        <div className="flex h-48 w-32 items-center justify-center bg-gray-200 text-center dark:bg-gray-700">
-          <span className="px-4 text-sm text-gray-600 dark:text-gray-300">
+        <div className="bg-muted flex h-48 w-32 items-center justify-center text-center">
+          <span className="text-muted-foreground px-4 text-sm">
             No Image Available
           </span>
         </div>

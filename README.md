@@ -1,6 +1,6 @@
-## Movie Watchlist
+## Corner Video
 
-A cross-platform app for browsing movies and TV shows, tracking a personal watchlist, and marking episodes watched. The web and mobile clients share a single Supabase project and a single TMDB client, so accounts and data are the same on both.
+Your neighbourhood video store, minus the late fees. A cross-platform app for browsing movies and TV shows, tracking a personal watchlist, and marking episodes watched. The web and mobile clients share a single Supabase project and a single TMDB client, so accounts and data are the same on both.
 
 ## Current Features
 

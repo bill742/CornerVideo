@@ -15,4 +15,8 @@ export async function switchToDarkMode(page: Page) {
   await page.reload();
 
   await expect(page.locator("html")).toHaveClass(/dark/);
+  // The reload can paint a route's loading.tsx skeleton first; scanning that
+  // reports a page with no content. Every page's title is its <h1>, so its
+  // arrival means the streamed content has landed.
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 }

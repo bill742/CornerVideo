@@ -12,8 +12,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/lib/auth-context";
+import { useBrand } from "@/lib/theme";
 
 export default function LoginScreen() {
+  const { colors } = useBrand();
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,55 +36,57 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-950">
+    <SafeAreaView className="flex-1 bg-bg">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 justify-center px-6"
       >
-        <Text className="mb-2 text-3xl font-bold text-white">Welcome back</Text>
-        <Text className="mb-8 text-base text-neutral-400">
-          Sign in to your MovieWatchlist account.
+        <Text className="mb-2 font-display text-4xl text-fg">Welcome back</Text>
+        <Text className="mb-8 text-base text-muted">
+          Sign in to your Corner Video account.
         </Text>
 
         <TextInput
           autoCapitalize="none"
           autoComplete="email"
-          className="mb-4 rounded-xl bg-neutral-900 px-4 py-3 text-white"
+          className="mb-4 rounded-md bg-surface px-4 py-3 text-fg"
           keyboardType="email-address"
           onChangeText={setEmail}
           placeholder="Email"
-          placeholderTextColor="#737373"
+          placeholderTextColor={colors.muted}
           value={email}
         />
         <TextInput
           autoCapitalize="none"
-          className="mb-2 rounded-xl bg-neutral-900 px-4 py-3 text-white"
+          className="mb-2 rounded-md bg-surface px-4 py-3 text-fg"
           onChangeText={setPassword}
           placeholder="Password"
-          placeholderTextColor="#737373"
+          placeholderTextColor={colors.muted}
           secureTextEntry
           value={password}
         />
 
         {error ? (
-          <Text className="mb-2 text-sm text-red-400">{error}</Text>
+          <Text className="mb-2 text-sm text-primary">{error}</Text>
         ) : null}
 
         <Pressable
-          className="mt-4 items-center rounded-xl bg-white py-3 active:opacity-80"
+          className="mt-4 items-center rounded-md bg-primary py-3 active:opacity-80"
           disabled={submitting}
           onPress={onSubmit}
         >
           {submitting ? (
-            <ActivityIndicator color="#000000" />
+            <ActivityIndicator color={colors.onPrimary} />
           ) : (
-            <Text className="text-base font-semibold text-black">Sign in</Text>
+            <Text className="text-base font-semibold text-on-primary">
+              Sign in
+            </Text>
           )}
         </Pressable>
 
         <View className="mt-6 flex-row justify-center">
-          <Text className="text-neutral-400">Create an account </Text>
-          <Link className="font-semibold text-white" href="/signup">
+          <Text className="text-muted">Create an account </Text>
+          <Link className="font-semibold text-fg" href="/signup">
             Sign up
           </Link>
         </View>

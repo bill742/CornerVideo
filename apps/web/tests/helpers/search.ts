@@ -11,7 +11,9 @@ import { type Page, expect } from "@playwright/test";
  * hunting results that were never requested.
  */
 export async function submitSearch(page: Page, term: string) {
-  const input = page.getByPlaceholder("Search by Title");
+  const input = page.getByRole("textbox", {
+    name: "Search movies and TV shows",
+  });
   const clearButton = page.getByRole("button", { name: "Clear search" });
 
   await expect(async () => {
@@ -29,5 +31,5 @@ export async function submitSearch(page: Page, term: string) {
 
   // waitForURL resolves on the URL change alone; the new document arrives
   // afterwards. Without this an axe scan runs against a blank page.
-  await expect(page).toHaveTitle(/Search Results/);
+  await expect(page).toHaveTitle(/search results/i);
 }

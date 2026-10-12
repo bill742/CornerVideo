@@ -1,8 +1,8 @@
-# Movie Watchlist — Mobile
+# Corner Video — Mobile
 
 The Expo (iOS and Android) client. Browse movies and TV, search the TMDB catalog, keep a personal watchlist, and mark episodes watched.
 
-Part of the [Movie Watchlist monorepo](../../README.md); it shares a Supabase project and the TMDB client (`@moviewatchlist/shared`) with the [web app](../web/README.md), so an account created on either works on both.
+Part of the [Corner Video monorepo](../../README.md); it shares a Supabase project and the TMDB client (`@moviewatchlist/shared`) with the [web app](../web/README.md), so an account created on either works on both.
 
 ## Features
 
@@ -32,12 +32,12 @@ cp .env.example .env
 
 Use the **same Supabase project** as `apps/web/.env` so accounts are shared.
 
-| Variable | Purpose |
-| --- | --- |
-| `EXPO_PUBLIC_TMDB_PROXY_URL` | The web app's `/api/tmdb` route — see below |
-| `EXPO_PUBLIC_TMDB_IMAGE_PATH` | TMDB image CDN base |
-| `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| Variable                        | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
+| `EXPO_PUBLIC_TMDB_PROXY_URL`    | The web app's `/api/tmdb` route — see below |
+| `EXPO_PUBLIC_TMDB_IMAGE_PATH`   | TMDB image CDN base                         |
+| `EXPO_PUBLIC_SUPABASE_URL`      | Supabase project URL                        |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key                           |
 
 Every `EXPO_PUBLIC_*` value is inlined into the shipped bundle, where anyone can read it out of an `.ipa`/`.apk`. **Nothing secret belongs in this file** — which is why there is no TMDB token here. Reads go through the web app's proxy, which holds the token server-side.
 
@@ -47,12 +47,12 @@ That proxy has to be running: start the web app (`pnpm --filter @moviewatchlist/
 
 `localhost` is resolved by whatever runs the app, not by your machine, so the right host depends on the target:
 
-| Target | Host |
-| --- | --- |
-| iOS simulator | `http://localhost:3000/api/tmdb` — shares the host's network stack |
-| Android emulator | `http://10.0.2.2:3000/api/tmdb` — a VM with its own stack, so `localhost` is the emulator itself and the connection is refused (`10.0.3.2` under Genymotion) |
-| Physical device, or one value for all three | `http://<your-LAN-IP>:3000/api/tmdb`, as printed by `next dev` |
-| Deployed | `https://<your-domain>/api/tmdb` |
+| Target                                      | Host                                                                                                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| iOS simulator                               | `http://localhost:3000/api/tmdb` — shares the host's network stack                                                                                           |
+| Android emulator                            | `http://10.0.2.2:3000/api/tmdb` — a VM with its own stack, so `localhost` is the emulator itself and the connection is refused (`10.0.3.2` under Genymotion) |
+| Physical device, or one value for all three | `http://<your-LAN-IP>:3000/api/tmdb`, as printed by `next dev`                                                                                               |
+| Deployed                                    | `https://<your-domain>/api/tmdb`                                                                                                                             |
 
 Use `http://` against `next dev` — it serves no TLS, so an `https://` URL simply times out.
 

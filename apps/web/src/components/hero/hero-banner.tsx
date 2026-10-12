@@ -9,6 +9,7 @@ import { Info, Play } from "lucide-react";
 
 import { TrailerModal } from "@/components/movies/trailer-modal";
 import { Button } from "@/components/ui/button";
+
 import type { FeaturedItem } from "@/types";
 
 interface HeroBannerProps {
@@ -20,11 +21,11 @@ function HeroBanner({ item, trailerKey }: HeroBannerProps) {
   const [showTrailer, setShowTrailer] = useState(false);
   const detailHref =
     item.media_type === "tv" ? `/tv/${item.id}` : `/movies/${item.id}`;
-  const label = item.media_type === "tv" ? "Featured Series" : "Featured Movie";
+  const label = item.media_type === "tv" ? "Featured show" : "Featured movie";
 
   return (
     <>
-      <section className="relative h-125 w-full overflow-hidden rounded-2xl">
+      <section className="relative h-125 w-full overflow-hidden rounded-sm">
         <div className="absolute inset-0">
           {item.backdrop_path && (
             <Image
@@ -43,16 +44,22 @@ function HeroBanner({ item, trailerKey }: HeroBannerProps) {
 
         <div className="relative flex h-full items-end p-8 md:p-12">
           <div className="max-w-2xl space-y-4">
-            <div className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold">
-              <span>{label}</span>
-            </div>
-            <h2 className="text-4xl font-bold text-white md:text-6xl">
+            <p className="bg-highlight text-highlight-foreground font-display inline-block -rotate-2 rounded-sm px-3 py-1 text-sm font-semibold tracking-wide">
+              {label}
+            </p>
+            <h2 className="font-display text-4xl font-semibold tracking-wide text-white md:text-6xl">
               {item.title}
             </h2>
-            <p className="line-clamp-3 text-lg text-gray-200">{item.overview}</p>
+            <p className="line-clamp-3 text-lg text-gray-200">
+              {item.overview}
+            </p>
             <div className="flex flex-wrap gap-3">
               {trailerKey && (
-                <Button className="gap-2" size="lg" onClick={() => setShowTrailer(true)}>
+                <Button
+                  className="gap-2"
+                  size="lg"
+                  onClick={() => setShowTrailer(true)}
+                >
                   <Play className="h-5 w-5 fill-white" />
                   Watch Trailer
                 </Button>

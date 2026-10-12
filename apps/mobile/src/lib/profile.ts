@@ -1,4 +1,8 @@
-import { DEFAULT_REGION, type Profile } from "@moviewatchlist/shared";
+import {
+  DEFAULT_REGION,
+  type Profile,
+  type Theme,
+} from "@moviewatchlist/shared";
 
 import { supabase } from "./supabase";
 
@@ -63,4 +67,15 @@ export async function updateRegion(region: string): Promise<void> {
 
   if (error) throw new Error(error.message);
   cachedRegion = region;
+}
+
+/** Shared with the web app's Membership page, which saves the same column. */
+export async function updateProfileTheme(theme: Theme): Promise<void> {
+  const userId = await requireUserId();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ theme, updated_at: new Date().toISOString() })
+    .eq("id", userId);
+
+  if (error) throw new Error(error.message);
 }

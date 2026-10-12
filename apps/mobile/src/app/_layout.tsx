@@ -1,13 +1,31 @@
 import "../global.css";
 
-import { useEffect, useRef } from "react";
-import { Slot, useRouter, useSegments, type Href } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Oswald_600SemiBold, useFonts } from "@expo-google-fonts/oswald";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Slot,
+  ThemeProvider,
+  useRouter,
+  useSegments,
+  type Href,
+} from "expo-router";
 import * as Notifications from "expo-notifications";
+import * as SplashScreen from "expo-splash-screen";
+import * as SystemUI from "expo-system-ui";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { reminderUrl } from "@/lib/reminders";
+import { restoreTheme } from "@/lib/appearance";
+import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
+
+// Hold the splash until the display font is in, so titles never flash in the
+// system font first.
+SplashScreen.preventAutoHideAsync();
 
 // Show release reminders as a banner even when the app is open.
 Notifications.setNotificationHandler({
@@ -62,8 +80,8 @@ function RootNavigator() {
 
   if (initializing) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950">
-        <ActivityIndicator color="#ffffff" />
+      <View className="flex-1 bg-bg">
+        <VhsLoader />
       </View>
     );
   }
@@ -72,10 +90,58 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
+  const { colors, scheme, themeVars } = useBrand();
+
+  // React Navigation paints its own containers (the stack behind a pushed
+  // screen, the tab scene) from its theme. Left on its light default, they
+  // showed as a light flash during screen transitions in dark mode.
+  const navigationTheme = useMemo(() => {
+    const base = scheme === "dark" ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        background: colors.bg,
+        border: colors.line,
+        card: colors.bg,
+        notification: colors.primary,
+        primary: colors.primary,
+        text: colors.text,
+      },
+    };
+  }, [colors, scheme]);
+
+  // The native window behind every screen defaults to white; match it to the
+  // theme so nothing light shows through during a transition.
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(colors.bg);
+  }, [colors.bg]);
+  const [fontsLoaded, fontError] = useFonts({ Oswald_600SemiBold });
+  const [themeRestored, setThemeRestored] = useState(false);
+  // A font that fails to load falls back to the system face; don't strand the
+  // user on the splash over it.
+  const ready = (fontsLoaded || fontError !== null) && themeRestored;
+
+  // Apply the saved light/dark choice while the splash is still up, so the
+  // first frame is already in the right scheme.
+  useEffect(() => {
+    restoreTheme().finally(() => setThemeRestored(true));
+  }, []);
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
   return (
     <AuthProvider>
-      <StatusBar style="light" />
-      <RootNavigator />
+      <StatusBar style="auto" />
+      <ThemeProvider value={navigationTheme}>
+        <View className="flex-1 bg-bg" style={themeVars}>
+          <RootNavigator />
+        </View>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

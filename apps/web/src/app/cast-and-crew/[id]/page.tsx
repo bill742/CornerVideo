@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!person) {
     return {
       description: "The requested person could not be found.",
-      title: `Person Not Found - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+      title: "Person Not Found",
     };
   }
 
@@ -41,7 +41,7 @@ export async function generateMetadata({
     description: person.biography
       ? person.biography.slice(0, 160)
       : `${person.name} filmography and biography.`,
-    title: `${person.name} - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+    title: person.name,
   };
 }
 
@@ -121,6 +121,36 @@ function groupCrewByDepartment(
     });
 }
 
+/**
+ * Most titles shown per filmography section — three full shelves at desktop
+ * width. Every card is server-rendered, and a prolific crew member (one
+ * documentary producer has 500+ credits) rendered them all, which blew the
+ * Worker's CPU limit and failed the page with `exceededCpu`. Capping keeps the
+ * render cost flat no matter how long the career.
+ */
+const SECTION_LIMIT = 18;
+
+function Filmography({
+  heading,
+  movies,
+}: {
+  heading: string;
+  movies: Movie[];
+}) {
+  return (
+    <div className="space-y-3">
+      <MovieList heading={heading} movies={movies.slice(0, SECTION_LIMIT)} />
+      {movies.length > SECTION_LIMIT && (
+        <p className="text-muted-foreground text-sm">
+          Showing the {SECTION_LIMIT} most recent of {movies.length}.
+        </p>
+      )}
+    </div>
+  );
+}
+
+Filmography.displayName = "Filmography";
+
 const SinglePerson = async ({ params }: PageProps) => {
   const { id } = await params;
 
@@ -132,20 +162,22 @@ const SinglePerson = async ({ params }: PageProps) => {
   if (!person) {
     return (
       <div className="container mx-auto p-6">
-        <h2 className="mb-4 text-2xl font-bold">Person not found</h2>
+        <h1 className="mb-4 text-2xl font-bold">Person not found</h1>
         <p>The requested person could not be found or failed to load.</p>
       </div>
     );
   }
 
+  // Deduplicated like the crew sections: TMDB can list one film twice for an
+  // actor (two roles), which would otherwise repeat the card and its key.
   const castMovies = credits
-    ? sortByReleaseDateDesc(credits.cast).map(creditToMovie)
+    ? sortByReleaseDateDesc(deduplicateById(credits.cast)).map(creditToMovie)
     : [];
 
   const crewByDepartment = credits ? groupCrewByDepartment(credits.crew) : [];
 
   return (
-    <ViewTransition default="none" enter="slide-up">
+    <ViewTransition default="none" enter="fade-in">
       <div className="container mx-auto space-y-12 py-8">
         {/* Person header */}
         <div className="flex flex-col gap-6 sm:flex-row">
@@ -155,25 +187,27 @@ const SinglePerson = async ({ params }: PageProps) => {
               alt={person.name}
               width={200}
               height={300}
-              className="h-auto w-40 shrink-0 self-start rounded-xl object-cover shadow-md sm:w-48"
+              className="h-auto w-40 shrink-0 self-start rounded-sm object-cover shadow-md sm:w-48"
             />
           ) : (
-            <div className="flex h-72 w-40 shrink-0 items-center justify-center self-start rounded-xl bg-gray-200 text-center sm:w-48 dark:bg-gray-700">
-              <span className="px-4 text-sm text-gray-500 dark:text-gray-400">
+            <div className="bg-muted flex h-72 w-40 shrink-0 items-center justify-center self-start rounded-sm text-center sm:w-48">
+              <span className="text-muted-foreground px-4 text-sm">
                 No Image Available
               </span>
             </div>
           )}
 
           <div className="space-y-3">
-            <h2 className="text-3xl font-bold">{person.name}</h2>
+            <h1 className="font-display text-4xl font-semibold tracking-wide">
+              {person.name}
+            </h1>
 
             {person.imdb_id && (
               <Link
                 href={`https://www.imdb.com/name/${person.imdb_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-sm font-medium text-yellow-700 underline-offset-4 hover:underline dark:text-yellow-500"
+                className="text-primary inline-block text-sm font-medium underline-offset-4 hover:underline"
               >
                 View on IMDb
               </Link>
@@ -189,12 +223,12 @@ const SinglePerson = async ({ params }: PageProps) => {
 
         {/* Cast filmography */}
         {castMovies.length > 0 && (
-          <MovieList heading="Acting" movies={castMovies} />
+          <Filmography heading="Acting" movies={castMovies} />
         )}
 
         {/* Crew filmography by department */}
         {crewByDepartment.map(([department, movies]) => (
-          <MovieList key={department} heading={department} movies={movies} />
+          <Filmography key={department} heading={department} movies={movies} />
         ))}
       </div>
     </ViewTransition>

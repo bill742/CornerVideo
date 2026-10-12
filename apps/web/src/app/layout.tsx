@@ -1,33 +1,54 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Oswald, Public_Sans } from "next/font/google";
 
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 
+import { BRAND, BRAND_COLORS } from "@/types";
+
 import "./globals.css";
 
-const geistSans = Geist({
+/** Store-signage display face: headings, the logo, shelf labels. */
+const oswald = Oswald({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-oswald",
 });
 
-const geistMono = Geist_Mono({
+const publicSans = Public_Sans({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-public-sans",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://movie-watchlist.com";
+// Env-driven until cornervideo.app is registered and pointed at the Worker.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cornervideo.app";
 
 export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  description:
-    "Discover and track movie premiere dates for upcoming and now playing films worldwide. Browse the latest releases and plan your movie watching.",
+  applicationName: BRAND.name,
+  description: BRAND.description,
   metadataBase: new URL(siteUrl),
-  title: `${process.env.NEXT_PUBLIC_SITE_NAME} - Track Premiere Dates & Discover Films`,
+  openGraph: {
+    description: BRAND.positioning,
+    siteName: BRAND.name,
+    title: `${BRAND.name}: your neighbourhood video store, reopened`,
+    type: "website",
+    url: "/",
+  },
+  title: {
+    default: `Movie & TV Watchlist & Premiere Tracker | ${BRAND.name}`,
+    template: `%s | ${BRAND.name}`,
+  },
+  twitter: { card: "summary_large_image" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { color: BRAND_COLORS.light.bg, media: "(prefers-color-scheme: light)" },
+    { color: BRAND_COLORS.dark.bg, media: "(prefers-color-scheme: dark)" },
+  ],
 };
 
 /**
@@ -48,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${oswald.variable} ${publicSans.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"

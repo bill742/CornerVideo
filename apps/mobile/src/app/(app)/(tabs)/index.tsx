@@ -1,18 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { Movie, TVShow } from "@moviewatchlist/shared";
 
 import { PosterCard } from "@/components/poster-card";
 import { getRegion } from "@/lib/profile";
 import { tmdb } from "@/lib/tmdb";
+import { VhsLoader } from "@/components/vhs-loader";
 
 function Row<T>({
   data,
@@ -33,7 +28,7 @@ function Row<T>({
 
   return (
     <View className="mb-6">
-      <Text className="mb-3 px-4 text-xl font-bold text-white">{title}</Text>
+      <Text className="mb-3 px-4 font-display text-2xl text-fg">{title}</Text>
       <FlatList
         contentContainerStyle={{ paddingHorizontal: 16 }}
         data={data}
@@ -94,7 +89,7 @@ export default function BrowseScreen() {
       return () => {
         active = false;
       };
-    }, [])
+    }, []),
   );
 
   function openMovie(movie: Movie) {
@@ -106,15 +101,13 @@ export default function BrowseScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-950" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-bg" edges={["top"]}>
       <View className="px-4 py-3">
-        <Text className="text-2xl font-bold text-white">Browse</Text>
+        <Text className="font-display text-3xl text-fg">Browse the aisles</Text>
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#ffffff" />
-        </View>
+        <VhsLoader />
       ) : (
         <ScrollView
           className="flex-1"

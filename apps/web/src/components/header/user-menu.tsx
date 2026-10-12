@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { BookMarked, LogIn, LogOut, User } from "lucide-react";
+import { BookMarked, IdCard, LogIn, LogOut, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -97,13 +97,13 @@ function UserMenu() {
         <DropdownMenuItem asChild>
           <Link href="/watchlist">
             <BookMarked className="mr-2 h-4 w-4" />
-            My Watchlist
+            My Shelf
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/profile">
-            <User className="mr-2 h-4 w-4" />
-            Profile
+            <IdCard className="mr-2 h-4 w-4" />
+            Membership
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

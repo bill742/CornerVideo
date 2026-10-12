@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import AxeBuilder from "@axe-core/playwright";
+import { BRAND } from "@moviewatchlist/shared";
 import { expect, test } from "@playwright/test";
 
 import { switchToDarkMode } from "./helpers/theme";
@@ -39,12 +40,12 @@ test.describe("Page Metadata and Document Structure", () => {
     expect(lang).toBe("en");
 
     await expect(page).toHaveTitle(
-      `${process.env.NEXT_PUBLIC_SITE_NAME} - Track Premiere Dates & Discover Films`
+      `Movie & TV Watchlist & Premiere Tracker | ${BRAND.name}`
     );
 
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
-      "Discover and track movie premiere dates for upcoming and now playing films worldwide. Browse the latest releases and plan your movie watching."
+      BRAND.description
     );
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(

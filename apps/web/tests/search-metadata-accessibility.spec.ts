@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import AxeBuilder from "@axe-core/playwright";
+import { BRAND } from "@moviewatchlist/shared";
 import { expect, test } from "@playwright/test";
 
 import { submitSearch } from "./helpers/search";
@@ -46,12 +47,12 @@ test.describe("Page Metadata and Document Structure", () => {
     expect(lang).toBe("en");
 
     await expect(page).toHaveTitle(
-      `"${KNOWN_MOVIE_TITLE}" - Search Results - ${process.env.NEXT_PUBLIC_SITE_NAME}`
+      `"${KNOWN_MOVIE_TITLE}" search results | ${BRAND.name}`
     );
 
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
-      `Search results for "${KNOWN_MOVIE_TITLE}" on Movie Watchlist.`
+      `Search results for "${KNOWN_MOVIE_TITLE}" on ${BRAND.name}.`
     );
 
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(

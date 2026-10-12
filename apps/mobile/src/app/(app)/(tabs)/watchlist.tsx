@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -19,6 +18,8 @@ import {
 
 import { tmdb } from "@/lib/tmdb";
 import { getWatchlist } from "@/lib/watchlist";
+import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 interface ResolvedItem {
   id: string;
@@ -71,6 +72,7 @@ async function resolveWatchlist(): Promise<ResolvedItem[]> {
 }
 
 export default function WatchlistScreen() {
+  const { colors } = useBrand();
   const router = useRouter();
   const [items, setItems] = useState<ResolvedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,24 +114,24 @@ export default function WatchlistScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-950" edges={["top"]}>
-      <Text className="px-4 py-3 text-2xl font-bold text-white">
-        My Watchlist
-      </Text>
+    <SafeAreaView className="flex-1 bg-bg" edges={["top"]}>
+      <Text className="px-4 py-3 font-display text-3xl text-fg">My Shelf</Text>
 
-      <View className="mx-4 mb-3 flex-row rounded-xl bg-neutral-900 p-1">
+      <View className="mx-4 mb-3 flex-row rounded-md bg-surface p-1">
         {MEDIA_TABS.map((tab) => {
           const active = tab.value === mediaTab;
           return (
             <Pressable
-              className="flex-1 items-center rounded-lg py-2"
+              className="flex-1 items-center rounded-md py-2"
               key={tab.value}
               onPress={() => setMediaTab(tab.value)}
-              style={{ backgroundColor: active ? "#ffffff" : "transparent" }}
+              style={{
+                backgroundColor: active ? colors.primary : "transparent",
+              }}
             >
               <Text
                 className="text-sm font-semibold"
-                style={{ color: active ? "#000000" : "#a3a3a3" }}
+                style={{ color: active ? colors.onPrimary : colors.muted }}
               >
                 {tab.label}
               </Text>
@@ -151,11 +153,13 @@ export default function WatchlistScreen() {
                 className="rounded-full px-3 py-1.5"
                 key={filter.value}
                 onPress={() => setStatusFilter(filter.value)}
-                style={{ backgroundColor: active ? "#ffffff" : "#262626" }}
+                style={{
+                  backgroundColor: active ? colors.primary : colors.line,
+                }}
               >
                 <Text
                   className="text-xs font-medium"
-                  style={{ color: active ? "#000000" : "#d4d4d4" }}
+                  style={{ color: active ? colors.onPrimary : colors.text }}
                 >
                   {filter.label}
                 </Text>
@@ -166,9 +170,7 @@ export default function WatchlistScreen() {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#ffffff" />
-        </View>
+        <VhsLoader label="Loading your shelf" />
       ) : (
         <FlatList
           contentContainerStyle={{ paddingBottom: 24, paddingTop: 12 }}
@@ -178,15 +180,16 @@ export default function WatchlistScreen() {
             <View className="items-center px-6 py-20">
               {items.length === 0 ? (
                 <>
-                  <Text className="mb-2 text-lg font-semibold text-white">
-                    Your watchlist is empty
+                  <Text className="mb-2 text-lg font-semibold text-fg">
+                    Your shelf is empty
                   </Text>
-                  <Text className="text-center text-sm text-neutral-500">
-                    Browse movies and shows and add them to your watchlist.
+                  <Text className="text-center text-sm text-muted">
+                    Add movies and shows from any title, and they&apos;ll wait
+                    here with their premiere dates.
                   </Text>
                 </>
               ) : (
-                <Text className="text-center text-sm text-neutral-500">
+                <Text className="text-center text-sm text-muted">
                   No {mediaTab === "tv" ? "shows" : "movies"}
                   {statusFilter === "all"
                     ? ""
@@ -203,7 +206,7 @@ export default function WatchlistScreen() {
                 load();
               }}
               refreshing={refreshing}
-              tintColor="#ffffff"
+              tintColor={colors.primary}
             />
           }
           renderItem={({ item }) => {
@@ -213,7 +216,7 @@ export default function WatchlistScreen() {
                 className="flex-row items-center gap-3 px-4 py-3 active:opacity-70"
                 onPress={() => openItem(item)}
               >
-                <View className="h-24 w-16 overflow-hidden rounded-lg bg-neutral-800">
+                <View className="h-24 w-16 overflow-hidden rounded-md bg-line">
                   {poster ? (
                     <Image
                       cachePolicy="memory-disk"
@@ -225,13 +228,13 @@ export default function WatchlistScreen() {
                 </View>
                 <View className="flex-1">
                   <Text
-                    className="text-base font-semibold text-white"
+                    className="text-base font-semibold text-fg"
                     numberOfLines={2}
                   >
                     {item.title}
                   </Text>
-                  <View className="mt-2 self-start rounded-full bg-neutral-800 px-2 py-1">
-                    <Text className="text-xs text-neutral-300">
+                  <View className="mt-2 self-start rounded-full bg-line px-2 py-1">
+                    <Text className="text-xs text-fg">
                       {WATCH_STATUS_LABELS[item.status]}
                     </Text>
                   </View>

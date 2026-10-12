@@ -1,18 +1,15 @@
 {
   "expo": {
-    "name": "MovieWatchlist",
-    "slug": "moviewatchlist",
+    "name": "Corner Video",
+    "slug": "corner-video",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "moviewatchlist",
+    "scheme": "cornervideo",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F6EFE0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -29,11 +26,12 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "android": {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
-          }
+          "backgroundColor": "#F6EFE0",
+          "dark": {
+            "backgroundColor": "#15130F"
+          },
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 160
         }
       ],
       "expo-font",

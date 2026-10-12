@@ -2,6 +2,7 @@
 
 import { ViewTransition, startTransition, useEffect, useState } from "react";
 
+import { VhsLoader } from "@/components/brand/vhs-loader";
 import { HeroBanner } from "@/components/hero/hero-banner";
 
 import {
@@ -14,7 +15,6 @@ import {
 import { useRegion } from "@/lib/region-context";
 import type { FeaturedItem, Movie } from "@/types";
 
-import { MediaListSkeleton } from "../skeletons/media-list-skeleton";
 import { MovieList } from "./movie-list";
 
 function MovieFetcher() {
@@ -84,21 +84,21 @@ function MovieFetcher() {
 
   if (loading) {
     return (
-      <ViewTransition key="skeleton" default="none" exit="slide-down">
-        <MediaListSkeleton />
+      <ViewTransition key="loading" default="none" exit="fade-out">
+        <VhsLoader />
       </ViewTransition>
     );
   }
 
   return (
-    <ViewTransition key="content" default="none" enter="slide-up">
+    <ViewTransition key="content" default="none" enter="fade-in">
       <div className="space-y-16">
         {featured && (
           <HeroBanner item={featured.item} trailerKey={featured.trailerKey} />
         )}
-        <MovieList movies={inTheaters} heading="In Theaters" />
+        <MovieList movies={inTheaters} heading="In Theatres" />
         <MovieList movies={newOnDigital} heading="New on Digital" />
-        <MovieList movies={upcomingMovies} heading="Upcoming Releases" />
+        <MovieList movies={upcomingMovies} heading="Coming Soon" />
       </div>
     </ViewTransition>
   );

@@ -19,8 +19,11 @@ import {
   unmarkEpisodeWatched,
 } from "@/lib/episodes";
 import { tmdb } from "@/lib/tmdb";
+import { useBrand } from "@/lib/theme";
+import { VhsLoader } from "@/components/vhs-loader";
 
 export default function SeasonScreen() {
+  const { colors } = useBrand();
   const { id, season } = useLocalSearchParams<{ id: string; season: string }>();
   const insets = useSafeAreaInsets();
   const showId = Number(id);
@@ -124,7 +127,7 @@ export default function SeasonScreen() {
 
       return (
         <View className="flex-row gap-3 px-4 py-3">
-          <View className="h-16 w-28 overflow-hidden rounded-lg bg-neutral-800">
+          <View className="h-16 w-28 overflow-hidden rounded-md bg-line">
             {still ? (
               <Image
                 cachePolicy="memory-disk"
@@ -135,13 +138,11 @@ export default function SeasonScreen() {
             ) : null}
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-semibold text-white" numberOfLines={2}>
+            <Text className="text-sm font-semibold text-fg" numberOfLines={2}>
               {item.episode_number}. {item.name}
             </Text>
             {item.air_date ? (
-              <Text className="mt-1 text-xs text-neutral-500">
-                {item.air_date}
-              </Text>
+              <Text className="mt-1 text-xs text-muted">{item.air_date}</Text>
             ) : null}
           </View>
           <Pressable
@@ -154,36 +155,43 @@ export default function SeasonScreen() {
             disabled={isPending}
             onPress={() => toggle(item.episode_number)}
             style={{
-              backgroundColor: isWatched ? "#ffffff" : "transparent",
-              borderColor: isWatched ? "#ffffff" : "#525252",
+              backgroundColor: isWatched ? colors.accent : "transparent",
+              borderColor: isWatched ? colors.accent : colors.muted,
             }}
           >
             {isPending ? (
-              <ActivityIndicator color={isWatched ? "#000000" : "#ffffff"} />
+              <ActivityIndicator
+                color={isWatched ? colors.bg : colors.primary}
+              />
             ) : isWatched ? (
-              <Text className="text-base font-bold text-black">✓</Text>
+              <Text
+                className="text-base font-bold"
+                style={{ color: colors.bg }}
+              >
+                ✓
+              </Text>
             ) : null}
           </Pressable>
         </View>
       );
     },
-    [pending, toggle, watched],
+    [colors, pending, toggle, watched],
   );
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950">
+      <View className="flex-1 bg-bg">
         <Stack.Screen options={{ headerShown: true, title: "" }} />
-        <ActivityIndicator color="#ffffff" />
+        <VhsLoader />
       </View>
     );
   }
 
   if (!data) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-950 px-6">
+      <View className="flex-1 items-center justify-center bg-bg px-6">
         <Stack.Screen options={{ headerShown: true, title: "Not found" }} />
-        <Text className="text-center text-neutral-400">
+        <Text className="text-center text-muted">
           We couldn&apos;t load this season.
         </Text>
       </View>
@@ -195,7 +203,7 @@ export default function SeasonScreen() {
     data.episodes.every((e) => watched.has(e.episode_number));
 
   return (
-    <View className="flex-1 bg-neutral-950">
+    <View className="flex-1 bg-bg">
       <Stack.Screen options={{ headerShown: true, title: data.name }} />
       <FlatList
         className="flex-1"
@@ -207,21 +215,23 @@ export default function SeasonScreen() {
 
       {data.episodes.length > 0 ? (
         <View
-          className="border-t border-neutral-800 px-4 pt-3"
+          className="border-t border-line px-4 pt-3"
           style={{ paddingBottom: insets.bottom + 12 }}
         >
           <Pressable
-            className="items-center justify-center rounded-xl py-3.5 active:opacity-80"
+            className="items-center justify-center rounded-md py-3.5 active:opacity-80"
             disabled={allWatched || markingAll}
             onPress={markAll}
-            style={{ backgroundColor: allWatched ? "#262626" : "#ffffff" }}
+            style={{
+              backgroundColor: allWatched ? colors.line : colors.primary,
+            }}
           >
             {markingAll ? (
-              <ActivityIndicator color="#000000" />
+              <ActivityIndicator color={colors.onPrimary} />
             ) : (
               <Text
                 className="text-base font-semibold"
-                style={{ color: allWatched ? "#737373" : "#000000" }}
+                style={{ color: allWatched ? colors.muted : colors.onPrimary }}
               >
                 {allWatched ? "All episodes watched" : "Mark all as watched"}
               </Text>

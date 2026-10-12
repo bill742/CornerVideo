@@ -15,7 +15,7 @@ import { requireUser } from "@/lib/auth";
 import type { WatchlistItem } from "@/types";
 
 export const metadata: Metadata = {
-  title: `My Watchlist - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
+  title: "My Shelf",
 };
 
 /**
@@ -76,12 +76,18 @@ export default async function WatchlistPage() {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
         <BookMarked className="text-muted-foreground h-12 w-12" />
-        <h1 className="text-xl font-semibold">Your watchlist is empty</h1>
-        <p className="text-muted-foreground text-sm">
-          Browse movies and TV shows and add them to your watchlist.
+        <h1 className="font-display text-3xl font-semibold tracking-wide">
+          Your shelf is empty
+        </h1>
+        <p className="text-muted-foreground max-w-sm">
+          Add movies and shows from any title page, and they&apos;ll wait here
+          with their premiere dates.
         </p>
-        <Link className="text-sm underline" href="/">
-          Discover movies and TV
+        <Link
+          className="text-primary font-semibold underline underline-offset-4"
+          href="/"
+        >
+          Browse the aisles
         </Link>
       </div>
     );
@@ -91,7 +97,9 @@ export default async function WatchlistPage() {
 
   return (
     <div className="py-8">
-      <h1 className="mb-6 text-2xl font-semibold">My Watchlist</h1>
+      <h1 className="font-display mb-6 text-4xl font-semibold tracking-wide">
+        My Shelf
+      </h1>
       <WatchlistView entries={entries} />
     </div>
   );

@@ -6,7 +6,11 @@ import Image from "next/image";
 
 import { CheckCircle2, Circle, Clock } from "lucide-react";
 
-import { markEpisodeWatched, unmarkEpisodeWatched } from "@/lib/actions/episodes";
+import {
+  markEpisodeWatched,
+  unmarkEpisodeWatched,
+} from "@/lib/actions/episodes";
+import { parseDate } from "@/lib/utils";
 import type { TVEpisode } from "@/types";
 
 interface EpisodeListProps {
@@ -34,7 +38,7 @@ function EpisodeList({
         next.add(episodeNumber);
       }
       return next;
-    },
+    }
   );
   const [, startTransition] = useTransition();
 
@@ -86,6 +90,16 @@ function EpisodeList({
                     E{episode.episode_number}
                   </span>{" "}
                   <span className="font-medium">{episode.name}</span>
+                  {watched && (
+                    // The tape's been returned. Decorative: the button
+                    // beside it already announces the watched state.
+                    <span
+                      aria-hidden
+                      className="font-display border-new-release text-new-release ml-2 inline-block -rotate-6 rounded-sm border-2 px-1.5 text-xs font-semibold tracking-wider uppercase"
+                    >
+                      Returned
+                    </span>
+                  )}
                 </div>
                 {isLoggedIn && (
                   <button
@@ -94,7 +108,7 @@ function EpisodeList({
                     className="shrink-0 transition-colors"
                   >
                     {watched ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <CheckCircle2 className="text-new-release h-5 w-5" />
                     ) : (
                       <Circle className="text-muted-foreground hover:text-foreground h-5 w-5" />
                     )}
@@ -104,7 +118,9 @@ function EpisodeList({
 
               <div className="text-muted-foreground flex items-center gap-3 text-xs">
                 {episode.air_date && (
-                  <span>{new Date(episode.air_date).toLocaleDateString()}</span>
+                  <span>
+                    {parseDate(episode.air_date).toLocaleDateString()}
+                  </span>
                 )}
                 {episode.runtime && (
                   <span className="flex items-center gap-1">

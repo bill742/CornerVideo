@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const ROWS = ["In Theaters", "New on Digital", "Upcoming Releases"];
+const ROWS = ["In Theatres", "New on Digital", "Coming Soon"];
 
 test.describe("Home page", () => {
   test("Displays the release rows with movies in each", async ({ page }) => {

@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
 
 // Load .env into the test-runner process so process.env vars (e.g.
-// NEXT_PUBLIC_SITE_NAME) are available in test files, just as Next.js
+// NEXT_PUBLIC_SITE_URL) are available in test files, just as Next.js
 // loads them for the dev server. In CI, env vars come from the environment
 // directly and .env won't exist, so the error is safely swallowed.
 try {

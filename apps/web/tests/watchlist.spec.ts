@@ -40,23 +40,21 @@ function fixturesFor(projectName: string) {
  * button does.
  */
 async function setWatchlisted(page: Page, path: string, wanted: boolean) {
-  const target = wanted ? "Remove from watchlist" : "Add to watchlist";
+  const target = wanted ? "Remove from shelf" : "Add to shelf";
 
   await page.goto(path);
 
   const toggle = page.getByRole("button", {
-    name: /^(Add to|Remove from) watchlist$/,
+    name: /^(Add to shelf|Remove from shelf)$/,
   });
   await expect(toggle).toBeVisible({ timeout: 20_000 });
 
-  if ((await toggle.getAttribute("aria-label")) !== target) {
+  if ((await toggle.innerText()).trim() !== target) {
     await toggle.click();
 
     // The label flips only after the server action resolves, so this confirms
     // the write landed rather than just a local state change.
-    await expect(toggle).toHaveAttribute("aria-label", target, {
-      timeout: 15_000,
-    });
+    await expect(toggle).toHaveAccessibleName(target, { timeout: 15_000 });
   }
 }
 
@@ -181,11 +179,11 @@ test.describe("Watchlist", () => {
     // window that setWatchlisted deliberately retries through.
     await page.waitForLoadState("networkidle");
 
-    // beforeEach leaves this one added, so the button starts as "Remove".
-    await page.getByRole("button", { name: "Remove from watchlist" }).click();
+    // beforeEach leaves this one added, so the button starts as "Remove from shelf".
+    await page.getByRole("button", { name: "Remove from shelf" }).click();
 
     await expect(
-      page.getByRole("button", { name: "Add to watchlist" })
+      page.getByRole("button", { name: "Add to shelf" })
     ).toBeVisible();
   });
 

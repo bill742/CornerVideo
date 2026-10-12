@@ -2,8 +2,8 @@
 
 import { ViewTransition, startTransition, useEffect, useState } from "react";
 
+import { VhsLoader } from "@/components/brand/vhs-loader";
 import { HeroBanner } from "@/components/hero/hero-banner";
-import { MediaListSkeleton } from "@/components/skeletons/media-list-skeleton";
 
 import {
   getOnTheAirTV,
@@ -75,14 +75,14 @@ function TVFetcher() {
 
   if (loading) {
     return (
-      <ViewTransition key="tv-skeleton" default="none" exit="slide-down">
-        <MediaListSkeleton />
+      <ViewTransition key="tv-loading" default="none" exit="fade-out">
+        <VhsLoader />
       </ViewTransition>
     );
   }
 
   return (
-    <ViewTransition key="tv-content" default="none" enter="slide-up">
+    <ViewTransition key="tv-content" default="none" enter="fade-in">
       <div className="space-y-16">
         {featured && (
           <HeroBanner item={featured.item} trailerKey={featured.trailerKey} />
