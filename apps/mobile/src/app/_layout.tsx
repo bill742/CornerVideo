@@ -1,10 +1,19 @@
 import "../global.css";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Oswald_600SemiBold, useFonts } from "@expo-google-fonts/oswald";
-import { Slot, useRouter, useSegments, type Href } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Slot,
+  ThemeProvider,
+  useRouter,
+  useSegments,
+  type Href,
+} from "expo-router";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
+import * as SystemUI from "expo-system-ui";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 
@@ -81,7 +90,32 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
-  const { themeVars } = useBrand();
+  const { colors, scheme, themeVars } = useBrand();
+
+  // React Navigation paints its own containers (the stack behind a pushed
+  // screen, the tab scene) from its theme. Left on its light default, they
+  // showed as a light flash during screen transitions in dark mode.
+  const navigationTheme = useMemo(() => {
+    const base = scheme === "dark" ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        background: colors.bg,
+        border: colors.line,
+        card: colors.bg,
+        notification: colors.primary,
+        primary: colors.primary,
+        text: colors.text,
+      },
+    };
+  }, [colors, scheme]);
+
+  // The native window behind every screen defaults to white; match it to the
+  // theme so nothing light shows through during a transition.
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(colors.bg);
+  }, [colors.bg]);
   const [fontsLoaded, fontError] = useFonts({ Oswald_600SemiBold });
   const [themeRestored, setThemeRestored] = useState(false);
   // A font that fails to load falls back to the system face; don't strand the
@@ -103,9 +137,11 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <StatusBar style="auto" />
-      <View className="flex-1 bg-bg" style={themeVars}>
-        <RootNavigator />
-      </View>
+      <ThemeProvider value={navigationTheme}>
+        <View className="flex-1 bg-bg" style={themeVars}>
+          <RootNavigator />
+        </View>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
