@@ -112,4 +112,4 @@ Route files use `export default` (an Expo Router requirement); other components 
 
 - **Read the versioned docs** at <https://docs.expo.dev/versions/v56.0.0/> — Expo changes fast.
 - **NativeWind uses Tailwind v3**, not the v4 the web app uses. `className` works on React Native core components; third-party components (e.g. `expo-image`) need an explicit `style` or a `cssInterop` registration.
-- **A flat `node_modules` is required.** The root `.npmrc` sets `node-linker=hoisted` and the root `package.json` pins a single React version. Metro breaks under pnpm's default symlinked layout or with duplicate React copies.
+- **A flat `node_modules` is required.** The root `pnpm-workspace.yaml` sets `nodeLinker: hoisted` and pins a single React version via `overrides`. Metro breaks under pnpm's default symlinked layout or with duplicate React copies.

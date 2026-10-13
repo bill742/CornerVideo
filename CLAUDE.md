@@ -71,10 +71,11 @@ MovieWatchlist/
 └── PLAN.md                  # expansion roadmap
 ```
 
-> **React Native needs a flat node_modules.** The root `.npmrc` sets
-> `node-linker=hoisted`, and root `package.json` pins `react`/`react-dom` to `19.2.3`
-> (the Expo SDK 56 / RN 0.85 tested version; web's `^19.0.0` is satisfied by it) via
-> `pnpm.overrides` so the hoisted layout has exactly one React. Leave these in place —
+> **React Native needs a flat node_modules.** `pnpm-workspace.yaml` sets
+> `nodeLinker: hoisted` and pins `react`/`react-dom` to `19.2.3` (the Expo SDK 56 /
+> RN 0.85 tested version; web's `^19.0.0` is satisfied by it) via `overrides`, so the
+> hoisted layout has exactly one React. These live in the workspace file, not
+> `.npmrc` or `package.json#pnpm`, because pnpm 11 reads neither. Leave them in place —
 > Metro breaks under pnpm's default symlinked layout or with duplicate React copies.
 
 `packages/shared` exports domain types (`Movie`, `TVShow`, `Profile`,
