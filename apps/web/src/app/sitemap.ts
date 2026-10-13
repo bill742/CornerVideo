@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://movie-watchlist.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cornervideo.app";
 
 /**
  * Only the stable entry points. Detail pages are deliberately absent — they are
