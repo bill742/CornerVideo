@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://movie-watchlist.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cornervideo.app";
 
 /**
  * There was no robots.txt at all, so crawlers were free to walk every
