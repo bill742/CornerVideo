@@ -337,6 +337,18 @@ Playwright E2E + accessibility specs live in `apps/web/tests/` (`*.spec.ts`, inc
 auto-starts the dev server (`reuseExistingServer` locally) and runs Chromium, Firefox,
 and WebKit. Add tests for new routes covering rendering, navigation, metadata, and a11y.
 
+## CI
+
+One workflow, `.github/workflows/ci.yml`, runs on PRs and pushes to `main`:
+lint (web ESLint as SARIF for code scanning, plus mobile `expo lint`),
+typecheck, React Doctor (PRs only, `--scope changed` so it reports only
+issues the PR introduces), the Cloudflare Worker build and Playwright. Shared
+setup (pnpm, Node from `.node-version`, frozen install) is the composite action
+`.github/actions/setup`; the app's build env is a YAML anchor (`&app-env`) on
+the two jobs that build it. The lint job's name, "Run eslint scanning", is a
+required check in the `main` ruleset — renaming it blocks merges until the
+ruleset is updated.
+
 ## When working with libraries
 
 Per the user's global rule, use the **Context7 MCP** to fetch current docs for
