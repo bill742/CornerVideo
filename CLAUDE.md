@@ -54,7 +54,7 @@ naming work, and update the guide when a brand decision changes. The essentials:
 
 This is a **Turborepo + pnpm workspaces** monorepo (`pnpm@10.33.2`, pinned via
 `packageManager`). Do not assume a single Next.js app at the root. Node is pinned to
-**22.17.0** in `.node-version` (honored by fnm/nodenv/asdf — plain `nvm` users should
+**24.21.0** in `.node-version` (honored by fnm/nodenv/asdf — plain `nvm` users should
 mirror it in their own setup).
 
 ```
@@ -71,10 +71,11 @@ MovieWatchlist/
 └── PLAN.md                  # expansion roadmap
 ```
 
-> **React Native needs a flat node_modules.** The root `.npmrc` sets
-> `node-linker=hoisted`, and root `package.json` pins `react`/`react-dom` to `19.2.3`
-> (the Expo SDK 56 / RN 0.85 tested version; web's `^19.0.0` is satisfied by it) via
-> `pnpm.overrides` so the hoisted layout has exactly one React. Leave these in place —
+> **React Native needs a flat node_modules.** `pnpm-workspace.yaml` sets
+> `nodeLinker: hoisted` and pins `react`/`react-dom` to `19.2.3` (the Expo SDK 56 /
+> RN 0.85 tested version; web's `^19.0.0` is satisfied by it) via `overrides`, so the
+> hoisted layout has exactly one React. These live in the workspace file, not
+> `.npmrc` or `package.json#pnpm`, because pnpm 11 reads neither. Leave them in place —
 > Metro breaks under pnpm's default symlinked layout or with duplicate React copies.
 
 `packages/shared` exports domain types (`Movie`, `TVShow`, `Profile`,
@@ -97,6 +98,10 @@ Run from the **repo root** (Turbo fans out to workspaces):
 - `pnpm dev` — start dev servers (`turbo dev`)
 - `pnpm build` — build all workspaces (`turbo build`)
 - `pnpm lint` — lint all workspaces (`turbo lint`)
+- `pnpm typecheck` — `tsc --noEmit` in every workspace (`turbo typecheck`)
+- `pnpm react-doctor` — React Doctor scan of web and mobile (`turbo react-doctor
+  --continue`; not `pnpm doctor`, which is pnpm's own built-in). Web skips build
+  output and shadcn code via `apps/web/doctor.config.json`
 
 Scoped to the web app:
 
@@ -109,7 +114,7 @@ Scoped to the mobile app:
 
 - `pnpm --filter @moviewatchlist/mobile dev` — Expo dev server (`expo start`)
 - `pnpm --filter @moviewatchlist/mobile lint` — `expo lint`
-- `pnpm --filter @moviewatchlist/mobile exec tsc --noEmit` — type-check
+- `pnpm --filter @moviewatchlist/mobile typecheck` — type-check
 - `pnpm --filter @moviewatchlist/mobile exec expo export --platform ios` — full bundle
   check (compiles everything without a simulator)
 - `pnpm dlx expo-doctor@latest` (from `apps/mobile`) — environment/config checks
@@ -331,6 +336,22 @@ Playwright E2E + accessibility specs live in `apps/web/tests/` (`*.spec.ts`, inc
 `*-metadata-accessibility.spec.ts` that assert metadata and run axe checks). The config
 auto-starts the dev server (`reuseExistingServer` locally) and runs Chromium, Firefox,
 and WebKit. Add tests for new routes covering rendering, navigation, metadata, and a11y.
+
+## CI
+
+One workflow, `.github/workflows/ci.yml`, runs on PRs and pushes to `main`:
+lint (web ESLint as SARIF for code scanning, plus mobile `expo lint`),
+typecheck, React Doctor (PRs only, `--scope changed` so it reports only
+issues the PR introduces), the Cloudflare Worker build and Playwright. Shared
+setup (pnpm, Node from `.node-version`, frozen install) is the composite action
+`.github/actions/setup`. The app's public `NEXT_PUBLIC_*` env is a YAML anchor
+(`&public-app-env`) on the two jobs that build it; real secrets (`TMDB_API_KEY`,
+the E2E sign-in) are set only on the build/test steps, never on setup or
+install. Actions are pinned to full commit SHAs with the version as a comment,
+and `.github/dependabot.yml` keeps them current — pin any new action the same
+way. The lint job's name, "Run eslint scanning", is a
+required check in the `main` ruleset — renaming it blocks merges until the
+ruleset is updated.
 
 ## When working with libraries
 

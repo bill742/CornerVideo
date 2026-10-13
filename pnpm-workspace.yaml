@@ -1,3 +1,13 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# React Native / Metro require a flat node_modules layout to resolve packages
+# reliably. pnpm's default symlinked layout breaks Metro resolution, so hoist.
+nodeLinker: hoisted
+
+# One React copy for the hoisted layout: the Expo SDK 56 / RN 0.85 tested version
+# (web's ^19.0.0 is satisfied by it).
+overrides:
+  react: 19.2.3
+  react-dom: 19.2.3

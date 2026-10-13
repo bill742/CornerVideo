@@ -26,6 +26,7 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -40,10 +41,19 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
 
   async function onAdd() {
     setBusy(true);
+    setError(null);
     try {
       await addToWatchlist(tmdbId, mediaType);
       setStatus("want_to_watch");
       syncReminders();
+    } catch (actionError) {
+      // Say why (e.g. the free-tier limit) rather than failing silently.
+      // Status only changes after a successful write, so it's still accurate.
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Could not update your shelf. Try again.",
+      );
     } finally {
       setBusy(false);
     }
@@ -52,10 +62,19 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
   async function onSelectStatus(next: WatchStatus) {
     setPickerOpen(false);
     setBusy(true);
+    setError(null);
     try {
       await updateWatchStatus(tmdbId, mediaType, next);
       setStatus(next);
       syncReminders();
+    } catch (actionError) {
+      // Say why (e.g. the free-tier limit) rather than failing silently.
+      // Status only changes after a successful write, so it's still accurate.
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Could not update your shelf. Try again.",
+      );
     } finally {
       setBusy(false);
     }
@@ -64,10 +83,19 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
   async function onRemove() {
     setPickerOpen(false);
     setBusy(true);
+    setError(null);
     try {
       await removeFromWatchlist(tmdbId, mediaType);
       setStatus(null);
       syncReminders();
+    } catch (actionError) {
+      // Say why (e.g. the free-tier limit) rather than failing silently.
+      // Status only changes after a successful write, so it's still accurate.
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Could not update your shelf. Try again.",
+      );
     } finally {
       setBusy(false);
     }
@@ -81,22 +109,29 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
     );
   }
 
+  const errorText = error ? (
+    <Text className="mt-2 text-sm text-primary">{error}</Text>
+  ) : null;
+
   if (status === null) {
     return (
-      <Pressable
-        accessibilityRole="button"
-        className="h-12 items-center justify-center rounded-md bg-primary active:opacity-80"
-        disabled={busy}
-        onPress={onAdd}
-      >
-        {busy ? (
-          <ActivityIndicator color={colors.onPrimary} />
-        ) : (
-          <Text className="text-base font-semibold text-on-primary">
-            Add to shelf
-          </Text>
-        )}
-      </Pressable>
+      <>
+        <Pressable
+          accessibilityRole="button"
+          className="h-12 items-center justify-center rounded-md bg-primary active:opacity-80"
+          disabled={busy}
+          onPress={onAdd}
+        >
+          {busy ? (
+            <ActivityIndicator color={colors.onPrimary} />
+          ) : (
+            <Text className="text-base font-semibold text-on-primary">
+              Add to shelf
+            </Text>
+          )}
+        </Pressable>
+        {errorText}
+      </>
     );
   }
 
@@ -115,6 +150,7 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
           </Text>
         )}
       </Pressable>
+      {errorText}
 
       <Modal
         animationType="slide"

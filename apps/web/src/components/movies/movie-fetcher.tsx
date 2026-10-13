@@ -26,10 +26,13 @@ function MovieFetcher() {
   const [inTheaters, setInTheaters] = useState<Movie[]>([]);
   const [newOnDigital, setNewOnDigital] = useState<Movie[]>([]);
   const [upcomingMovies, setUpcomingMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
+  // The region the current rows were fetched for; a region change reads as
+  // loading until that region's rows land.
+  const [loadedRegion, setLoadedRegion] = useState<string | null>(null);
+  const loading = loadedRegion !== region;
 
   useEffect(() => {
-    setLoading(true);
+    let ignore = false;
 
     const fetchMovies = async () => {
       try {
@@ -61,25 +64,31 @@ function MovieFetcher() {
           };
         }
 
+        if (ignore) return;
         startTransition(() => {
           setFeatured(featuredResult);
           setInTheaters(releaseRows.theatrical.slice(0, 12));
           setNewOnDigital(releaseRows.digital.slice(0, 12));
           setUpcomingMovies(upcomingData.slice(0, 12));
-          setLoading(false);
+          setLoadedRegion(region);
         });
       } catch {
+        if (ignore) return;
         startTransition(() => {
           setFeatured(null);
           setInTheaters([]);
           setNewOnDigital([]);
           setUpcomingMovies([]);
-          setLoading(false);
+          setLoadedRegion(region);
         });
       }
     };
 
     fetchMovies();
+
+    return () => {
+      ignore = true;
+    };
   }, [region]);
 
   if (loading) {

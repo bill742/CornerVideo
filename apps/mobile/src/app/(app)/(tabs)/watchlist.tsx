@@ -77,12 +77,16 @@ export default function WatchlistScreen() {
   const [items, setItems] = useState<ResolvedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [mediaTab, setMediaTab] = useState<MediaType>("movie");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const load = useCallback(async () => {
     try {
       setItems(await resolveWatchlist());
+      setError(null);
+    } catch {
+      setError("Could not load your shelf. Pull down to try again.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -169,6 +173,10 @@ export default function WatchlistScreen() {
         </ScrollView>
       </View>
 
+      {error && !loading ? (
+        <Text className="px-4 pt-3 text-sm text-primary">{error}</Text>
+      ) : null}
+
       {loading ? (
         <VhsLoader label="Loading your shelf" />
       ) : (
@@ -178,7 +186,7 @@ export default function WatchlistScreen() {
           keyExtractor={(item) => item.id}
           ListEmptyComponent={
             <View className="items-center px-6 py-20">
-              {items.length === 0 ? (
+              {error ? null : items.length === 0 ? (
                 <>
                   <Text className="mb-2 text-lg font-semibold text-fg">
                     Your shelf is empty

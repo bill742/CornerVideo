@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { safeNextPath } from "@/lib/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
 
 export async function login(formData: FormData) {
@@ -9,7 +10,7 @@ export async function login(formData: FormData) {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const next = (formData.get("next") as string) || "/";
+  const next = safeNextPath(formData.get("next") as string | null);
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -25,7 +26,7 @@ export async function login(formData: FormData) {
   // it looked — "layout" covers every route beneath the root layout, so each
   // sign-in asked to invalidate the whole ISR cache. That is inert while no tag
   // cache is configured on Cloudflare, which is what would make it easy to miss.
-  redirect(next.startsWith("/") ? next : "/");
+  redirect(next);
 }
 
 export async function signup(formData: FormData) {

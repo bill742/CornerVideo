@@ -1,0 +1,6 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "ignore": {
+    "files": [".next/**", ".open-next/**", "out/**", "src/components/ui/**"]
+  }
+}

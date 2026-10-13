@@ -9,6 +9,17 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 
 export default defineConfig([
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  {
+    // eslint-plugin-react's version auto-detect calls context.getFilename(),
+    // which ESLint 10 removed. Pinning the version skips the detection.
+    settings: {
+      react: {
+        version: "19.2",
+      },
+    },
+  },
   globalIgnores([
     "node_modules/*",
     ".next/*",
@@ -47,7 +58,10 @@ export default defineConfig([
     },
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
-      "no-unused-vars": [
+      // The core rule doesn't understand TypeScript and flags parameter names
+      // inside function types (e.g. `(open: boolean) => void`).
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
         "warn",
         {
           argsIgnorePattern: "^_",

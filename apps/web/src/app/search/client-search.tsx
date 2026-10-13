@@ -25,20 +25,28 @@ function toMediaCardItem(item: MultiSearchItem): MediaCardItem {
 function ClientSearch() {
   const searchParams = useSearchParams();
   const term = searchParams.get("term");
-  // null means "still loading" — the loaders swallow their own errors and
-  // resolve to null, so a failed search is just an empty result set.
-  const [searchResults, setSearchResults] = useState<MediaCardItem[] | null>(
-    null
-  );
+  // Results remember the term they were fetched for, so a new term reads as
+  // loading until its own results land. The loaders swallow their own errors
+  // and resolve to null, so a failed search is just an empty result set.
+  const [loaded, setLoaded] = useState<{
+    items: MediaCardItem[];
+    term: string | null;
+  } | null>(null);
+  const searchResults = loaded?.term === term ? loaded.items : null;
 
   useEffect(() => {
-    setSearchResults(null);
+    let ignore = false;
 
-    getSearchResults(term || "").then((results) =>
+    getSearchResults(term || "").then((results) => {
+      if (ignore) return;
       startTransition(() =>
-        setSearchResults((results ?? []).map(toMediaCardItem))
-      )
-    );
+        setLoaded({ items: (results ?? []).map(toMediaCardItem), term })
+      );
+    });
+
+    return () => {
+      ignore = true;
+    };
   }, [term]);
 
   if (searchResults === null) {

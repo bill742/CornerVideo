@@ -10,7 +10,9 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "cf:upload": "opennextjs-cloudflare upload",
-    "cf:preview": "opennextjs-cloudflare preview"
+    "cf:preview": "opennextjs-cloudflare preview",
+    "react-doctor": "react-doctor . --no-telemetry",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@eslint/compat": "^2.1.0",
@@ -41,16 +43,18 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
     "@eslint/eslintrc": "^3",
-    "@playwright/test": "^1.58.0",
+    "@microsoft/eslint-formatter-sarif": "3.1.0",
+    "@playwright/test": "^1.64.0",
     "@tailwindcss/postcss": "^4",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
-    "@types/node": "^20",
+    "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^10.4.1",
     "eslint-config-next": "16.2.7",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "react-doctor": "0.9.18",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",
