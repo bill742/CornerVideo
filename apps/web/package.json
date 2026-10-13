@@ -10,7 +10,9 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "cf:upload": "opennextjs-cloudflare upload",
-    "cf:preview": "opennextjs-cloudflare preview"
+    "cf:preview": "opennextjs-cloudflare preview",
+    "react-doctor": "react-doctor . --no-telemetry",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@eslint/compat": "^2.1.0",
@@ -51,6 +53,7 @@
     "eslint-config-next": "16.2.7",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "react-doctor": "0.9.18",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",

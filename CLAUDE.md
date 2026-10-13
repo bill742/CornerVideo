@@ -98,6 +98,10 @@ Run from the **repo root** (Turbo fans out to workspaces):
 - `pnpm dev` — start dev servers (`turbo dev`)
 - `pnpm build` — build all workspaces (`turbo build`)
 - `pnpm lint` — lint all workspaces (`turbo lint`)
+- `pnpm typecheck` — `tsc --noEmit` in every workspace (`turbo typecheck`)
+- `pnpm react-doctor` — React Doctor scan of web and mobile (`turbo react-doctor
+  --continue`; not `pnpm doctor`, which is pnpm's own built-in). Web skips build
+  output and shadcn code via `apps/web/doctor.config.json`
 
 Scoped to the web app:
 
@@ -110,7 +114,7 @@ Scoped to the mobile app:
 
 - `pnpm --filter @moviewatchlist/mobile dev` — Expo dev server (`expo start`)
 - `pnpm --filter @moviewatchlist/mobile lint` — `expo lint`
-- `pnpm --filter @moviewatchlist/mobile exec tsc --noEmit` — type-check
+- `pnpm --filter @moviewatchlist/mobile typecheck` — type-check
 - `pnpm --filter @moviewatchlist/mobile exec expo export --platform ios` — full bundle
   check (compiles everything without a simulator)
 - `pnpm dlx expo-doctor@latest` (from `apps/mobile`) — environment/config checks

@@ -13,6 +13,12 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "react-doctor": {
+      "cache": false
     }
   }
 }
