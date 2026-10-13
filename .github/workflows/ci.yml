@@ -24,7 +24,7 @@ jobs:
       security-events: write
       actions: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
 
       - name: Run ESLint
@@ -41,7 +41,7 @@ jobs:
       # Upload even when lint fails, so the findings show up as annotations.
       - name: Upload analysis results to GitHub
         if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
           sarif_file: eslint-results.sarif
           wait-for-processing: true
@@ -50,7 +50,7 @@ jobs:
     name: Type-check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
       - run: pnpm typecheck
 
@@ -61,7 +61,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # --scope changed diffs against the base branch, so it needs history.
           fetch-depth: 0
@@ -77,26 +77,28 @@ jobs:
   worker-build:
     name: Build the Cloudflare Worker
     runs-on: ubuntu-latest
-    # The app's build-time env, shared with the e2e job below. NEXT_PUBLIC_*
-    # values are inlined at build time, so a build without them is not the
-    # bundle that ships. Scoped to the jobs that build the app so the other
-    # jobs never see these secrets.
-    env: &app-env
-      # Server-only since the token moved off the client; the app reads
-      # TMDB_API_KEY, not NEXT_PUBLIC_API_KEY.
-      TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+    # The app's public build-time env, shared with the e2e job below.
+    # NEXT_PUBLIC_* values are inlined at build time, so a build without them is
+    # not the bundle that ships. They end up in the browser bundle anyway, so
+    # they aren't secret; the real secrets (TMDB_API_KEY, the E2E sign-in) are
+    # set only on the steps that need them, never on setup or install.
+    env: &public-app-env
       NEXT_PUBLIC_API_URL: https://api.themoviedb.org/3
       NEXT_PUBLIC_API_IMAGE_PATH: https://image.tmdb.org/t/p/
-      # Asserted against directly by the metadata specs, so it must match what the
-      # app renders. No trailing slash.
+      # Asserted against directly by the metadata specs, so it must match what
+      # the app renders. No trailing slash.
       NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - run: pnpm run cf:build
+      - name: Build Worker
+        env:
+          # Server-only; the app reads TMDB_API_KEY, not NEXT_PUBLIC_API_KEY.
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: pnpm run cf:build
 
       # `cf:build` succeeding is not quite proof: the adapter can finish and
       # still leave nothing to deploy, which is how the first Cloudflare deploy
@@ -108,12 +110,12 @@ jobs:
     name: Playwright tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    env: *app-env
+    env: *public-app-env
     defaults:
       run:
         working-directory: apps/web
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
 
       - name: Install Playwright browsers
@@ -122,17 +124,21 @@ jobs:
       # playwright.config.ts serves `next start` under CI rather than
       # `next dev`, so the build has to exist first.
       - name: Build
+        env:
+          # Server-only; the app reads TMDB_API_KEY, not NEXT_PUBLIC_API_KEY.
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: pnpm run build
 
       - name: Run Playwright tests
         env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           # Sign-in for the protected-route specs. Secrets, not variables:
           # variables are readable by anyone with repo access and appear in logs.
           E2E_EMAIL: ${{ secrets.E2E_EMAIL }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
         run: pnpm exec playwright test
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-report

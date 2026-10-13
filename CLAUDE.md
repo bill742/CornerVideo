@@ -344,8 +344,12 @@ lint (web ESLint as SARIF for code scanning, plus mobile `expo lint`),
 typecheck, React Doctor (PRs only, `--scope changed` so it reports only
 issues the PR introduces), the Cloudflare Worker build and Playwright. Shared
 setup (pnpm, Node from `.node-version`, frozen install) is the composite action
-`.github/actions/setup`; the app's build env is a YAML anchor (`&app-env`) on
-the two jobs that build it. The lint job's name, "Run eslint scanning", is a
+`.github/actions/setup`. The app's public `NEXT_PUBLIC_*` env is a YAML anchor
+(`&public-app-env`) on the two jobs that build it; real secrets (`TMDB_API_KEY`,
+the E2E sign-in) are set only on the build/test steps, never on setup or
+install. Actions are pinned to full commit SHAs with the version as a comment,
+and `.github/dependabot.yml` keeps them current — pin any new action the same
+way. The lint job's name, "Run eslint scanning", is a
 required check in the `main` ruleset — renaming it blocks merges until the
 ruleset is updated.
 
