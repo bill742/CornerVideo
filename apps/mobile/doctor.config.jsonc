@@ -1,0 +1,25 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "rules": {
+    // The React Compiler (enabled in app.json) can't compile try/finally yet,
+    // so it skips those components and they run unoptimized, as they would
+    // without the compiler. The code is correct; this shouldn't fail CI.
+    "react-hooks-js/todo": "warn",
+  },
+  "ignore": {
+    "overrides": [
+      {
+        // These are read filters (.eq("user_id", …)), not writes, and the RLS
+        // policies are FOR ALL USING (auth.uid() = user_id), which Postgres
+        // also applies to every insert and update. Scoped to these files so
+        // the rule still checks any new Supabase code.
+        "files": [
+          "src/lib/episodes.ts",
+          "src/lib/profile.ts",
+          "src/lib/watchlist.ts",
+        ],
+        "rules": ["react-doctor/supabase-client-owned-authz-field"],
+      },
+    ],
+  },
+}
