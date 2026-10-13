@@ -5,6 +5,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -67,10 +68,10 @@ function RegionProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const value = useMemo(() => ({ region }), [region]);
+
   return (
-    <RegionContext.Provider value={{ region }}>
-      {children}
-    </RegionContext.Provider>
+    <RegionContext.Provider value={value}>{children}</RegionContext.Provider>
   );
 }
 

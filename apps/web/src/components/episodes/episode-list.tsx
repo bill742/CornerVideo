@@ -119,7 +119,13 @@ function EpisodeList({
               <div className="text-muted-foreground flex items-center gap-3 text-xs">
                 {episode.air_date && (
                   <span>
-                    {parseDate(episode.air_date).toLocaleDateString()}
+                    {/* An explicit locale, so the server render and the
+                        browser format the date the same way. */}
+                    {parseDate(episode.air_date).toLocaleDateString("en-CA", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
                   </span>
                 )}
                 {episode.runtime && (
