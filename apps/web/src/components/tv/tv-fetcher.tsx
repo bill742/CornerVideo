@@ -24,10 +24,13 @@ function TVFetcher() {
   } | null>(null);
   const [trendingShows, setTrendingShows] = useState<TVShow[]>([]);
   const [onTheAirShows, setOnTheAirShows] = useState<TVShow[]>([]);
-  const [loading, setLoading] = useState(true);
+  // The region the current rows were fetched for; a region change reads as
+  // loading until that region's rows land.
+  const [loadedRegion, setLoadedRegion] = useState<string | null>(null);
+  const loading = loadedRegion !== region;
 
   useEffect(() => {
-    setLoading(true);
+    let ignore = false;
 
     const fetchShows = async () => {
       try {
@@ -54,23 +57,29 @@ function TVFetcher() {
           };
         }
 
+        if (ignore) return;
         startTransition(() => {
           setFeatured(featuredResult);
           setTrendingShows((trendingData ?? []).slice(0, 12));
           setOnTheAirShows((onTheAirData ?? []).slice(0, 12));
-          setLoading(false);
+          setLoadedRegion(region);
         });
       } catch {
+        if (ignore) return;
         startTransition(() => {
           setFeatured(null);
           setTrendingShows([]);
           setOnTheAirShows([]);
-          setLoading(false);
+          setLoadedRegion(region);
         });
       }
     };
 
     fetchShows();
+
+    return () => {
+      ignore = true;
+    };
   }, [region]);
 
   if (loading) {
