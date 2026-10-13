@@ -54,7 +54,7 @@ naming work, and update the guide when a brand decision changes. The essentials:
 
 This is a **Turborepo + pnpm workspaces** monorepo (`pnpm@10.33.2`, pinned via
 `packageManager`). Do not assume a single Next.js app at the root. Node is pinned to
-**22.17.0** in `.node-version` (honored by fnm/nodenv/asdf — plain `nvm` users should
+**24.21.0** in `.node-version` (honored by fnm/nodenv/asdf — plain `nvm` users should
 mirror it in their own setup).
 
 ```
