@@ -12,7 +12,8 @@
     "cf:upload": "opennextjs-cloudflare upload",
     "cf:preview": "opennextjs-cloudflare preview",
     "react-doctor": "react-doctor . --no-telemetry",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "recommendations": "tsx recommendations.ts"
   },
   "dependencies": {
     "@eslint/compat": "^2.1.0",
@@ -25,6 +26,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.108.0",
+    "ai": "^7.0.142",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "eslint-plugin-prettier": "^5.5.4",
@@ -50,12 +52,14 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-flow": "^4.1.0",
     "eslint": "^10.4.1",
     "eslint-config-next": "16.2.7",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "react-doctor": "0.9.18",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",
     "wrangler": "^4.122.0"
