@@ -10,6 +10,16 @@
   // build` transforms it into one at .open-next/worker.js — that is the entry
   // point wrangler was missing.
   "main": ".open-next/worker.js",
+
+  // Serve only through cornervideo.app. The zone's WAF rules (the Meta crawler
+  // block) apply to the custom domain alone, and on workers.dev the blocked
+  // crawler fell back to the old address: ~94,000 requests in a day, each a
+  // redirect, nearly exhausting the free plan's 100,000-request daily limit.
+  // Disabled, the address is answered by Cloudflare without invoking the
+  // Worker. Preview URLs are off too — preview builds are disabled anyway.
+  // The custom domain is attached in the dashboard, not here.
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2026-08-12",
   "compatibility_flags": [
     // Next.js and its dependencies expect Node built-ins.

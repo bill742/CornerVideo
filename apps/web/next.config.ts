@@ -4,14 +4,6 @@ import path from "path";
 
 const monorepoRoot = path.join(__dirname, "../..");
 
-/**
- * The Worker's original address. It stays reachable so links shared before the
- * move to cornervideo.app keep working, but only as a redirect: the zone's WAF
- * rules (AI crawler blocking) apply to the custom domain alone, so anything
- * still served from workers.dev would bypass them.
- */
-const WORKERS_DEV_HOST = "moviewatchlist.742designs.workers.dev";
-
 const nextConfig: NextConfig = {
   images: {
     // Bypass the platform image optimizer for TMDB images — Netlify's Image
@@ -34,16 +26,6 @@ const nextConfig: NextConfig = {
     ],
   },
   outputFileTracingRoot: monorepoRoot,
-  async redirects() {
-    return [
-      {
-        destination: "https://cornervideo.app/:path*",
-        has: [{ type: "host", value: WORKERS_DEV_HOST }],
-        permanent: true,
-        source: "/:path*",
-      },
-    ];
-  },
   turbopack: {
     root: monorepoRoot,
   },
