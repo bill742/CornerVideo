@@ -193,5 +193,5 @@ This doc lives in the repo at `docs/corner-video-brand-guide.md` and is referenc
 - [ ] Register cornervideo.app (and a .com variant if available)
 - [ ] Reserve "Corner Video" in App Store Connect and the Google Play Console
 - [ ] Claim matching social handles
-- [x] Point the domain at the Cloudflare Worker and 301-redirect moviewatchlist.742designs.workers.dev
+- [x] Point the domain at the Cloudflare Worker and retire moviewatchlist.742designs.workers.dev
 - [ ] File a trademark application (CIPO first; USPTO before a US launch)
