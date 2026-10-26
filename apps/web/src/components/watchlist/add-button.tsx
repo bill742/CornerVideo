@@ -102,7 +102,8 @@ function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
           await removeFromWatchlist(tmdbId, mediaType);
           setOnShelf(false);
         } else {
-          await addToWatchlist(tmdbId, mediaType);
+          const { error: addError } = await addToWatchlist(tmdbId, mediaType);
+          if (addError) throw new Error(addError);
           setOnShelf(true);
         }
       } catch (actionError) {

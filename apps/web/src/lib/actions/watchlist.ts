@@ -31,26 +31,40 @@ function revalidateWatchlist() {
   revalidatePath("/watchlist");
 }
 
+/**
+ * Returns `{ error }` rather than throwing. A production build replaces a
+ * thrown action error's message with a generic "Server Components render"
+ * notice, so a full shelf read as a crash instead of saying why.
+ */
 export async function addToWatchlist(
   tmdbId: number,
   mediaType: MediaType,
   status: WatchStatus = "want_to_watch"
-) {
-  const { supabase, user } = await getAuthenticatedUser();
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Sign in to add titles to your shelf." };
 
   // Enforce free tier limit.
-  const { count } = await supabase
+  const { count, error: countError } = await supabase
     .from("watchlist_items")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id);
+
+  if (countError) {
+    console.error("addToWatchlist count failed:", countError.message);
+    return { error: "Could not update your shelf. Try again." };
+  }
 
   // TODO: replace with real premium check once subscriptions are wired up.
   const isPremium = false;
 
   if (!isPremium && (count ?? 0) >= FREE_WATCHLIST_LIMIT) {
-    throw new Error(
-      `Free accounts are limited to ${FREE_WATCHLIST_LIMIT} items. Upgrade to premium for unlimited watchlist.`
-    );
+    return {
+      error: `Free accounts can keep ${FREE_WATCHLIST_LIMIT} titles on their shelf. Remove one to make room, or upgrade for unlimited space.`,
+    };
   }
 
   const { error } = await supabase
@@ -60,8 +74,12 @@ export async function addToWatchlist(
       { onConflict: "user_id,tmdb_id,media_type" }
     );
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("addToWatchlist upsert failed:", error.message);
+    return { error: "Could not update your shelf. Try again." };
+  }
   revalidateWatchlist();
+  return { error: null };
 }
 
 export async function removeFromWatchlist(
