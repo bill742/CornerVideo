@@ -1,6 +1,11 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  esbuild: false
+  sharp: false
+  unrs-resolver: false
+  workerd: false
 
 # React Native / Metro require a flat node_modules layout to resolve packages
 # reliably. pnpm's default symlinked layout breaks Metro resolution, so hoist.

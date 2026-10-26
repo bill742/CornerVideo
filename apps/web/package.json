@@ -13,7 +13,8 @@
     "cf:preview": "opennextjs-cloudflare preview",
     "react-doctor": "react-doctor . --no-telemetry",
     "typecheck": "tsc --noEmit",
-    "recommendations": "tsx recommendations.ts"
+    "recommendations": "tsx ai-tests/recommendations.ts",
+    "model-comparison": "tsx ai-tests/model-comparison.ts"
   },
   "dependencies": {
     "@eslint/compat": "^2.1.0",
@@ -40,7 +41,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "server-only": "^0.0.1",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
