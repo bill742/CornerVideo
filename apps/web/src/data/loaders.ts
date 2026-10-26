@@ -209,6 +209,26 @@ export const getSearchResults = cache(
 );
 
 /**
+ * Finds the TMDB movie that best matches a title, narrowed by release year
+ * @param title - Film title
+ * @param year - Release year, e.g. "1978"
+ * @returns The top match, or null if nothing matches or the request fails
+ */
+export const findMovie = cache(
+  async (title: string, year?: string): Promise<Movie | null> => {
+    if (!BASE_URL) {
+      console.error("NEXT_PUBLIC_API_URL is not defined");
+      return null;
+    }
+    const yearParam = year ? `&primary_release_year=${year}` : "";
+    const url = `${BASE_URL}/search/movie?query=${encodeURIComponent(title)}${yearParam}&include_adult=false&language=en-US&page=1`;
+    const results = await fetchAPIList<Movie>(url);
+
+    return results?.[0] ?? null;
+  }
+);
+
+/**
  * Fetches trending movies for the current week from TMDB API
  * @returns Array of trending movies or null if request fails
  */
