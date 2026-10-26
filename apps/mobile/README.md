@@ -113,11 +113,16 @@ eas env:set --environment preview --environment production --visibility plaintex
   --name EXPO_PUBLIC_TMDB_PROXY_URL --value https://cornervideo.app/api/tmdb
 eas env:set --environment preview --environment production --visibility plaintext \
   --name EXPO_PUBLIC_TMDB_IMAGE_PATH --value https://image.tmdb.org/t/p/
+# The Supabase values are read from the web app's .env (same project, shared accounts)
 eas env:set --environment preview --environment production --visibility plaintext \
-  --name EXPO_PUBLIC_SUPABASE_URL --value <from apps/web/.env>
+  --name EXPO_PUBLIC_SUPABASE_URL \
+  --value "$(grep '^NEXT_PUBLIC_SUPABASE_URL=' ../web/.env | cut -d= -f2- | tr -d '"')"
 eas env:set --environment preview --environment production --visibility sensitive \
-  --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value <from apps/web/.env>
+  --name EXPO_PUBLIC_SUPABASE_ANON_KEY \
+  --value "$(grep '^NEXT_PUBLIC_SUPABASE_ANON_KEY=' ../web/.env | cut -d= -f2- | tr -d '"')"
 ```
+
+Run these from `apps/mobile`. Then check them with `eas env:list --environment production`.
 
 Development builds don't need these, because a dev client loads its JS from your local `expo start`, which reads `.env`.
 
