@@ -7,7 +7,14 @@
     "icon": "./assets/images/icon.png",
     "scheme": "cornervideo",
     "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "app.cornervideo",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
     "android": {
+      "package": "app.cornervideo",
       "adaptiveIcon": {
         "backgroundColor": "#F6EFE0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -41,6 +48,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3ece0111-3427-4201-9d17-0be70d5ae616"
+      }
+    },
+    "owner": "bill742"
   }
 }

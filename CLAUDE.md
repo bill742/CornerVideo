@@ -12,8 +12,10 @@ Supabase auth + database, watchlist, TV shows). **Phase 3 (Expo mobile app) is i
 progress**: the core app is built — auth plus a tabbed app (browse / search /
 watchlist), movie & TV detail screens, and season/episode tracking, all sharing the
 Supabase project and TMDB client with web (PLAN.md Phase 3 items 1–5), plus
-premium-gated release-day reminders as local notifications (item 6). Still
-outstanding: EAS Build/store submission (item 7). Payments and Trakt sync are future
+premium-gated release-day reminders as local notifications (item 6). EAS
+Build is configured (item 7: `apps/mobile/eas.json`, bundle ID/package
+`app.cornervideo`); the first TestFlight/Play internal builds are still
+outstanding — see the mobile README's "Builds and releases" section. Payments and Trakt sync are future
 phases. Read `PLAN.md` for the roadmap, schema rationale, and
 the free/premium feature split.
 

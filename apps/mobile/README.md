@@ -82,6 +82,71 @@ pnpm --filter @moviewatchlist/mobile exec expo export --platform ios   # full bu
 
 From this directory, `pnpm dlx expo-doctor@latest` checks the Expo config and dependency versions.
 
+## Builds and releases (EAS)
+
+Native binaries are built with [EAS Build](https://docs.expo.dev/build/introduction/) and uploaded with EAS Submit. The project uses Continuous Native Generation: `ios/` and `android/` are gitignored and generated on the build server from `app.json`.
+
+| Identifier            | Value             |
+| --------------------- | ----------------- |
+| iOS bundle identifier | `app.cornervideo` |
+| Android package       | `app.cornervideo` |
+| URL scheme            | `cornervideo`     |
+
+Both identifiers are permanent once a build reaches either store. Don't change them.
+
+### Profiles (`eas.json`)
+
+| Profile       | Output                                                     | EAS environment |
+| ------------- | ---------------------------------------------------------- | --------------- |
+| `development` | Dev client (`expo-dev-client`): iOS simulator, Android APK | `development`   |
+| `preview`     | Internal-distribution build: ad hoc iOS, Android APK       | `preview`       |
+| `production`  | Store build: TestFlight `.ipa`, Play `.aab`                | `production`    |
+
+All three extend `base`, which pins Node and pnpm to the repo's versions. Build numbers are managed remotely (`appVersionSource: "remote"`) and `production` auto-increments them. Bump `expo.version` in `app.json` for a new marketing version.
+
+### Environment variables
+
+`.env` is gitignored, so it never reaches the build server. Builds read their `EXPO_PUBLIC_*` values from EAS environments instead. None of these values are secret (they ship in the binary), so use `plaintext` or `sensitive` visibility, never `secret`:
+
+```bash
+eas env:set --environment preview --environment production --visibility plaintext \
+  --name EXPO_PUBLIC_TMDB_PROXY_URL --value https://cornervideo.app/api/tmdb
+eas env:set --environment preview --environment production --visibility plaintext \
+  --name EXPO_PUBLIC_TMDB_IMAGE_PATH --value https://image.tmdb.org/t/p/
+# The Supabase values are read from the web app's .env (same project, shared accounts)
+eas env:set --environment preview --environment production --visibility plaintext \
+  --name EXPO_PUBLIC_SUPABASE_URL \
+  --value "$(grep '^NEXT_PUBLIC_SUPABASE_URL=' ../web/.env | cut -d= -f2- | tr -d '"')"
+eas env:set --environment preview --environment production --visibility sensitive \
+  --name EXPO_PUBLIC_SUPABASE_ANON_KEY \
+  --value "$(grep '^NEXT_PUBLIC_SUPABASE_ANON_KEY=' ../web/.env | cut -d= -f2- | tr -d '"')"
+```
+
+Run these from `apps/mobile`. Then check them with `eas env:list --environment production`.
+
+Development builds don't need these, because a dev client loads its JS from your local `expo start`, which reads `.env`.
+
+### One-time setup
+
+Run from this directory, with `eas-cli` installed (`npm i -g eas-cli`):
+
+1. `eas login`. The EAS project already exists ([`@bill742/corner-video`](https://expo.dev/accounts/bill742/projects/corner-video)) and is linked by `extra.eas.projectId` and `owner` in `app.json`. Don't run `eas init` again.
+2. Create the environment variables above.
+3. **iOS:** create the app in App Store Connect with bundle ID `app.cornervideo`. The first `eas build --platform ios` offers to generate the distribution certificate and provisioning profile.
+4. **Android:** create the app in the Play Console. Google's API can't upload to an app with no releases, so upload the first `.aab` from `eas build --platform android --profile production` by hand to the Internal testing track. Then create a Google service account key and add it to the project with `eas credentials` so EAS Submit can upload later builds.
+
+### Shipping a beta
+
+```bash
+eas build --platform all --profile production
+eas submit --platform ios --latest       # TestFlight
+eas submit --platform android --latest   # Play internal track, as a draft release
+```
+
+Android submissions go up as **drafts** (`releaseStatus: "draft"`), which Play requires until the app has its first published release. Roll each draft out to internal testers in the Play Console. Once the app is past review, switch it to `completed` in `eas.json`.
+
+Use `eas build --profile preview` for a quick installable build on registered devices without going through the stores.
+
 ## Project Structure
 
 ```
