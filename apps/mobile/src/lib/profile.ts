@@ -48,7 +48,12 @@ export async function getRegion(): Promise<string> {
   if (cachedRegion !== null) return cachedRegion;
 
   const profile = await getProfile().catch(() => null);
-  cachedRegion = profile?.region ?? DEFAULT_REGION;
+  // Only a real read is cached. Browse renders for a moment before the auth
+  // redirect on a signed-out launch, and caching that failed read pinned the
+  // default region for the whole session after sign-in.
+  if (!profile) return DEFAULT_REGION;
+
+  cachedRegion = profile.region ?? DEFAULT_REGION;
   return cachedRegion;
 }
 
