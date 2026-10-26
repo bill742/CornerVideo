@@ -30,6 +30,12 @@ Copy [`.env.example`](.env.example) to `.env` in this directory and fill it in:
 cp .env.example .env
 ```
 
+Or pull the preview values from EAS into a gitignored `.env.local`. They point at the deployed proxy, so the web app doesn't need to be running:
+
+```bash
+eas env:pull --environment preview
+```
+
 Use the **same Supabase project** as `apps/web/.env` so accounts are shared.
 
 | Variable                        | Purpose                                     |
@@ -71,6 +77,8 @@ Or from this directory: `pnpm dev`, `pnpm ios`, `pnpm android`. Add `-c` to clea
 ```bash
 pnpm --filter @moviewatchlist/mobile exec expo start -c
 ```
+
+**Android needs a development build, not Expo Go.** Since SDK 53, Expo Go for Android throws as soon as `expo-notifications` loads, and New release alerts use it. Build the dev client once with `eas build --platform android --profile development`, install the APK on the emulator or device, then open it while `expo start` is running. JS changes load from Metro; rebuild only when native dependencies change. Expo Go still works on iOS.
 
 ### Other commands
 
