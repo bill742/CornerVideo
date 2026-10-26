@@ -109,13 +109,13 @@ All three extend `base`, which pins Node and pnpm to the repo's versions. Build 
 `.env` is gitignored, so it never reaches the build server. Builds read their `EXPO_PUBLIC_*` values from EAS environments instead. None of these values are secret (they ship in the binary), so use `plaintext` or `sensitive` visibility, never `secret`:
 
 ```bash
-eas env:create --environment preview --environment production --visibility plaintext \
+eas env:set --environment preview --environment production --visibility plaintext \
   --name EXPO_PUBLIC_TMDB_PROXY_URL --value https://cornervideo.app/api/tmdb
-eas env:create --environment preview --environment production --visibility plaintext \
+eas env:set --environment preview --environment production --visibility plaintext \
   --name EXPO_PUBLIC_TMDB_IMAGE_PATH --value https://image.tmdb.org/t/p/
-eas env:create --environment preview --environment production --visibility plaintext \
+eas env:set --environment preview --environment production --visibility plaintext \
   --name EXPO_PUBLIC_SUPABASE_URL --value <from apps/web/.env>
-eas env:create --environment preview --environment production --visibility sensitive \
+eas env:set --environment preview --environment production --visibility sensitive \
   --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value <from apps/web/.env>
 ```
 
