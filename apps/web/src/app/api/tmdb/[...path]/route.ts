@@ -19,6 +19,7 @@ const ALLOWED_PATHS = [
   /^movie\/\d+\/credits$/,
   /^movie\/\d+\/videos$/,
   /^movie\/(now_playing|upcoming|popular)$/,
+  /^discover\/movie$/,
   /^trending\/(movie|tv)\/(day|week)$/,
   /^tv\/\d+$/,
   /^tv\/\d+\/credits$/,
@@ -37,6 +38,11 @@ const ALLOWED_PARAMS = [
   "region",
   "query",
   "include_adult",
+  // discover/movie filters, for the home release rows
+  "release_date.gte",
+  "release_date.lte",
+  "sort_by",
+  "with_release_type",
 ];
 
 /**
