@@ -9,7 +9,12 @@ import type {
   Person,
   PersonMovieCredit,
 } from "@/types";
-import { fetchAPI, fetchAPIList, tmdbRequestOptions } from "@/utils/fetch-apis";
+import {
+  fetchAPI,
+  fetchAPIList,
+  tmdbRequestOptions,
+  tmdbUncachedRequestOptions,
+} from "@/utils/fetch-apis";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -29,6 +34,26 @@ export const getMovie = cache(async (id: string): Promise<Movie | null> => {
 
   return movie;
 });
+
+/**
+ * getMovie without Next's data cache, for My Shelf, which looks up every saved
+ * title in one request. See tmdbUncachedRequestOptions for why.
+ */
+export const getShelfMovie = cache(
+  async (id: string): Promise<Movie | null> => {
+    if (!BASE_URL) return null;
+    const movie = await fetchAPI<Movie>(
+      `${BASE_URL}/movie/${id}?language=en-US`,
+      tmdbUncachedRequestOptions()
+    );
+
+    if (!movie) {
+      console.error(`Failed to fetch movie with ID: ${id}`);
+    }
+
+    return movie;
+  }
+);
 
 export const getCastAndCrew = cache(
   async (

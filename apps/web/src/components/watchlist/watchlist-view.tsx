@@ -120,7 +120,11 @@ function WatchlistView({ entries }: Props) {
         <ul className="divide-border divide-y">
           {visible.map((entry) => (
             <li className="flex items-center gap-4 py-4" key={entry.id}>
-              <Link className="shrink-0" href={entry.href}>
+              {/* No prefetch: a full shelf prefetched every detail page at
+                  once, and each uncached render overran the Workers free
+                  plan's CPU limit. The detail pages' loading.tsx covers the
+                  wait on click. */}
+              <Link className="shrink-0" href={entry.href} prefetch={false}>
                 {entry.posterPath ? (
                   <Image
                     alt={entry.title}
@@ -136,7 +140,7 @@ function WatchlistView({ entries }: Props) {
                 )}
               </Link>
               <div className="min-w-0 flex-1">
-                <Link href={entry.href}>
+                <Link href={entry.href} prefetch={false}>
                   <p className="truncate font-semibold hover:underline">
                     {entry.title}
                   </p>
