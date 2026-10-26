@@ -6,6 +6,7 @@
   },
   "eslint.runtime": "node",
   "cSpell.words": [
+    "cornervideo",
     "IMDB",
     "moviewatchlist",
     "plpgsql",
