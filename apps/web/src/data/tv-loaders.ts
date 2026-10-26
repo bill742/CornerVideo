@@ -11,6 +11,7 @@ import {
   fetchAPI,
   fetchAPIList,
   tmdbRequestOptions,
+  tmdbUncachedRequestOptions,
 } from "@/utils/fetch-apis";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -33,6 +34,17 @@ export const getTVShow = cache(
   async (id: string): Promise<TVShow | null> => {
     if (!BASE_URL) return null;
     return fetchAPI<TVShow>(`${BASE_URL}/tv/${id}?language=en-US`);
+  },
+);
+
+/** getTVShow without Next's data cache, for My Shelf. See getShelfMovie. */
+export const getShelfTVShow = cache(
+  async (id: string): Promise<TVShow | null> => {
+    if (!BASE_URL) return null;
+    return fetchAPI<TVShow>(
+      `${BASE_URL}/tv/${id}?language=en-US`,
+      tmdbUncachedRequestOptions(),
+    );
   },
 );
 

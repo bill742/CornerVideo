@@ -8,8 +8,8 @@ import {
   WatchlistView,
 } from "@/components/watchlist/watchlist-view";
 
-import { getMovie } from "@/data/loaders";
-import { getTVShow } from "@/data/tv-loaders";
+import { getShelfMovie } from "@/data/loaders";
+import { getShelfTVShow } from "@/data/tv-loaders";
 import { getWatchlistItems } from "@/lib/actions/watchlist";
 import { requireUser } from "@/lib/auth";
 import type { WatchlistItem } from "@/types";
@@ -22,6 +22,11 @@ export const metadata: Metadata = {
  * Resolves each saved id against TMDB, normalizing movies and shows into one
  * shape. Entries whose lookup fails are dropped, so the rendered list and the
  * count above it always agree.
+ *
+ * The lookups skip Next's data cache (getShelfMovie/getShelfTVShow): cached,
+ * each cost ~3 Cloudflare subrequests, and a full free shelf blew through the
+ * free plan's 50, dropping titles. Uncached, 25 titles stay under it — a
+ * larger premium shelf would not, which PLAN.md tracks.
  */
 async function resolveEntries(
   items: WatchlistItem[]
@@ -37,7 +42,7 @@ async function resolveEntries(
       };
 
       if (item.media_type === "tv") {
-        const show = await getTVShow(id);
+        const show = await getShelfTVShow(id);
 
         return show
           ? {
@@ -50,7 +55,7 @@ async function resolveEntries(
           : null;
       }
 
-      const movie = await getMovie(id);
+      const movie = await getShelfMovie(id);
 
       return movie
         ? {

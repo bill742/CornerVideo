@@ -35,13 +35,33 @@ export function tmdbRequestOptions(
 }
 
 /**
+ * The same TMDB request, but kept out of Next's data cache.
+ *
+ * On Cloudflare a cached fetch is not one subrequest but about three — a
+ * regional-cache match, the fetch itself, and a cache put — and the Workers
+ * free plan allows 50 per request. A page that looks up many titles at once
+ * (My Shelf, with up to 25) ran past that, and every lookup over the limit
+ * failed and silently dropped its title. Only use this on a page that is
+ * already dynamic: an uncached fetch opts a static route out of ISR.
+ */
+export function tmdbUncachedRequestOptions(): RequestInit {
+  return {
+    cache: "no-store",
+    headers: tmdbRequestOptions().headers,
+    method: "GET",
+  };
+}
+
+/**
  * Generic API fetch utility for single resource endpoints
  * @param url - The full URL to fetch from
+ * @param options - Request options; defaults to the cached TMDB request
  * @returns Promise resolving to the fetched data or null on error
  */
-export async function fetchAPI<T = Movie>(url: string): Promise<T | null> {
-  const options = tmdbRequestOptions();
-
+export async function fetchAPI<T = Movie>(
+  url: string,
+  options: RequestInit = tmdbRequestOptions()
+): Promise<T | null> {
   try {
     const response = await fetch(url, options);
 
