@@ -28,7 +28,7 @@ const ALLOWED_PATHS = [
   /^tv\/(on_the_air|airing_today|popular)$/,
   /^search\/(movie|tv|multi)$/,
   /^person\/\d+$/,
-  /^person\/\d+\/movie_credits$/,
+  /^person\/\d+\/(movie|tv)_credits$/,
 ];
 
 /** Query params worth forwarding. Anything else is dropped. */
@@ -61,7 +61,10 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   if (!BASE_URL) {
-    return NextResponse.json({ error: "TMDB is not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "TMDB is not configured" },
+      { status: 500 }
+    );
   }
 
   const { path } = await params;
@@ -99,6 +102,9 @@ export async function GET(
     });
   } catch (error) {
     console.error("TMDB fetch error:", error);
-    return NextResponse.json({ error: "Upstream request failed" }, { status: 502 });
+    return NextResponse.json(
+      { error: "Upstream request failed" },
+      { status: 502 }
+    );
   }
 }

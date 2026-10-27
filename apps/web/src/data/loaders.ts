@@ -8,6 +8,7 @@ import type {
   MultiSearchItem,
   Person,
   PersonMovieCredit,
+  PersonTVCredit,
 } from "@/types";
 import {
   fetchAPI,
@@ -304,6 +305,30 @@ export const getPersonMovieCredits = cache(
     }>(url);
     if (!credits) {
       console.error(`Failed to fetch movie credits for person with ID: ${id}`);
+      return null;
+    }
+    return credits;
+  }
+);
+
+export const getPersonTVCredits = cache(
+  async (
+    id: string
+  ): Promise<{
+    cast: PersonTVCredit[];
+    crew: PersonTVCredit[];
+  } | null> => {
+    if (!BASE_URL) {
+      console.error("NEXT_PUBLIC_API_URL is not defined");
+      return null;
+    }
+    const url = `${BASE_URL}/person/${id}/tv_credits?language=en-US`;
+    const credits = await fetchAPI<{
+      cast: PersonTVCredit[];
+      crew: PersonTVCredit[];
+    }>(url);
+    if (!credits) {
+      console.error(`Failed to fetch TV credits for person with ID: ${id}`);
       return null;
     }
     return credits;

@@ -2,6 +2,9 @@ import type {
   CastAndCrew,
   Movie,
   MultiSearchItem,
+  Person,
+  PersonMovieCredit,
+  PersonTVCredit,
   TVSeason,
   TVShow,
 } from "../types";
@@ -171,7 +174,9 @@ export function createTmdbClient({
     },
 
     getTrendingMovies(): Promise<Movie[] | null> {
-      return fetchApiList<Movie>(`${baseUrl}/trending/movie/week?language=en-US`);
+      return fetchApiList<Movie>(
+        `${baseUrl}/trending/movie/week?language=en-US`,
+      );
     },
 
     // ─── TV ─────────────────────────────────────────────────────────────────
@@ -197,6 +202,31 @@ export function createTmdbClient({
       return fetchApi<TVSeason>(
         `${baseUrl}/tv/${id}/season/${seasonNumber}?language=en-US`,
       );
+    },
+
+    getTVCredits(
+      id: number | string,
+    ): Promise<{ cast: CastAndCrew[]; crew: CastAndCrew[] } | null> {
+      return fetchApi(`${baseUrl}/tv/${id}/credits?language=en-US`);
+    },
+
+    // ─── People ─────────────────────────────────────────────────────────────
+
+    getPerson(id: number | string): Promise<Person | null> {
+      return fetchApi<Person>(`${baseUrl}/person/${id}?language=en-US`);
+    },
+
+    getPersonMovieCredits(id: number | string): Promise<{
+      cast: PersonMovieCredit[];
+      crew: PersonMovieCredit[];
+    } | null> {
+      return fetchApi(`${baseUrl}/person/${id}/movie_credits?language=en-US`);
+    },
+
+    getPersonTVCredits(
+      id: number | string,
+    ): Promise<{ cast: PersonTVCredit[]; crew: PersonTVCredit[] } | null> {
+      return fetchApi(`${baseUrl}/person/${id}/tv_credits?language=en-US`);
     },
 
     // ─── Search ─────────────────────────────────────────────────────────────

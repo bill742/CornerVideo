@@ -65,6 +65,23 @@ export interface PersonMovieCredit {
   department?: string;
 }
 
+/** One entry from /person/{id}/tv_credits — a show, not an episode. */
+export interface PersonTVCredit {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  first_air_date: string;
+  overview: string;
+  vote_average: number;
+  vote_count: number;
+  genre_ids?: number[];
+  episode_count?: number;
+  character?: string;
+  job?: string;
+  department?: string;
+}
+
 // ─── TMDB — TV ────────────────────────────────────────────────────────────────
 
 export interface TVEpisode {

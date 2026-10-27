@@ -4,10 +4,22 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { MovieList } from "@/components/movies/movie-list";
+import { FilmographyTabs } from "@/components/media/filmography-tabs";
+import { MediaList } from "@/components/media/media-list";
 
-import { getPerson, getPersonMovieCredits } from "@/data/loaders";
-import type { Movie, PersonMovieCredit } from "@/types";
+import {
+  getPerson,
+  getPersonMovieCredits,
+  getPersonTVCredits,
+} from "@/data/loaders";
+import {
+  type Filmography,
+  type MediaCardItem,
+  defaultFilmographyTab,
+  filmographySize,
+  movieFilmography,
+  tvFilmography,
+} from "@/types";
 
 /** See the notes on the movie detail page — same reasoning for both exports. */
 export const revalidate = 86400;
@@ -45,82 +57,6 @@ export async function generateMetadata({
   };
 }
 
-function creditToMovie(credit: PersonMovieCredit): Movie {
-  return {
-    backdrop_path: credit.backdrop_path ?? "",
-    genres: [],
-    id: credit.id,
-    overview: credit.overview,
-    poster_path: credit.poster_path ?? "",
-    release_date: credit.release_date,
-    release_dates: [],
-    runtime: 0,
-    title: credit.title,
-    vote_average: credit.vote_average,
-    vote_count: credit.vote_count,
-  };
-}
-
-function sortByReleaseDateDesc(
-  credits: PersonMovieCredit[]
-): PersonMovieCredit[] {
-  return [...credits].sort((a, b) => {
-    if (!a.release_date) return 1;
-    if (!b.release_date) return -1;
-    return (
-      new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
-    );
-  });
-}
-
-function deduplicateById(credits: PersonMovieCredit[]): PersonMovieCredit[] {
-  const seen = new Set<number>();
-  return credits.filter((c) => {
-    if (seen.has(c.id)) return false;
-    seen.add(c.id);
-    return true;
-  });
-}
-
-const DEPARTMENT_ORDER = [
-  "Directing",
-  "Writing",
-  "Production",
-  "Camera",
-  "Editing",
-  "Sound",
-  "Music",
-  "Art",
-  "Costume & Make-Up",
-  "Visual Effects",
-  "Crew",
-];
-
-function groupCrewByDepartment(
-  credits: PersonMovieCredit[]
-): [string, Movie[]][] {
-  const grouped: Record<string, PersonMovieCredit[]> = {};
-  for (const credit of credits) {
-    const dept = credit.department ?? "Crew";
-    if (!grouped[dept]) grouped[dept] = [];
-    grouped[dept].push(credit);
-  }
-
-  return Object.entries(grouped)
-    .map(([dept, deptCredits]): [string, Movie[]] => [
-      dept,
-      sortByReleaseDateDesc(deduplicateById(deptCredits)).map(creditToMovie),
-    ])
-    .sort(([a], [b]) => {
-      const ai = DEPARTMENT_ORDER.indexOf(a);
-      const bi = DEPARTMENT_ORDER.indexOf(b);
-      if (ai === -1 && bi === -1) return a.localeCompare(b);
-      if (ai === -1) return 1;
-      if (bi === -1) return -1;
-      return ai - bi;
-    });
-}
-
 /**
  * Most titles shown per filmography section — three full shelves at desktop
  * width. Every card is server-rendered, and a prolific crew member (one
@@ -130,33 +66,56 @@ function groupCrewByDepartment(
  */
 const SECTION_LIMIT = 18;
 
-function Filmography({
+function FilmographySection({
   heading,
-  movies,
+  items,
 }: {
   heading: string;
-  movies: Movie[];
+  items: MediaCardItem[];
 }) {
   return (
     <div className="space-y-3">
-      <MovieList heading={heading} movies={movies.slice(0, SECTION_LIMIT)} />
-      {movies.length > SECTION_LIMIT && (
+      <MediaList heading={heading} items={items.slice(0, SECTION_LIMIT)} />
+      {items.length > SECTION_LIMIT && (
         <p className="text-muted-foreground text-sm">
-          Showing the {SECTION_LIMIT} most recent of {movies.length}.
+          Showing the {SECTION_LIMIT} most recent of {items.length}.
         </p>
       )}
     </div>
   );
 }
 
-Filmography.displayName = "Filmography";
+FilmographySection.displayName = "FilmographySection";
+
+/** Every section for one media type. */
+function FilmographySections({ acting, crew }: Filmography) {
+  return (
+    <div className="space-y-12">
+      {acting.length > 0 && (
+        <FilmographySection heading="Acting" items={acting} />
+      )}
+      {crew.map(([department, items]) => (
+        <FilmographySection
+          key={department}
+          heading={department}
+          items={items}
+        />
+      ))}
+    </div>
+  );
+}
+
+FilmographySections.displayName = "FilmographySections";
+
+const EMPTY_FILMOGRAPHY: Filmography = { acting: [], crew: [] };
 
 const SinglePerson = async ({ params }: PageProps) => {
   const { id } = await params;
 
-  const [person, credits] = await Promise.all([
+  const [person, movieCredits, tvCredits] = await Promise.all([
     getPerson(id),
     getPersonMovieCredits(id),
+    getPersonTVCredits(id),
   ]);
 
   if (!person) {
@@ -168,13 +127,10 @@ const SinglePerson = async ({ params }: PageProps) => {
     );
   }
 
-  // Deduplicated like the crew sections: TMDB can list one film twice for an
-  // actor (two roles), which would otherwise repeat the card and its key.
-  const castMovies = credits
-    ? sortByReleaseDateDesc(deduplicateById(credits.cast)).map(creditToMovie)
-    : [];
-
-  const crewByDepartment = credits ? groupCrewByDepartment(credits.crew) : [];
+  const movies = movieCredits
+    ? movieFilmography(movieCredits)
+    : EMPTY_FILMOGRAPHY;
+  const tv = tvCredits ? tvFilmography(tvCredits) : EMPTY_FILMOGRAPHY;
 
   return (
     <ViewTransition default="none" enter="fade-in">
@@ -221,15 +177,15 @@ const SinglePerson = async ({ params }: PageProps) => {
           </div>
         </div>
 
-        {/* Cast filmography */}
-        {castMovies.length > 0 && (
-          <Filmography heading="Acting" movies={castMovies} />
-        )}
-
-        {/* Crew filmography by department */}
-        {crewByDepartment.map(([department, movies]) => (
-          <Filmography key={department} heading={department} movies={movies} />
-        ))}
+        <FilmographyTabs
+          defaultTab={defaultFilmographyTab(movies, tv)}
+          movies={
+            filmographySize(movies) > 0 ? (
+              <FilmographySections {...movies} />
+            ) : null
+          }
+          tv={filmographySize(tv) > 0 ? <FilmographySections {...tv} /> : null}
+        />
       </div>
     </ViewTransition>
   );

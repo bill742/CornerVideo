@@ -4,46 +4,10 @@ import { Image } from "expo-image";
 import { ScrollView, Text, View } from "react-native";
 import type { CastAndCrew, Movie } from "@moviewatchlist/shared";
 
+import { CastRow } from "@/components/cast-row";
 import { WatchlistButton } from "@/components/watchlist-button";
 import { tmdb } from "@/lib/tmdb";
 import { VhsLoader } from "@/components/vhs-loader";
-
-function CastRow({ cast }: { cast: CastAndCrew[] }) {
-  if (cast.length === 0) return null;
-  return (
-    <View className="mt-6">
-      <Text className="mb-3 font-display text-xl text-fg">Cast</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {cast.slice(0, 15).map((person) => {
-          const photo = tmdb.imageUrl(person.profile_path, "w185");
-          return (
-            <View
-              className="mr-4 w-20"
-              key={`${person.id}-${person.character}`}
-            >
-              <View className="h-20 w-20 overflow-hidden rounded-full bg-line">
-                {photo ? (
-                  <Image
-                    cachePolicy="memory-disk"
-                    contentFit="cover"
-                    source={{ uri: photo }}
-                    style={{ height: "100%", width: "100%" }}
-                  />
-                ) : null}
-              </View>
-              <Text
-                className="mt-2 text-center text-xs text-fg"
-                numberOfLines={2}
-              >
-                {person.name}
-              </Text>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
-}
 
 export default function MovieDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

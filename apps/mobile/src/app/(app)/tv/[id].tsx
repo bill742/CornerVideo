@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import type { TVShow } from "@moviewatchlist/shared";
+import type { CastAndCrew, TVShow } from "@moviewatchlist/shared";
 
+import { CastRow } from "@/components/cast-row";
 import { WatchlistButton } from "@/components/watchlist-button";
 import { tmdb } from "@/lib/tmdb";
 import { VhsLoader } from "@/components/vhs-loader";
@@ -12,15 +13,19 @@ export default function TVDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [show, setShow] = useState<TVShow | null>(null);
+  const [cast, setCast] = useState<CastAndCrew[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    tmdb.getTVShow(id).then((result) => {
-      if (!active) return;
-      setShow(result);
-      setLoading(false);
-    });
+    Promise.all([tmdb.getTVShow(id), tmdb.getTVCredits(id)]).then(
+      ([showResult, credits]) => {
+        if (!active) return;
+        setShow(showResult);
+        setCast(credits?.cast ?? []);
+        setLoading(false);
+      },
+    );
     return () => {
       active = false;
     };
@@ -93,6 +98,8 @@ export default function TVDetailScreen() {
               {show.overview}
             </Text>
           ) : null}
+
+          <CastRow cast={cast} />
 
           <Text className="mb-3 mt-8 font-display text-xl text-fg">
             Seasons
