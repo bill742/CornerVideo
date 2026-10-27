@@ -104,13 +104,22 @@ Both identifiers are permanent once a build reaches either store. Don't change t
 
 ### Profiles (`eas.json`)
 
-| Profile       | Output                                                     | EAS environment |
-| ------------- | ---------------------------------------------------------- | --------------- |
-| `development` | Dev client (`expo-dev-client`): iOS simulator, Android APK | `development`   |
-| `preview`     | Internal-distribution build: ad hoc iOS, Android APK       | `preview`       |
-| `production`  | Store build: TestFlight `.ipa`, Play `.aab`                | `production`    |
+| Profile                 | Output                                                     | EAS environment |
+| ----------------------- | ---------------------------------------------------------- | --------------- |
+| `development`           | Dev client (`expo-dev-client`): iOS simulator, Android APK | `development`   |
+| `development-simulator` | Dev client for the iOS Simulator only                      | `development`   |
+| `preview`               | Internal-distribution build: ad hoc iOS, Android APK       | `preview`       |
+| `production`            | Store build: TestFlight `.ipa`, Play `.aab`                | `production`    |
 
-All three extend `base`, which pins Node and pnpm to the repo's versions. Build numbers are managed remotely (`appVersionSource: "remote"`) and `production` auto-increments them. Bump `expo.version` in `app.json` for a new marketing version.
+`development-simulator` builds the same iOS Simulator dev client as `development`, under a name that says what it targets. Use it with `--platform ios`:
+
+```bash
+eas build --profile development-simulator --platform ios
+```
+
+When the build finishes, the EAS CLI offers to install it on a booted Simulator. Then run `expo start` and open the app. As with `development`, rebuild only when native dependencies change.
+
+All four extend `base`, which pins Node and pnpm to the repo's versions. Build numbers are managed remotely (`appVersionSource: "remote"`) and `production` auto-increments them. Bump `expo.version` in `app.json` for a new marketing version.
 
 ### Environment variables
 
