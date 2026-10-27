@@ -6,6 +6,20 @@ import type {
   TVShow,
 } from "../types";
 
+/** How far back a release still counts as "current" for the home rows. */
+const RELEASE_WINDOW_DAYS = 45;
+
+function releaseWindow(): { from: string; to: string } {
+  const to = new Date();
+  const from = new Date(to);
+  from.setDate(from.getDate() - RELEASE_WINDOW_DAYS);
+
+  return {
+    from: from.toISOString().slice(0, 10),
+    to: to.toISOString().slice(0, 10),
+  };
+}
+
 // ─── Configuration ────────────────────────────────────────────────────────────
 
 export interface TmdbClientConfig {
@@ -67,6 +81,26 @@ export function createTmdbClient({
     return result?.results ?? null;
   }
 
+  /** TMDB release types: 2 and 3 are theatrical (limited and wide), 4 is digital. */
+  function discoverByReleaseType(
+    region: string,
+    releaseTypes: string,
+  ): Promise<Movie[] | null> {
+    const { from, to } = releaseWindow();
+    const query = new URLSearchParams({
+      include_adult: "false",
+      language: "en-US",
+      page: "1",
+      region,
+      "release_date.gte": from,
+      "release_date.lte": to,
+      sort_by: "popularity.desc",
+      with_release_type: releaseTypes,
+    });
+
+    return fetchApiList<Movie>(`${baseUrl}/discover/movie?${query}`);
+  }
+
   return {
     /** Build a full image URL from a TMDB path, e.g. imageUrl(poster_path, "w500"). */
     imageUrl(path: string | null, size = "w500"): string | null {
@@ -88,6 +122,52 @@ export function createTmdbClient({
       return fetchApiList<Movie>(
         `${baseUrl}/movie/now_playing?language=en-US&page=1&region=${region}`,
       );
+    },
+
+    /**
+     * The "In Theatres" and "New on Digital" home rows. A film with both a
+     * theatrical and a digital release inside the window is returned by both
+     * queries, so theatrical wins and is removed from digital.
+     */
+    async getReleaseRows(
+      region: string,
+    ): Promise<{ digital: Movie[]; theatrical: Movie[] } | null> {
+      const [theatrical, digital] = await Promise.all([
+        discoverByReleaseType(region, "2|3"),
+        discoverByReleaseType(region, "4"),
+      ]);
+
+      if (!theatrical || !digital) return null;
+
+      const inCinemas = new Set(theatrical.map((movie) => movie.id));
+
+      return {
+        digital: digital.filter((movie) => !inCinemas.has(movie.id)),
+        theatrical,
+      };
+    },
+
+    /** "Coming Soon": upcoming movies releasing tomorrow or later, soonest first. */
+    async getUpcomingMovies(region: string): Promise<Movie[] | null> {
+      const results = await fetchApiList<Movie>(
+        `${baseUrl}/movie/upcoming?language=en-US&page=1&region=${region}`,
+      );
+      if (!results) return null;
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      return results
+        .filter(
+          (movie) =>
+            movie.release_date && new Date(movie.release_date) >= tomorrow,
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.release_date).getTime() -
+            new Date(b.release_date).getTime(),
+        );
     },
 
     getTrendingMovies(): Promise<Movie[] | null> {

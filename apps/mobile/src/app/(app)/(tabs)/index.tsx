@@ -1,11 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
-import { FlatList, ScrollView, Text, View } from "react-native";
+import { SymbolView, type SymbolViewProps } from "expo-symbols";
+import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { Movie, TVShow } from "@moviewatchlist/shared";
 
 import { PosterCard } from "@/components/poster-card";
 import { getRegion } from "@/lib/profile";
+import { useBrand } from "@/lib/theme";
 import { tmdb } from "@/lib/tmdb";
 import { VhsLoader } from "@/components/vhs-loader";
 
@@ -49,13 +51,70 @@ function Row<T>({
   );
 }
 
+type Tab = "movies" | "tv";
+
+const TABS: { icon: SymbolViewProps["name"]; label: string; value: Tab }[] = [
+  { icon: { android: "movie", ios: "film" }, label: "Movies", value: "movies" },
+  { icon: { android: "tv", ios: "tv" }, label: "TV Shows", value: "tv" },
+];
+
+/** Movies / TV Shows switch, matching the web home page's pill toggle. */
+function BrowseTabs({
+  active,
+  onChange,
+}: {
+  active: Tab;
+  onChange: (tab: Tab) => void;
+}) {
+  const { colors } = useBrand();
+
+  return (
+    <View
+      accessibilityRole="tablist"
+      className="flex-row self-start rounded-sm border border-line bg-surface p-1"
+    >
+      {TABS.map((tab) => {
+        const selected = tab.value === active;
+
+        return (
+          <Pressable
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            className={`flex-row items-center gap-2 rounded-sm px-4 py-2 ${
+              selected ? "bg-primary" : ""
+            }`}
+            key={tab.value}
+            onPress={() => onChange(tab.value)}
+          >
+            <SymbolView
+              name={tab.icon}
+              size={16}
+              tintColor={selected ? colors.onPrimary : colors.muted}
+            />
+            <Text
+              className={`text-sm font-semibold ${
+                selected ? "text-on-primary" : "text-muted"
+              }`}
+            >
+              {tab.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+BrowseTabs.displayName = "BrowseTabs";
+
 export default function BrowseScreen() {
   const router = useRouter();
-  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
-  const [nowPlaying, setNowPlaying] = useState<Movie[]>([]);
+  const [inTheatres, setInTheatres] = useState<Movie[]>([]);
+  const [newOnDigital, setNewOnDigital] = useState<Movie[]>([]);
+  const [comingSoon, setComingSoon] = useState<Movie[]>([]);
   const [trendingTV, setTrendingTV] = useState<TVShow[]>([]);
   const [onTheAir, setOnTheAir] = useState<TVShow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<Tab>("movies");
 
   // Region is cached in memory, so on most focuses this resolves without any
   // I/O and the early return means no TMDB requests either. Changing it in
@@ -70,18 +129,20 @@ export default function BrowseScreen() {
         const region = await getRegion();
         if (!active || loadedRegion.current === region) return;
 
-        const [movies, playing, tv, air] = await Promise.all([
-          tmdb.getTrendingMovies(),
-          tmdb.getNowPlayingMovies(region),
+        // Same rows, sources and 12-title cap as the web home page.
+        const [releases, upcoming, tv, air] = await Promise.all([
+          tmdb.getReleaseRows(region),
+          tmdb.getUpcomingMovies(region),
           tmdb.getTrendingTV(),
           tmdb.getOnTheAirTV(region),
         ]);
 
         if (!active) return;
-        setTrendingMovies(movies ?? []);
-        setNowPlaying(playing ?? []);
-        setTrendingTV(tv ?? []);
-        setOnTheAir(air ?? []);
+        setInTheatres((releases?.theatrical ?? []).slice(0, 12));
+        setNewOnDigital((releases?.digital ?? []).slice(0, 12));
+        setComingSoon((upcoming ?? []).slice(0, 12));
+        setTrendingTV((tv ?? []).slice(0, 12));
+        setOnTheAir((air ?? []).slice(0, 12));
         setLoading(false);
         loadedRegion.current = region;
       })();
@@ -102,8 +163,9 @@ export default function BrowseScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={["top"]}>
-      <View className="px-4 py-3">
+      <View className="gap-3 px-4 py-3">
         <Text className="font-display text-3xl text-fg">Browse the aisles</Text>
+        <BrowseTabs active={activeTab} onChange={setActiveTab} />
       </View>
 
       {loading ? (
@@ -111,41 +173,58 @@ export default function BrowseScreen() {
       ) : (
         <ScrollView
           className="flex-1"
+          // A fresh list per tab, so switching starts at the top.
+          key={activeTab}
           contentContainerStyle={{ paddingTop: 8 }}
           showsVerticalScrollIndicator={false}
         >
-          <Row
-            data={trendingMovies}
-            keyFor={(m) => String(m.id)}
-            onPressItem={openMovie}
-            posterFor={(m) => m.poster_path}
-            title="Trending movies"
-            titleFor={(m) => m.title}
-          />
-          <Row
-            data={nowPlaying}
-            keyFor={(m) => String(m.id)}
-            onPressItem={openMovie}
-            posterFor={(m) => m.poster_path}
-            title="Now playing"
-            titleFor={(m) => m.title}
-          />
-          <Row
-            data={trendingTV}
-            keyFor={(s) => String(s.id)}
-            onPressItem={openTV}
-            posterFor={(s) => s.poster_path}
-            title="Trending TV"
-            titleFor={(s) => s.name}
-          />
-          <Row
-            data={onTheAir}
-            keyFor={(s) => String(s.id)}
-            onPressItem={openTV}
-            posterFor={(s) => s.poster_path}
-            title="On the air"
-            titleFor={(s) => s.name}
-          />
+          {activeTab === "movies" ? (
+            <>
+              <Row
+                data={inTheatres}
+                keyFor={(m) => String(m.id)}
+                onPressItem={openMovie}
+                posterFor={(m) => m.poster_path}
+                title="In Theatres"
+                titleFor={(m) => m.title}
+              />
+              <Row
+                data={newOnDigital}
+                keyFor={(m) => String(m.id)}
+                onPressItem={openMovie}
+                posterFor={(m) => m.poster_path}
+                title="New on Digital"
+                titleFor={(m) => m.title}
+              />
+              <Row
+                data={comingSoon}
+                keyFor={(m) => String(m.id)}
+                onPressItem={openMovie}
+                posterFor={(m) => m.poster_path}
+                title="Coming Soon"
+                titleFor={(m) => m.title}
+              />
+            </>
+          ) : (
+            <>
+              <Row
+                data={trendingTV}
+                keyFor={(s) => String(s.id)}
+                onPressItem={openTV}
+                posterFor={(s) => s.poster_path}
+                title="Trending This Week"
+                titleFor={(s) => s.name}
+              />
+              <Row
+                data={onTheAir}
+                keyFor={(s) => String(s.id)}
+                onPressItem={openTV}
+                posterFor={(s) => s.poster_path}
+                title="Currently Airing"
+                titleFor={(s) => s.name}
+              />
+            </>
+          )}
         </ScrollView>
       )}
     </SafeAreaView>
