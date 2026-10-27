@@ -34,6 +34,24 @@ test.describe("Cast and crew person page", () => {
     await expect(actingSection.getByRole("link").first()).toBeVisible();
   });
 
+  test("Switches between movie and TV credits", async ({ page }) => {
+    await page.goto(`/cast-and-crew/${KNOWN_PERSON_ID}`);
+
+    const moviesTab = page.getByRole("button", { exact: true, name: "Movies" });
+    const tvTab = page.getByRole("button", { exact: true, name: "TV Shows" });
+
+    await expect(moviesTab).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      page.locator('main a[href^="/movies/"]').first()
+    ).toBeVisible();
+
+    await tvTab.click();
+
+    await expect(tvTab).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator('main a[href^="/tv/"]').first()).toBeVisible();
+    await expect(page.locator('main a[href^="/movies/"]')).toHaveCount(0);
+  });
+
   test("Displays an error for a non-existent person ID", async ({ page }) => {
     await page.goto("/cast-and-crew/999999999");
 
