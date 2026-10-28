@@ -80,7 +80,7 @@ pnpm --filter @moviewatchlist/mobile exec expo start -c
 
 **Android needs a development build, not Expo Go.** Since SDK 53, Expo Go for Android throws as soon as `expo-notifications` loads, and New release alerts use it. Build the dev client once with `eas build --platform android --profile development`, install the APK on the emulator or device, then open it while `expo start` is running. JS changes load from Metro; rebuild only when native dependencies change. Expo Go still works on iOS.
 
-**Simulators and emulators.** Xcode 27 replaced Simulator.app and the Window → Devices and Simulators menu with Device Hub. Open it with `open -a DeviceHub` and add simulators there, or with `xcrun simctl create`. For Android, create an emulator in Android Studio's Device Manager from an API 36 system image, the SDK this app compiles against. Building also needs SDK Build-Tools 36.0.0 and NDK 27.1.12297006. Deleting a simulator or emulator deletes the dev client installed on it. Reinstall the last build with `eas build:run -p ios --latest` (or `-p android`).
+**Simulators and emulators.** Xcode 27 replaced Simulator.app and the Window → Devices and Simulators menu with Device Hub. Open it with `open -a DeviceHub` and add simulators there, or with `xcrun simctl create`. For Android, create an emulator in Android Studio's Device Manager from an API 36 system image, the SDK this app compiles against. Keep SDK Build-Tools 36.0.0 installed: `eas build:run` uses its `aapt` to install APKs. The NDK and CMake are only needed for local native builds (`expo run:android`), not EAS cloud builds. Deleting a simulator or emulator deletes the dev client installed on it. Reinstall the last build with `eas build:run -p ios --latest` (or `-p android`).
 
 ### Other commands
 
