@@ -1,0 +1,9 @@
+# Supabase CLI config. Only what the repo needs is set here; the CLI fills in
+# defaults for everything else. Link the hosted project with
+# `supabase link --project-ref <ref>` before deploying.
+project_id = "moviewatchlist"
+
+[functions.stripe-webhook]
+# Stripe sends no Supabase JWT. The function verifies the Stripe-Signature
+# header itself and rejects anything unsigned.
+verify_jwt = false

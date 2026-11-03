@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { userHasPremium } from "@/lib/billing";
 import { createClient } from "@/lib/supabase/server";
 import {
   FREE_WATCHLIST_LIMIT,
@@ -58,10 +59,10 @@ export async function addToWatchlist(
     return { error: "Could not update your shelf. Try again." };
   }
 
-  // TODO: replace with real premium check once subscriptions are wired up.
-  const isPremium = false;
-
-  if (!isPremium && (count ?? 0) >= FREE_WATCHLIST_LIMIT) {
+  if (
+    (count ?? 0) >= FREE_WATCHLIST_LIMIT &&
+    !(await userHasPremium(supabase, user.id))
+  ) {
     return {
       error: `Free accounts can keep ${FREE_WATCHLIST_LIMIT} titles on their shelf. Remove one to make room, or upgrade for unlimited space.`,
     };

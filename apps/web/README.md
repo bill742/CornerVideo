@@ -48,6 +48,9 @@ cp .env.example .env
 | `NEXT_PUBLIC_SITE_URL`          | Absolute site URL, used for `metadataBase` and canonicals. No trailing slash |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                                                         |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key                                                            |
+| `STRIPE_SECRET_KEY`             | Stripe secret key. **Server-only**; optional — unset hides Premium section   |
+| `STRIPE_PRICE_MONTHLY`          | Stripe price ID for monthly Premium                                          |
+| `STRIPE_PRICE_ANNUAL`           | Stripe price ID for annual Premium                                           |
 
 A free TMDB read access token comes from [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api). Use the long **API Read Access Token**, not the short v3 API key — it is sent as a bearer token. Store it on its own: the `Bearer ` prefix is added in code.
 
@@ -56,6 +59,28 @@ A free TMDB read access token comes from [themoviedb.org/settings/api](https://w
 > Use `.env` rather than `.env.local`. Next.js reads either, but `playwright.config.ts` loads `.env` specifically — put values only in `.env.local` and the metadata tests will compare against `undefined`.
 
 Supabase credentials are required even for browsing: `src/proxy.ts` refreshes the session on every page request and will fail without them.
+
+### Billing (Stripe)
+
+Premium is sold on the web through Stripe Checkout, and members manage it in the Stripe billing portal. The web app only _starts_ those sessions (`src/lib/actions/billing.ts`). The `subscriptions` row is written by the `stripe-webhook` Supabase Edge Function (`supabase/functions/stripe-webhook`), never by the app, so a member can't grant themselves premium.
+
+One-time setup, in **test mode** until the Worker moves to Workers Paid (PLAN.md Phase 4 step 5):
+
+1. Apply `supabase/migrations/002_stripe_billing.sql` (SQL editor or `supabase db push`).
+2. In Stripe, create a **Premium** product with a monthly and an annual recurring price. Put both price IDs and the secret key in `.env`.
+3. Turn on the [customer portal](https://dashboard.stripe.com/test/settings/billing/portal) (cancel, switch plans between the two prices, update payment method).
+4. Deploy the webhook (Supabase CLI, run from the repo root):
+
+   ```bash
+   supabase link --project-ref <project-ref>
+   supabase secrets set STRIPE_SECRET_KEY=sk_test_... STRIPE_WEBHOOK_SECRET=whsec_...
+   supabase functions deploy stripe-webhook   # verify_jwt = false comes from supabase/config.toml
+   ```
+
+5. Add a Stripe webhook endpoint at `https://<project-ref>.supabase.co/functions/v1/stripe-webhook` for `checkout.session.completed` and `customer.subscription.created`, `.updated`, `.deleted`, `.paused`, `.resumed`. Its signing secret is `STRIPE_WEBHOOK_SECRET` above.
+6. Production Worker: `wrangler secret put` each of `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY` and `STRIPE_PRICE_ANNUAL` — secrets, not vars, for the reason in `wrangler.jsonc`.
+
+Locally, `stripe listen --forward-to https://<project-ref>.supabase.co/functions/v1/stripe-webhook` prints a `whsec_` to use instead, and test card `4242 4242 4242 4242` completes checkout.
 
 ### Run the development server
 
