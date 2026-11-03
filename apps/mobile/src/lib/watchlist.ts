@@ -5,6 +5,7 @@ import {
   type WatchlistItem,
 } from "@moviewatchlist/shared";
 
+import { isPremium } from "./premium";
 import { supabase } from "./supabase";
 
 async function requireUserId(): Promise<string> {
@@ -60,9 +61,7 @@ export async function addToWatchlist(
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
 
-  // TODO: replace with a real premium check once subscriptions are wired up.
-  const isPremium = false;
-  if (!isPremium && (count ?? 0) >= FREE_WATCHLIST_LIMIT) {
+  if ((count ?? 0) >= FREE_WATCHLIST_LIMIT && !(await isPremium())) {
     throw new Error(
       `Free accounts are limited to ${FREE_WATCHLIST_LIMIT} items. Upgrade to premium for an unlimited watchlist.`,
     );

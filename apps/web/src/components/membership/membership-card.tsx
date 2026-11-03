@@ -6,10 +6,15 @@ interface MembershipCardProps {
   email: string;
   /** ISO timestamp the account was created. */
   memberSince: string;
+  premium?: boolean;
 }
 
 /** The laminated card from the store's wallet slot, made out to the member. */
-function MembershipCard({ email, memberSince }: MembershipCardProps) {
+function MembershipCard({
+  email,
+  memberSince,
+  premium = false,
+}: MembershipCardProps) {
   const since = new Date(memberSince).toLocaleDateString("en-CA", {
     month: "long",
     year: "numeric",
@@ -30,7 +35,9 @@ function MembershipCard({ email, memberSince }: MembershipCardProps) {
         <p className="font-display text-xl font-semibold tracking-wide uppercase">
           {BRAND.name}
         </p>
-        <p className="ml-auto text-sm font-semibold">Member</p>
+        <p className="ml-auto text-sm font-semibold">
+          {premium ? "Premium member" : "Member"}
+        </p>
       </div>
       <dl className="grid gap-3 px-4 py-4 text-sm">
         <div>

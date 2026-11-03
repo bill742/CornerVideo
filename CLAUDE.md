@@ -15,8 +15,9 @@ Supabase project and TMDB client with web (PLAN.md Phase 3 items 1–5), plus
 premium-gated release-day reminders as local notifications (item 6). EAS
 Build is configured (item 7: `apps/mobile/eas.json`, bundle ID/package
 `app.cornervideo`); the first TestFlight/Play internal builds are still
-outstanding — see the mobile README's "Builds and releases" section. Payments and Trakt sync are future
-phases. Read `PLAN.md` for the roadmap, schema rationale, and
+outstanding — see the mobile README's "Builds and releases" section. **Phase 4 (payments) has
+started**: web Stripe billing is built and runs in test mode (see "Billing"
+below); RevenueCat and Trakt sync are still to come. Read `PLAN.md` for the roadmap, schema rationale, and
 the free/premium feature split.
 
 ## Brand
@@ -67,7 +68,8 @@ MovieWatchlist/
 ├── packages/
 │   └── shared/              # @moviewatchlist/shared — TS types, constants, TMDB client
 ├── supabase/
-│   └── migrations/          # SQL schema (RLS policies, triggers)
+│   ├── migrations/          # SQL schema (RLS policies, triggers)
+│   └── functions/           # Edge Functions (Deno): stripe-webhook
 ├── turbo.json               # task pipeline (build, lint, dev)
 ├── pnpm-workspace.yaml
 └── PLAN.md                  # expansion roadmap
@@ -236,8 +238,33 @@ export const getMovie = cache(async (id: string): Promise<Movie | null> => {
 are `"use server"` functions that authenticate via `supabase.auth.getUser()`, write
 through the server client, then `revalidatePath(...)`. They **throw** on error (the
 opposite of loaders) so callers can surface the message. The free-tier limit
-(`FREE_WATCHLIST_LIMIT`) is enforced in `addToWatchlist`; a real premium check is
-still a TODO.
+(`FREE_WATCHLIST_LIMIT`) is enforced in `addToWatchlist`, waived for premium
+members via `userHasPremium()` from `@/lib/billing`.
+
+### Billing
+
+- **Premium is decided by `hasPremium(rows)`** in `packages/shared/src/premium.ts`,
+  over *all* of a member's `subscriptions` rows (one per platform — `stripe`,
+  `apple`, `google`; migration 002). Web calls it through `userHasPremium()` /
+  `getMembership()` in `src/lib/billing.ts`, mobile through `isPremium()` in
+  `src/lib/premium.ts`. Never `.maybeSingle()` the subscriptions table.
+- **Only the `stripe-webhook` Edge Function writes `subscriptions` and
+  `stripe_customers`** (service role; members have SELECT-only RLS). The web
+  app's `src/lib/actions/billing.ts` just starts Checkout / portal sessions and
+  redirects; it never trusts the return from Checkout. Don't add insert/update
+  policies to either table — that lets a member grant themselves premium or
+  open someone else's billing portal.
+- The Stripe client is `getStripe()` (`src/lib/stripe.ts`, `server-only`), null
+  when `STRIPE_SECRET_KEY` is unset. Without it (or without readable prices) the
+  Membership page hides the Premium section entirely, unless the member already
+  has Premium or a past subscription — so `main` can merge before billing launches. Prices and the price
+  amounts live in Stripe (`STRIPE_PRICE_MONTHLY`/`_ANNUAL`), not in code.
+- Edge Functions live in `supabase/functions/` (Deno, `npm:` imports) and are
+  outside Turbo's lint/typecheck — check them with `npx deno check <file>`.
+  Setup and deploy steps: `apps/web/README.md` → "Billing (Stripe)".
+- **Stay on test keys until the Worker is on Workers Paid** (PLAN.md Phase 4
+  step 5): a premium shelf breaks past ~45 titles on the free plan. The Worker
+  was 2.5 MiB gzipped of the free plan's 3 MiB after adding `stripe`.
 
 ### Supabase clients
 

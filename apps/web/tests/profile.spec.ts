@@ -82,4 +82,48 @@ test.describe("Profile", () => {
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });
+  // The Premium section only renders when Stripe is configured. Locally .env
+  // has test keys; CI (like the production Worker for now) has none.
+  const billingConfigured = !!process.env.STRIPE_SECRET_KEY;
+
+  test("Shows the Premium section only when billing is configured", async ({
+    page,
+  }) => {
+    await page.goto("/profile");
+    await expect(page.locator("#region")).toBeVisible();
+    // "Go Premium" for a free account, "Premium" for a subscriber.
+    const heading = page.getByRole("heading", { level: 2, name: /Premium$/ });
+    if (billingConfigured) {
+      await expect(heading).toBeVisible();
+    } else {
+      await expect(heading).toHaveCount(0);
+    }
+  });
+
+  test("Says plainly when checkout was cancelled", async ({ page }) => {
+    test.skip(
+      !billingConfigured,
+      "the Premium section is hidden without Stripe"
+    );
+
+    await page.goto("/profile?checkout=cancelled");
+    await expect(page.getByRole("status")).toHaveText(
+      "Checkout was cancelled. You haven't been charged."
+    );
+
+    // Shown once: the flag leaves the address so a reload doesn't repeat it.
+    await expect(page).toHaveURL(/\/profile$/);
+    await page.reload();
+    await expect(page.getByRole("status")).toHaveCount(0);
+  });
+
+  test("Ignores unknown billing flags", async ({ page }) => {
+    await page.goto("/profile?billing=<script>");
+    await expect(page.locator("#region")).toBeVisible();
+    // Production builds always include Next's empty route announcer, which
+    // has role="alert", so only alerts with text count.
+    await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(
+      0
+    );
+  });
 });

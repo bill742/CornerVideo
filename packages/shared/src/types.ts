@@ -255,9 +255,15 @@ export type SubscriptionStatus =
   | "active"
   | "trialing"
   | "cancelled"
-  | "past_due";
+  | "past_due"
+  | "incomplete"
+  | "unpaid"
+  | "paused";
 
 export type SubscriptionPlatform = "stripe" | "apple" | "google";
+
+/** Premium billing intervals offered on the web. */
+export type BillingInterval = "annual" | "monthly";
 
 export interface Subscription {
   id: string;
@@ -266,6 +272,8 @@ export interface Subscription {
   platform: SubscriptionPlatform;
   external_id: string | null;
   current_period_end: string | null;
+  /** Cancelled in the billing portal; premium until current_period_end. */
+  cancel_at_period_end: boolean;
   created_at: string;
   updated_at: string;
 }

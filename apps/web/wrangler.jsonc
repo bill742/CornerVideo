@@ -53,6 +53,11 @@
   // and every /api route returns 502 while pages still render. That is exactly
   // how it broke once. `wrangler secret list` should always list it.
   //
+  // The same goes for STRIPE_SECRET_KEY, STRIPE_PRICE_MONTHLY and
+  // STRIPE_PRICE_ANNUAL (the price IDs aren't secret, but a plaintext var would
+  // be wiped the same way). Missing, the Membership page just stops offering
+  // Premium — check `wrangler secret list` if checkout disappears.
+  //
   // The six NEXT_PUBLIC_* variables belong nowhere near here. `next build`
   // inlines them into the bundle, so they must be set as *build* environment
   // variables in the Cloudflare build configuration — by the time the Worker
