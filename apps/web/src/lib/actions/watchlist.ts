@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   FREE_WATCHLIST_LIMIT,
   type MediaType,
+  WATCHLIST_LIMIT_ERROR,
   type WatchStatus,
 } from "@/types";
 
@@ -28,6 +29,8 @@ async function getAuthenticatedUser() {
  * (TMDB fetches, cast, images) into the action's response, which made that
  * response slow enough to still be streaming when the user moved on.
  */
+const SHELF_FULL_MESSAGE = `Free accounts can keep ${FREE_WATCHLIST_LIMIT} titles on their shelf. Remove one to make room, or upgrade for unlimited space.`;
+
 function revalidateWatchlist() {
   revalidatePath("/watchlist");
 }
@@ -63,9 +66,7 @@ export async function addToWatchlist(
     (count ?? 0) >= FREE_WATCHLIST_LIMIT &&
     !(await userHasPremium(supabase, user.id))
   ) {
-    return {
-      error: `Free accounts can keep ${FREE_WATCHLIST_LIMIT} titles on their shelf. Remove one to make room, or upgrade for unlimited space.`,
-    };
+    return { error: SHELF_FULL_MESSAGE };
   }
 
   const { error } = await supabase
@@ -76,6 +77,11 @@ export async function addToWatchlist(
     );
 
   if (error) {
+    // The database enforces the limit too (migration 003), which catches a
+    // subscription that lapsed between the check above and this write.
+    if (error.message === WATCHLIST_LIMIT_ERROR) {
+      return { error: SHELF_FULL_MESSAGE };
+    }
     console.error("addToWatchlist upsert failed:", error.message);
     return { error: "Could not update your shelf. Try again." };
   }

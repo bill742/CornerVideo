@@ -238,8 +238,12 @@ export const getMovie = cache(async (id: string): Promise<Movie | null> => {
 are `"use server"` functions that authenticate via `supabase.auth.getUser()`, write
 through the server client, then `revalidatePath(...)`. They **throw** on error (the
 opposite of loaders) so callers can surface the message. The free-tier limit
-(`FREE_WATCHLIST_LIMIT`) is enforced in `addToWatchlist`, waived for premium
-members via `userHasPremium()` from `@/lib/billing`.
+(`FREE_WATCHLIST_LIMIT`) is checked in `addToWatchlist`, waived for premium
+members via `userHasPremium()` from `@/lib/billing` — but the authority is the
+`enforce_watchlist_limit` trigger (migration 003), since app checks run as the
+member and can be skipped by calling Supabase directly. It raises
+`WATCHLIST_LIMIT_ERROR`, which both apps map to their limit message. The limit
+and the premium rule are duplicated in that SQL: change them together.
 
 ### Billing
 

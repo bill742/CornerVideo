@@ -322,4 +322,8 @@ export const WATCH_STATUS_OPTIONS: WatchStatus[] = [
 
 // ─── Free-tier limits ─────────────────────────────────────────────────────────
 
+/** Also enforced by the database (migration 003) — change both together. */
 export const FREE_WATCHLIST_LIMIT = 25;
+
+/** Error message the database raises when a free shelf is full. */
+export const WATCHLIST_LIMIT_ERROR = "watchlist_limit_reached";
