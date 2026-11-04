@@ -168,6 +168,46 @@ Android submissions go up as **drafts** (`releaseStatus: "draft"`), which Play r
 
 Use `eas build --profile preview` for a quick installable build on registered devices without going through the stores.
 
+## In-app purchases (RevenueCat)
+
+Premium is sold in the app through Apple and Google in-app purchases, wrapped by [RevenueCat](https://www.revenuecat.com) (`react-native-purchases`). The web sells it through Stripe; one `subscriptions` row per platform keeps them independent.
+
+- **Identity:** the app logs in to RevenueCat with the Supabase user id (`src/lib/purchases.ts`, called from `AuthProvider`). That id is how the server finds the member.
+- **The database decides Premium.** The app never writes it. `revenuecat-webhook` (an Edge Function RevenueCat calls on every purchase event) and `revenuecat-sync` (which the app calls right after a purchase or restore) re-read the member from RevenueCat's REST API and write their `apple`, `google` or `test` row. The mapping rules live in `supabase/functions/_shared/revenuecat.ts`, tested by `npx deno test supabase/functions/_shared/revenuecat_test.ts`.
+- **Screen:** the Premium section on the Membership tab (`src/components/premium-plan.tsx`). It's hidden until this build has a RevenueCat key and an offering to sell.
+- **New native module:** after pulling this change, build a new development client (`eas build --profile development-simulator --platform ios`, or `npx expo run:ios`). The old one doesn't include RevenueCat. `plugins/with-pod-deployment-target.js` works around Xcode 27 rejecting RevenueCat's pods; remove it when upgrading to Expo SDK 57. Stay on `react-native-purchases` 10.x for now: 11.0.0 needs a `PurchasesHybridCommon` pod that RevenueCat couldn't publish during the CocoaPods trunk freeze, and RevenueCat recommends Expo apps keep 10.x until it's out.
+
+### Setup with the Test Store (development)
+
+The Test Store needs no App Store Connect or Play Console setup, so the whole flow can be tried on a simulator.
+
+1. Apply `supabase/migrations/004_revenuecat_test_platform.sql`.
+2. In RevenueCat, create a project. Create an entitlement **`premium`** and two Test Store products (monthly and yearly, each with a 7-day free trial to match the web), both attached to the entitlement. Put them in the **default** offering as the `$rc_monthly` and `$rc_annual` packages.
+3. Copy the **Test Store** public key into `apps/mobile/.env` as `EXPO_PUBLIC_REVENUECAT_TEST_KEY`.
+4. Deploy the functions from the repo root:
+
+   ```bash
+   supabase secrets set REVENUECAT_SECRET_KEY=sk_... REVENUECAT_WEBHOOK_AUTH="Bearer <long random string>" \
+     REVENUECAT_ALLOW_TEST_STORE=true
+   supabase functions deploy revenuecat-webhook
+   supabase functions deploy revenuecat-sync
+   ```
+
+   `REVENUECAT_ALLOW_TEST_STORE=true` makes Test Store purchases grant Premium. It's off unless set, because the Test Store key is public and test purchases are free. Anyone holding the key could otherwise give themselves real Premium in the shared database. **Unset it before launch** (`supabase secrets unset REVENUECAT_ALLOW_TEST_STORE`); each member's next sync then cancels their `test` row.
+
+   `REVENUECAT_SECRET_KEY` is a **v1 secret API key** (Project settings → API keys). `REVENUECAT_WEBHOOK_AUTH` is any long random value, for example `openssl rand -hex 32` with `Bearer ` in front.
+
+5. In RevenueCat → Integrations → Webhooks, add `https://<project-ref>.supabase.co/functions/v1/revenuecat-webhook`, set its **Authorization header** to exactly the `REVENUECAT_WEBHOOK_AUTH` value, and send it all events.
+6. Restart `expo start -c`, buy from the Membership tab, and check for a `test` row in `subscriptions`.
+
+### Real stores (before release)
+
+- **Apple:** in App Store Connect, sign the Paid Apps agreement (banking and tax). Then create a subscription group with monthly and annual products, each with a 7-day free trial introductory offer. Add the App Store app and its in-app purchase key in RevenueCat, and attach the products to `premium` and the default offering.
+- **Google:** create the same two subscriptions in the Play Console. That needs a build already uploaded to a testing track. Then add the Play app and a service account in RevenueCat.
+- Set `EXPO_PUBLIC_REVENUECAT_IOS_KEY` and `EXPO_PUBLIC_REVENUECAT_ANDROID_KEY` in the `preview` and `production` EAS environments (`plaintext`, as above). Never set the Test Store key there.
+- **Release blocker:** unset `REVENUECAT_ALLOW_TEST_STORE` in Supabase secrets.
+- **Release blocker:** publish a privacy policy at `https://cornervideo.app/privacy`. The Premium screen links to it (`PRIVACY_URL` in `premium-plan.tsx`), and both stores require one.
+
 ## Project Structure
 
 ```

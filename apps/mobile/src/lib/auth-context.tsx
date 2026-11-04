@@ -8,6 +8,7 @@ import {
 import type { Session } from "@supabase/supabase-js";
 
 import { clearRegionCache } from "./profile";
+import { identifyPurchaser } from "./purchases";
 import {
   cancelReminders,
   clearReminderHistory,
@@ -45,6 +46,16 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // RevenueCat's App User ID is the Supabase user id; the purchase webhooks
+  // rely on it to find the member. Follows sign-in, sign-out and launch.
+  const userId = session?.user.id ?? null;
+  useEffect(() => {
+    if (initializing) return;
+    identifyPurchaser(userId).catch((err) =>
+      console.warn("Could not identify the member with RevenueCat:", err),
+    );
+  }, [initializing, userId]);
 
   async function signIn(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({

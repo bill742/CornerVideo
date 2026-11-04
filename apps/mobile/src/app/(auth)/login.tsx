@@ -86,8 +86,9 @@ export default function LoginScreen() {
 
         <View className="mt-6 flex-row justify-center">
           <Text className="text-muted">Create an account </Text>
-          <Link className="font-semibold text-fg" href="/signup">
-            Sign up
+          {/* Link drops NativeWind classes; style the Text it wraps. */}
+          <Link asChild href="/signup">
+            <Text className="font-semibold text-fg">Sign up</Text>
           </Link>
         </View>
       </KeyboardAvoidingView>

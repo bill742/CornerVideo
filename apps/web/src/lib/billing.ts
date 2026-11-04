@@ -32,8 +32,11 @@ export interface Membership {
   premium: boolean;
   /** The web (Stripe) subscription, if the member has ever had one. */
   stripe: Subscription | null;
-  /** Premium through an app store — managed there, not in Stripe. */
-  storePlatform: "apple" | "google" | null;
+  /**
+   * Premium through an app store — managed there, not in Stripe. "test" is a
+   * RevenueCat Test Store purchase from a development build.
+   */
+  storePlatform: "apple" | "google" | "test" | null;
 }
 
 /** Everything the Membership page shows about a member's plan. */
@@ -53,7 +56,9 @@ export async function getMembership(
   );
   return {
     premium: hasPremium(rows),
-    storePlatform: store ? (store.platform as "apple" | "google") : null,
+    storePlatform: store
+      ? (store.platform as Exclude<Subscription["platform"], "stripe">)
+      : null,
     stripe: rows.find((row) => row.platform === "stripe") ?? null,
   };
 }

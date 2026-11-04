@@ -16,8 +16,8 @@ premium-gated release-day reminders as local notifications (item 6). EAS
 Build is configured (item 7: `apps/mobile/eas.json`, bundle ID/package
 `app.cornervideo`); the first TestFlight/Play internal builds are still
 outstanding — see the mobile README's "Builds and releases" section. **Phase 4 (payments) has
-started**: web Stripe billing is built and runs in test mode (see "Billing"
-below); RevenueCat and Trakt sync are still to come. Read `PLAN.md` for the roadmap, schema rationale, and
+started**: web Stripe billing and mobile RevenueCat purchases are built and
+run in test mode (see "Billing" below); Trakt sync is still to come. Read `PLAN.md` for the roadmap, schema rationale, and
 the free/premium feature split.
 
 ## Brand
@@ -69,7 +69,7 @@ MovieWatchlist/
 │   └── shared/              # @moviewatchlist/shared — TS types, constants, TMDB client
 ├── supabase/
 │   ├── migrations/          # SQL schema (RLS policies, triggers)
-│   └── functions/           # Edge Functions (Deno): stripe-webhook
+│   └── functions/           # Edge Functions (Deno): stripe-webhook, revenuecat-webhook/-sync
 ├── turbo.json               # task pipeline (build, lint, dev)
 ├── pnpm-workspace.yaml
 └── PLAN.md                  # expansion roadmap
@@ -263,8 +263,19 @@ and the premium rule are duplicated in that SQL: change them together.
   Membership page hides the Premium section entirely, unless the member already
   has Premium or a past subscription — so `main` can merge before billing launches. Prices and the price
   amounts live in Stripe (`STRIPE_PRICE_MONTHLY`/`_ANNUAL`), not in code.
+- **Mobile sells Premium through RevenueCat** (`apps/mobile/src/lib/purchases.ts`;
+  App User ID = Supabase user id). `revenuecat-webhook` and `revenuecat-sync`
+  write the `apple` / `google` / `test` rows via `supabase/functions/_shared/revenuecat.ts`;
+  the app never writes Premium. `test` is RevenueCat's Test Store, used by
+  development builds (migration 004); those rows only count while the
+  `REVENUECAT_ALLOW_TEST_STORE` secret is `true`, since the Test Store key is
+  public and test purchases are free. Unset it before launch. On iOS, never link to web billing or the
+  website to buy (App Review steering rules) — a Stripe member just sees
+  "You have Premium through your web membership." Setup: mobile README →
+  "In-app purchases (RevenueCat)".
 - Edge Functions live in `supabase/functions/` (Deno, `npm:` imports) and are
-  outside Turbo's lint/typecheck — check them with `npx deno check <file>`.
+  outside Turbo's lint/typecheck — check them with `npx deno check <file>` and
+  test `_shared` with `npx deno test supabase/functions/_shared/`.
   Setup and deploy steps: `apps/web/README.md` → "Billing (Stripe)".
 - **Stay on test keys until the Worker is on Workers Paid** (PLAN.md Phase 4
   step 5): a premium shelf breaks past ~45 titles on the free plan. The Worker

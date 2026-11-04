@@ -7,3 +7,13 @@ project_id = "moviewatchlist"
 # Stripe sends no Supabase JWT. The function verifies the Stripe-Signature
 # header itself and rejects anything unsigned.
 verify_jwt = false
+
+[functions.revenuecat-webhook]
+# RevenueCat sends no Supabase JWT. The function checks the fixed
+# Authorization header set in the RevenueCat dashboard instead.
+verify_jwt = false
+
+[functions.revenuecat-sync]
+# Called by the app with the member's session. The function verifies it
+# itself with auth.getUser(), which also handles asymmetric signing keys.
+verify_jwt = false
