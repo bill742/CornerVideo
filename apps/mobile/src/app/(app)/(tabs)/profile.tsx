@@ -11,9 +11,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BRAND, REGIONS } from "@moviewatchlist/shared";
 
 import { AppearanceSetting } from "@/components/appearance-setting";
+import { PremiumPlan } from "@/components/premium-plan";
 import { ReleaseRemindersSetting } from "@/components/release-reminders-setting";
 import { ReminderDevTools } from "@/components/reminder-dev-tools";
 import { useAuth } from "@/lib/auth-context";
+import { getMembership, type Membership } from "@/lib/premium";
 import { getRegion, updateRegion } from "@/lib/profile";
 import { useBrand } from "@/lib/theme";
 
@@ -23,6 +25,11 @@ export default function ProfileScreen() {
   const [region, setRegion] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [membership, setMembership] = useState<Membership | null>(null);
+
+  const loadMembership = useCallback(async () => {
+    setMembership(await getMembership());
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -30,6 +37,11 @@ export default function ProfileScreen() {
 
       getRegion().then((saved) => {
         if (active) setRegion(saved);
+      });
+      // Re-read on focus too: Premium may have changed in the store's
+      // settings or on the web while this tab was in the background.
+      getMembership().then((next) => {
+        if (active) setMembership(next);
       });
 
       return () => {
@@ -72,7 +84,7 @@ export default function ProfileScreen() {
               {BRAND.name}
             </Text>
             <Text className="ml-auto text-sm font-semibold text-on-primary">
-              Member
+              {membership?.premium ? "Premium member" : "Member"}
             </Text>
           </View>
           <View className="px-4 py-3">
@@ -82,6 +94,10 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </View>
+
+        {membership ? (
+          <PremiumPlan membership={membership} onChanged={loadMembership} />
+        ) : null}
 
         <Text className="mt-8 text-xs uppercase tracking-wide text-muted">
           Region

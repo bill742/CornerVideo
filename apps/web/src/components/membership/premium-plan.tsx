@@ -134,11 +134,13 @@ function PremiumPlan({ membership, notice, prices }: PremiumPlanProps) {
 
       {membership.storePlatform && !hasStripeBilling ? (
         <p className="text-sm">
-          You have Premium through{" "}
-          {membership.storePlatform === "apple"
-            ? "the App Store"
-            : "Google Play"}
-          . Manage it from your device&apos;s subscription settings.
+          {membership.storePlatform === "test"
+            ? "You have Premium through a test purchase in the app."
+            : `You have Premium through ${
+                membership.storePlatform === "apple"
+                  ? "the App Store"
+                  : "Google Play"
+              }. Manage it from your device's subscription settings.`}
         </p>
       ) : null}
 

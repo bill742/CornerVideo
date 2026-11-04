@@ -260,7 +260,8 @@ export type SubscriptionStatus =
   | "unpaid"
   | "paused";
 
-export type SubscriptionPlatform = "stripe" | "apple" | "google";
+/** "test" is RevenueCat's Test Store, used by development builds. */
+export type SubscriptionPlatform = "stripe" | "apple" | "google" | "test";
 
 /** Premium billing intervals offered on the web. */
 export type BillingInterval = "annual" | "monthly";

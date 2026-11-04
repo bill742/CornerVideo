@@ -95,8 +95,9 @@ export default function SignupScreen() {
 
         <View className="mt-6 flex-row justify-center">
           <Text className="text-muted">Have an account? </Text>
-          <Link className="font-semibold text-fg" href="/login">
-            Sign in
+          {/* Link drops NativeWind classes; style the Text it wraps. */}
+          <Link asChild href="/login">
+            <Text className="font-semibold text-fg">Sign in</Text>
           </Link>
         </View>
       </KeyboardAvoidingView>
