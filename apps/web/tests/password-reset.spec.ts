@@ -39,9 +39,9 @@ test.describe("Forgot password", () => {
 
   test("Shows the sent confirmation without the form", async ({ page }) => {
     await page.goto("/forgot-password?sent=1");
-    await expect(page.getByRole("status")).toContainText(
-      "If there's an account for that email"
-    );
+    await expect(
+      page.getByRole("status").filter({ hasText: "If there" })
+    ).toContainText("If there's an account for that email");
     await expect(page.getByLabel("Email")).toHaveCount(0);
   });
 });

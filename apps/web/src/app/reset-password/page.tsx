@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { resetPassword } from "@/app/auth/actions";
@@ -68,24 +68,22 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
         )}
         <div className="space-y-2">
           <Label htmlFor="password">New password</Label>
-          <Input
+          <PasswordInput
             autoComplete="new-password"
             id="password"
             minLength={8}
             name="password"
             required
-            type="password"
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm">Confirm new password</Label>
-          <Input
+          <PasswordInput
             autoComplete="new-password"
             id="confirm"
             minLength={8}
             name="confirm"
             required
-            type="password"
           />
         </div>
         <Button className="w-full" type="submit">
