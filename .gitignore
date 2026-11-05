@@ -69,3 +69,8 @@ PLAN.md
 Notes.md
 # Playwright auth state (session tokens) — never commit
 playwright/.auth/
+
+# Stray Expo/EAS configs that `eas` writes when run from the repo root instead
+# of apps/mobile. The real ones live in apps/mobile/.
+/app.json
+/eas.json
