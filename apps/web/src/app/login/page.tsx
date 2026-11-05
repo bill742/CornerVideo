@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
@@ -7,6 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { login } from "@/app/auth/actions";
+import { BRAND } from "@/types";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/login" },
+  description: `Sign in to your ${BRAND.name} shelf.`,
+  title: "Sign in",
+};
 
 interface Props {
   searchParams: Promise<{ error?: string; message?: string; next?: string }>;
@@ -23,7 +31,7 @@ export default async function LoginPage({ searchParams }: Props) {
             Sign in
           </h1>
           <p className="text-muted-foreground text-sm">
-            Welcome back to Corner Video
+            Welcome back to {BRAND.name}
           </p>
         </div>
 

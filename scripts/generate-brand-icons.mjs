@@ -67,6 +67,45 @@ async function png(source, size, file) {
   console.log(`${file} (${size}px)`);
 }
 
+/**
+ * An .ico holding one PNG per size. sharp can't write ICO, but the format is
+ * just a directory of images, and PNG entries are valid in every browser
+ * that still asks for favicon.ico.
+ */
+async function ico(source, sizes, file) {
+  const images = await Promise.all(
+    sizes.map((size) =>
+      sharp(Buffer.from(source), { density: 72 * (size / 512) * 4 })
+        .resize(size, size)
+        .png()
+        .toBuffer()
+    )
+  );
+
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(images.length, 4);
+
+  let offset = 6 + 16 * images.length;
+  const entries = images.map((image, i) => {
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(sizes[i] % 256, 0); // width (0 means 256)
+    entry.writeUInt8(sizes[i] % 256, 1); // height
+    entry.writeUInt16LE(1, 4); // colour planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(image.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += image.length;
+    return entry;
+  });
+
+  const out = path.join(root, file);
+  await mkdir(path.dirname(out), { recursive: true });
+  await writeFile(out, Buffer.concat([header, ...entries, ...images]));
+  console.log(`${file} (${sizes.join(", ")}px)`);
+}
+
 // Web: a scalable favicon plus PNGs for the manifest and Apple touch icon.
 const webSticker = svg(sticker());
 await writeFile(path.join(root, "apps/web/src/app/icon.svg"), webSticker);
@@ -76,6 +115,12 @@ await png(svg(sticker({ scale: 0.82 }), PAPER), 192, "apps/web/public/icon-192.p
 await png(svg(sticker({ scale: 0.82 }), PAPER), 512, "apps/web/public/icon-512.png");
 // Maskable icons are cropped to a circle as small as 80% of the canvas.
 await png(svg(sticker({ scale: 0.7 }), PAPER), 512, "apps/web/public/icon-maskable-512.png");
+
+// favicon.ico for clients that ask for /favicon.ico without reading the
+// <link> tags (older browsers, some crawlers and feed readers). It sits in
+// public/ rather than src/app/ so Next doesn't add a <link> for it, which
+// could make modern browsers pick it over icon.svg.
+await ico(webSticker, [16, 32, 48], "apps/web/public/favicon.ico");
 
 // Mobile: iOS icon (no transparency allowed), Android adaptive layers,
 // splash mark and Expo web favicon.

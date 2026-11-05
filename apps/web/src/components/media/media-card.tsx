@@ -58,6 +58,10 @@ function MediaCard({ item, titleLevel = 3 }: Props) {
         <div className="bg-muted relative aspect-2/3 overflow-hidden rounded-sm shadow-md transition-transform duration-200 group-hover:-translate-y-2 group-focus-visible:-translate-y-2 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0">
           {item.poster_path ? (
             <Image
+              // Decorative on purpose: the title is text inside the same link,
+              // so "Heat poster" here would make every card's link name read
+              // the title twice. The Nov 2026 SEO audit asked for poster alt
+              // text for image search; accessibility wins over that.
               alt=""
               className="object-cover"
               fill

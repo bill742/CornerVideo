@@ -106,15 +106,19 @@ test.describe("Profile", () => {
       "the Premium section is hidden without Stripe"
     );
 
+    // The root layout always renders EmailConfirmedNotice's empty live
+    // region (role="status"), so only statuses with text count.
+    const notice = page.getByRole("status").filter({ hasText: /\S/ });
+
     await page.goto("/profile?checkout=cancelled");
-    await expect(page.getByRole("status")).toHaveText(
+    await expect(notice).toHaveText(
       "Checkout was cancelled. You haven't been charged."
     );
 
     // Shown once: the flag leaves the address so a reload doesn't repeat it.
     await expect(page).toHaveURL(/\/profile$/);
     await page.reload();
-    await expect(page.getByRole("status")).toHaveCount(0);
+    await expect(notice).toHaveCount(0);
   });
 
   test("Ignores unknown billing flags", async ({ page }) => {

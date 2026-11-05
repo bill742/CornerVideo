@@ -78,8 +78,20 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {/* First focusable element, so keyboard users can jump past the
+              header and its menu. tabIndex on <main> lets it take focus. */}
+          <a
+            className="bg-primary text-primary-foreground sr-only z-50 rounded-sm px-4 py-2 font-semibold focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+            href="#main"
+          >
+            Skip to content
+          </a>
           <Header />
-          <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <main
+            className="container mx-auto max-w-7xl px-4 outline-none sm:px-6 lg:px-8"
+            id="main"
+            tabIndex={-1}
+          >
             {children}
           </main>
           <Footer />
