@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,12 +74,11 @@ export default async function LoginPage({ searchParams }: Props) {
                 Forgot password?
               </Link>
             </div>
-            <Input
+            <PasswordInput
               autoComplete="current-password"
               id="password"
               name="password"
               required
-              type="password"
             />
           </div>
           <Button className="w-full" type="submit">

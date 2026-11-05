@@ -82,6 +82,16 @@ One-time setup, in **test mode** until the Worker moves to Workers Paid (PLAN.md
 
 Locally, `stripe listen --forward-to https://<project-ref>.supabase.co/functions/v1/stripe-webhook` prints a `whsec_` to use instead, and test card `4242 4242 4242 4242` completes checkout.
 
+### Email confirmation
+
+New accounts confirm their email before signing in, from either app. The "Confirm signup" email links to `/auth/confirm`, which confirms the account with the link's one-time `token_hash`, signs the member in on the web, and shows a "Your email is confirmed" notice on the home page (`EmailConfirmedNotice`). A link that has expired or was already used (a mail scanner may have opened it first, which still confirms the email) goes to `/login` with a message to sign in. Unlike the default link, it works on any device and for sign-ups from the mobile app.
+
+One-time Supabase setup (needs the custom SMTP described under "Password reset" below): in **Authentication → Emails → Confirm signup**, replace the link in the template with
+
+```html
+<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Confirm your email</a>
+```
+
 ### Password reset
 
 "Forgot password?" on the sign-in page (web and mobile) emails a link to `/reset-password` on the web app. Mobile has no reset screen of its own: the member sets the new password in the browser, then signs in to the app with it.

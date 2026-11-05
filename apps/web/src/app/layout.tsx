@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Oswald, Public_Sans } from "next/font/google";
 
+import { EmailConfirmedNotice } from "@/components/auth/email-confirmed-notice";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -82,6 +83,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <EmailConfirmedNotice />
         </ThemeProvider>
       </body>
     </html>

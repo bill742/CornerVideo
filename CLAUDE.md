@@ -193,7 +193,8 @@ apps/web/src/
 │   ├── page.tsx             # Home (browse)
 │   ├── auth/
 │   │   ├── actions.ts       # login / signup / signout server actions
-│   │   └── callback/route.ts# OAuth + email-confirm callback
+│   │   ├── callback/route.ts# OAuth callback (PKCE code exchange)
+│   │   └── confirm/route.ts # email-confirmation links (token_hash)
 │   ├── login/, signup/      # auth pages
 │   ├── forgot-password/, reset-password/  # password reset (shared with mobile)
 │   ├── profile/             # user profile (protected)
@@ -298,6 +299,12 @@ and the premium rule are duplicated in that SQL: change them together.
   statement. The server-side session refresh happens only in
   `src/middleware.ts`, on those routes and `/auth/callback`; elsewhere supabase-js
   refreshes in the browser.
+
+**Email confirmation** also goes through the web app for both apps: the
+Supabase "Confirm signup" template links to `/auth/confirm?token_hash=…`
+(`src/app/auth/confirm/route.ts`), which verifies, signs the member in and
+redirects to `/?confirmed=1` for `EmailConfirmedNotice` in the root layout
+(it reads the flag in the browser so the home page stays static).
 
 **Password reset** goes through the web app for both apps: `requestPasswordReset`
 and `resetPassword` in `src/app/auth/actions.ts`, pages `/forgot-password` and

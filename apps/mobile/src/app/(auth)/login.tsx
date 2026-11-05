@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { PasswordField } from "@/components/password-field";
 import { useAuth } from "@/lib/auth-context";
 import { useBrand } from "@/lib/theme";
 
@@ -56,13 +57,9 @@ export default function LoginScreen() {
           placeholderTextColor={colors.muted}
           value={email}
         />
-        <TextInput
-          autoCapitalize="none"
-          className="mb-2 rounded-md bg-surface px-4 py-3 text-fg"
+        <PasswordField
+          autoComplete="password"
           onChangeText={setPassword}
-          placeholder="Password"
-          placeholderTextColor={colors.muted}
-          secureTextEntry
           value={password}
         />
 

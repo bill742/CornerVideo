@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,13 +65,12 @@ export default async function SignupPage({ searchParams }: Props) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
+            <PasswordInput
               autoComplete="new-password"
               id="password"
               minLength={8}
               name="password"
               required
-              type="password"
             />
           </div>
           <Button className="w-full" type="submit">
