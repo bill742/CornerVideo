@@ -66,6 +66,14 @@ export default function LoginScreen() {
           value={password}
         />
 
+        <View className="mb-2 items-end">
+          <Link asChild href="/forgot-password">
+            <Text className="py-1 text-sm text-muted underline">
+              Forgot password?
+            </Text>
+          </Link>
+        </View>
+
         {error ? (
           <Text className="mb-2 text-sm text-primary">{error}</Text>
         ) : null}

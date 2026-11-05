@@ -21,6 +21,11 @@ interface AuthContextValue {
   session: Session | null;
   /** True until the initial session check resolves. */
   initializing: boolean;
+  /**
+   * Emails a password reset link. Resolves the same way whether or not the
+   * email has an account; throws only for errors such as rate limiting.
+   */
+  requestPasswordReset: (email: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -57,6 +62,19 @@ function AuthProvider({ children }: { children: ReactNode }) {
     );
   }, [initializing, userId]);
 
+  async function requestPasswordReset(email: string) {
+    // The link opens the web app's /reset-password page (set by the Supabase
+    // "Reset password" email template), so mobile needs no deep link; the
+    // member sets the new password there and signs in here with it.
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error?.status === 429) {
+      throw new Error(
+        "Too many reset requests. Wait a few minutes and try again.",
+      );
+    }
+    if (error) console.warn("resetPasswordForEmail failed:", error.message);
+  }
+
   async function signIn(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -86,7 +104,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ initializing, session, signIn, signOut, signUp }}
+      value={{
+        initializing,
+        requestPasswordReset,
+        session,
+        signIn,
+        signOut,
+        signUp,
+      }}
     >
       {children}
     </AuthContext.Provider>

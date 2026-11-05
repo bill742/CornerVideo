@@ -58,7 +58,7 @@ A free TMDB read access token comes from [themoviedb.org/settings/api](https://w
 
 > Use `.env` rather than `.env.local`. Next.js reads either, but `playwright.config.ts` loads `.env` specifically — put values only in `.env.local` and the metadata tests will compare against `undefined`.
 
-Supabase credentials are required even for browsing: `src/proxy.ts` refreshes the session on every page request and will fail without them.
+Supabase credentials are required: `src/middleware.ts` refreshes the session on `/watchlist`, `/profile` and `/auth/callback` and fails without them, and the header and sign-in pages use them too.
 
 ### Billing (Stripe)
 
@@ -81,6 +81,25 @@ One-time setup, in **test mode** until the Worker moves to Workers Paid (PLAN.md
 6. Production Worker: `wrangler secret put` each of `STRIPE_SECRET_KEY`, `STRIPE_PRICE_MONTHLY` and `STRIPE_PRICE_ANNUAL` — secrets, not vars, for the reason in `wrangler.jsonc`.
 
 Locally, `stripe listen --forward-to https://<project-ref>.supabase.co/functions/v1/stripe-webhook` prints a `whsec_` to use instead, and test card `4242 4242 4242 4242` completes checkout.
+
+### Password reset
+
+"Forgot password?" on the sign-in page (web and mobile) emails a link to `/reset-password` on the web app. Mobile has no reset screen of its own: the member sets the new password in the browser, then signs in to the app with it.
+
+The link carries a one-time `token_hash`, which is checked only when the member submits the new password, never when the page loads. Some mail providers open links to scan them, and that would otherwise use the token up before the member clicked it. That also means the link works on any device, not just the one that asked for it.
+
+One-time Supabase setup (dashboard → Authentication):
+
+1. **Emails → SMTP Settings:** turn on custom SMTP. Supabase only lets you edit email templates with it, and its built-in mailer only delivers to members of the project's team, a few emails an hour. With [Resend](https://resend.com), verify the sending domain there, then use host `smtp.resend.com`, port `465`, username `resend`, an API key as the password, and a sender such as `no-reply@cornervideo.app`. Afterwards, raise **Rate Limits → emails sent per hour** from its low default.
+2. **Emails → Reset password:** replace the link in the template with
+
+   ```html
+   <a href="{{ .SiteURL }}/reset-password?token_hash={{ .TokenHash }}&type=recovery">Reset password</a>
+   ```
+
+   The default template's link logs the member in through the URL fragment instead, which this app can't read.
+
+3. **URL Configuration → Site URL** must be `https://cornervideo.app`. Reset links from local development therefore open production, which works because both use the same Supabase project.
 
 ### Run the development server
 
@@ -136,5 +155,5 @@ src/
 │   └── region-context.tsx    # Global region selection state
 ├── utils/
 │   └── fetch-apis.ts         # Generic fetch utilities with error handling
-└── proxy.ts                  # Session refresh + protected-route redirects
+└── middleware.ts             # Session refresh + protected-route redirects (gated routes only)
 ```
