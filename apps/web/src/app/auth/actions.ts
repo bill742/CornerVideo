@@ -134,7 +134,18 @@ export async function resetPassword(formData: FormData) {
     redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
   }
 
-  redirect("/reset-password?done=1");
+  // Sign out and make the member sign in with the new password. The page
+  // never shows whose account a token belongs to, so a link built from
+  // someone else's reset email would otherwise leave this member signed in to
+  // that account without noticing (login CSRF). Signing in with their own
+  // email proves it's theirs. signOut() is global, which also ends any other
+  // sessions on the account after the password change.
+  await supabase.auth.signOut();
+  redirect(
+    `/login?message=${encodeURIComponent(
+      "Your password has been changed. Sign in with your new password."
+    )}`
+  );
 }
 
 // There is no `signout` action. It lived here, and the header called it, but a

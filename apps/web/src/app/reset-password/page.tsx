@@ -18,7 +18,6 @@ export const metadata: Metadata = {
 
 interface Props {
   searchParams: Promise<{
-    done?: string;
     error?: string;
     token_hash?: string;
   }>;
@@ -30,24 +29,7 @@ interface Props {
  * this page doesn't use it up.
  */
 export default async function ResetPasswordPage({ searchParams }: Props) {
-  const { done, error, token_hash: tokenHash } = await searchParams;
-
-  if (done) {
-    return (
-      <ResetLayout>
-        <p
-          className="bg-new-release/10 text-new-release rounded-md px-3 py-2 text-sm"
-          role="status"
-        >
-          Your password has been changed and you&apos;re signed in. Use the new
-          password to sign in to the app, too.
-        </p>
-        <Button asChild className="w-full">
-          <Link href="/">Continue</Link>
-        </Button>
-      </ResetLayout>
-    );
-  }
+  const { error, token_hash: tokenHash } = await searchParams;
 
   // No token: only someone already signed in can set a password here — the
   // retry after a rejected password, once the token has been spent.
