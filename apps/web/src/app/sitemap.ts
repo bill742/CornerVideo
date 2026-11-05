@@ -13,7 +13,8 @@ function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       lastModified: new Date(),
       priority: 1,
-      url: siteUrl,
+      // Same form as the canonical and og:url: origin plus "/".
+      url: new URL("/", siteUrl).href,
     },
   ];
 }

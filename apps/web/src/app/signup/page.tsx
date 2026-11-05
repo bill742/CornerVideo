@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
@@ -7,6 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { signup } from "@/app/auth/actions";
+import { FREE_WATCHLIST_LIMIT } from "@/types";
+
+// The root layout's canonical is "/", which every page inherits unless it sets
+// its own; without this the sign-up page claimed to be the homepage.
+export const metadata: Metadata = {
+  alternates: { canonical: "/signup" },
+  description:
+    "Create a free account and keep every movie and show you want to see on one shelf.",
+  title: "Create your account",
+};
 
 interface Props {
   searchParams: Promise<{ error?: string; message?: string }>;
@@ -24,6 +35,11 @@ export default async function SignupPage({ searchParams }: Props) {
           </h1>
           <p className="text-muted-foreground text-sm">
             Keep every movie and show you want to see on one shelf.
+          </p>
+          {/* State the cap up front: finding it mid-session costs more trust
+              than reading it here. */}
+          <p className="text-muted-foreground text-sm">
+            Free: {FREE_WATCHLIST_LIMIT} titles on your shelf.
           </p>
         </div>
 

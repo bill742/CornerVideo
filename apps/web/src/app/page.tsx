@@ -6,7 +6,9 @@ import { BRAND } from "@/types";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cornervideo.app";
 
 // No `offers` or ratings until pricing and store reviews exist — the brand
-// guide rules out placeholder values.
+// guide rules out placeholder values. "Web" only until the iOS and Android
+// apps are in the stores. `url` uses the same trailing-slash form as the
+// canonical and the sitemap.
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -14,8 +16,8 @@ const jsonLd = {
   description:
     "A movie and TV watchlist with premiere dates and new release alerts.",
   name: BRAND.name,
-  operatingSystem: "Web, iOS, Android",
-  url: siteUrl,
+  operatingSystem: "Web",
+  url: new URL("/", siteUrl).href,
 };
 
 /**

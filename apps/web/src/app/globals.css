@@ -137,6 +137,14 @@
     outline-color: var(--color-ring);
   }
 
+  /* Always reserve the scrollbar's width. The browse shelves load in the
+     browser and make the page taller, and on systems with classic scrollbars
+     the bar appearing then shifted the whole page sideways (CLS 0.53 in the
+     Nov 2026 SEO audit). */
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
