@@ -1,6 +1,7 @@
 import {
   FREE_WATCHLIST_LIMIT,
   type MediaType,
+  SHELF_FULL_MESSAGE,
   WATCHLIST_LIMIT_ERROR,
   type WatchStatus,
   type WatchlistItem,
@@ -8,8 +9,6 @@ import {
 
 import { isPremium } from "./premium";
 import { supabase } from "./supabase";
-
-const SHELF_FULL_MESSAGE = `Free accounts are limited to ${FREE_WATCHLIST_LIMIT} items. Upgrade to premium for an unlimited watchlist.`;
 
 async function requireUserId(): Promise<string> {
   const {
@@ -68,10 +67,12 @@ export async function addToWatchlist(
     throw new Error(SHELF_FULL_MESSAGE);
   }
 
-  const { error } = await supabase.from("watchlist_items").upsert(
-    { media_type: mediaType, status, tmdb_id: tmdbId, user_id: userId },
-    { onConflict: "user_id,tmdb_id,media_type" },
-  );
+  const { error } = await supabase
+    .from("watchlist_items")
+    .upsert(
+      { media_type: mediaType, status, tmdb_id: tmdbId, user_id: userId },
+      { onConflict: "user_id,tmdb_id,media_type" },
+    );
   // The database enforces the limit too (migration 003), which catches a
   // subscription that lapsed between the check above and this write.
   if (error?.message === WATCHLIST_LIMIT_ERROR) {
