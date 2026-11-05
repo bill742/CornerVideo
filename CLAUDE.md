@@ -174,12 +174,15 @@ Expo changes fast. Key facts:
 - **Playwright** (+ `@axe-core/playwright`) for E2E and accessibility tests
 - **Data source:** TMDB API
 
-> Next.js 16 note: there is **no request middleware**. Next 16 renamed
-> `middleware.ts` to `proxy.ts` and pinned it to the Node runtime with no way to
-> configure it, while the OpenNext Cloudflare adapter supports only edge
-> middleware — so `src/proxy.ts` was removed on the move to Cloudflare. Protected
-> routes call `requireUser()` from `src/lib/auth.ts` instead. A new protected
-> route must call it itself; nothing gates routes globally any more.
+> Next.js 16 note: request middleware lives in **`src/middleware.ts`**, the
+> deprecated filename, not Next 16's `proxy.ts`. Next 16 pins `proxy.ts` to the
+> Node runtime, while the OpenNext Cloudflare adapter only supports edge
+> middleware, and Next 16 still honours `middleware.ts` for that case. It runs
+> only on `/watchlist`, `/profile` and `/auth/callback` (an allowlist `matcher`,
+> so public pages cost no invocation). There it refreshes the Supabase session
+> and redirects signed-out visitors to `/login`. The pages still call
+> `requireUser()` from `src/lib/auth.ts` themselves: a new protected route must
+> call it and be added to the matcher.
 
 ## Web directory structure
 
@@ -192,6 +195,7 @@ apps/web/src/
 │   │   ├── actions.ts       # login / signup / signout server actions
 │   │   └── callback/route.ts# OAuth + email-confirm callback
 │   ├── login/, signup/      # auth pages
+│   ├── forgot-password/, reset-password/  # password reset (shared with mobile)
 │   ├── profile/             # user profile (protected)
 │   ├── watchlist/           # user watchlist (protected)
 │   ├── movies/[id]/         # movie detail
@@ -288,8 +292,15 @@ and the premium rule are duplicated in that SQL: change them together.
 - `@/lib/supabase/client` — `createClient()` for client components (browser).
 - `requireUser(nextPath)` from `@/lib/auth` redirects to `/login?next=…` unless a
   session is present. `/watchlist` and `/profile` call it as their first
-  statement. There is no global session refresh — supabase-js handles refresh in
-  the browser.
+  statement. The server-side session refresh happens only in
+  `src/middleware.ts`, on those routes and `/auth/callback`; elsewhere supabase-js
+  refreshes in the browser.
+
+**Password reset** goes through the web app for both apps: `requestPasswordReset`
+and `resetPassword` in `src/app/auth/actions.ts`, pages `/forgot-password` and
+`/reset-password`. The Supabase "Reset password" email template must link to
+`/reset-password?token_hash=…` (web README → "Password reset"). The token is
+spent only on form submit, never on page load, because mail scanners open links.
 
 The database schema, RLS policies, and the `handle_new_user` trigger (auto-creates a
 `profiles` row per auth user) live in `supabase/migrations/`.

@@ -10,7 +10,7 @@ Part of the [Corner Video monorepo](../../README.md); it shares a Supabase proje
 - **Search** — Full-text search across the TMDB catalog
 - **Detail screens** — Movie and TV show details with cast and seasons
 - **Episode tracking** — Season screens with per-episode watched state, including bulk actions
-- **Accounts** — Sign-up and login via Supabase auth, with session persistence
+- **Accounts** — Sign-up and login via Supabase auth, with session persistence. "Forgot password?" emails a link to the web app's reset page (see `apps/web/README.md` → "Password reset")
 - **Watchlist** — Save titles, filter by watch status, and update status inline
 
 ## Tech Stack
@@ -214,7 +214,7 @@ The Test Store needs no App Store Connect or Play Console setup, so the whole fl
 src/
 ├── app/                          # Expo Router routes (file-based)
 │   ├── _layout.tsx               # Auth gate — redirects between (auth) and (app)
-│   ├── (auth)/                   # login, signup
+│   ├── (auth)/                   # login, signup, forgot-password
 │   └── (app)/
 │       ├── (tabs)/               # Browse, Search, Watchlist
 │       ├── movie/[id].tsx        # Movie detail

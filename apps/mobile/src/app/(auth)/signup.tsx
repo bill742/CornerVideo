@@ -31,7 +31,11 @@ export default function SignupScreen() {
       await signUp(email.trim(), password);
       // If email confirmation is enabled there's no session yet; otherwise the
       // root navigator redirects on the new session.
-      setMessage("Check your email to confirm your account, then sign in.");
+      // Supabase reports success without sending anything when the email
+      // is already registered, so the message covers both cases.
+      setMessage(
+        "If this email is new to us, check your inbox for a link to confirm your account. Already have an account? Sign in, or reset your password.",
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to sign up");
     } finally {

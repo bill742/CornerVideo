@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: Props) {
   const { error, message, next } = await searchParams;
 
   return (
-    <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
           <h1 className="font-display text-3xl font-semibold tracking-wide">
@@ -64,7 +64,15 @@ export default async function LoginPage({ searchParams }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-baseline justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link
+                className="text-muted-foreground text-sm underline"
+                href="/forgot-password"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               autoComplete="current-password"
               id="password"
@@ -85,6 +93,6 @@ export default async function LoginPage({ searchParams }: Props) {
           </Link>
         </p>
       </div>
-    </main>
+    </div>
   );
 }
