@@ -201,11 +201,7 @@ export interface Profile {
 
 export type MediaType = "movie" | "tv";
 
-export type WatchStatus =
-  | "want_to_watch"
-  | "watching"
-  | "watched"
-  | "dropped";
+export type WatchStatus = "want_to_watch" | "watching" | "watched" | "dropped";
 
 export interface WatchlistItem {
   id: string;
@@ -328,3 +324,10 @@ export const FREE_WATCHLIST_LIMIT = 25;
 
 /** Error message the database raises when a free shelf is full. */
 export const WATCHLIST_LIMIT_ERROR = "watchlist_limit_reached";
+
+/**
+ * What both apps tell a free member whose shelf is full. Says "go Premium"
+ * rather than pointing at a website: the mobile app sells Premium in-app, and
+ * App Review forbids steering iOS members to buy elsewhere.
+ */
+export const SHELF_FULL_MESSAGE = `Free accounts can keep ${FREE_WATCHLIST_LIMIT} titles on My Shelf. Remove one to make room, or go Premium for unlimited space.`;

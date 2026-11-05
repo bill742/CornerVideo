@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   FREE_WATCHLIST_LIMIT,
   type MediaType,
+  SHELF_FULL_MESSAGE,
   WATCHLIST_LIMIT_ERROR,
   type WatchStatus,
 } from "@/types";
@@ -29,8 +30,6 @@ async function getAuthenticatedUser() {
  * (TMDB fetches, cast, images) into the action's response, which made that
  * response slow enough to still be streaming when the user moved on.
  */
-const SHELF_FULL_MESSAGE = `Free accounts can keep ${FREE_WATCHLIST_LIMIT} titles on their shelf. Remove one to make room, or upgrade for unlimited space.`;
-
 function revalidateWatchlist() {
   revalidatePath("/watchlist");
 }

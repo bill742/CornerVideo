@@ -246,7 +246,7 @@ opposite of loaders) so callers can surface the message. The free-tier limit
 members via `userHasPremium()` from `@/lib/billing` — but the authority is the
 `enforce_watchlist_limit` trigger (migration 003), since app checks run as the
 member and can be skipped by calling Supabase directly. It raises
-`WATCHLIST_LIMIT_ERROR`, which both apps map to their limit message. The limit
+`WATCHLIST_LIMIT_ERROR`, which both apps map to the shared `SHELF_FULL_MESSAGE`. The limit
 and the premium rule are duplicated in that SQL: change them together.
 
 ### Billing
@@ -256,6 +256,9 @@ and the premium rule are duplicated in that SQL: change them together.
   `apple`, `google`; migration 002). Web calls it through `userHasPremium()` /
   `getMembership()` in `src/lib/billing.ts`, mobile through `isPremium()` in
   `src/lib/premium.ts`. Never `.maybeSingle()` the subscriptions table.
+  Gated today: the unlimited shelf and New release alerts (mobile). TV episode
+  tracking is deliberately free. A new Premium feature gates on the same rule,
+  and needs a database check too if members could bypass the app.
 - **Only the `stripe-webhook` Edge Function writes `subscriptions` and
   `stripe_customers`** (service role; members have SELECT-only RLS). The web
   app's `src/lib/actions/billing.ts` just starts Checkout / portal sessions and
