@@ -1,8 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import type { EmailOtpType } from "@supabase/supabase-js";
-
-import { createClient } from "@/lib/supabase/server";
+import { type EmailOtpType, createClient } from "@supabase/supabase-js";
 
 // The types a "Confirm signup" link can carry. Supabase's template docs use
 // "email"; "signup" is its older name.
@@ -16,9 +14,14 @@ const EXPIRED_MESSAGE =
  * Supabase template links here with a token_hash — see apps/web/README.md →
  * "Email confirmation"). Unlike a PKCE code, the token works on any device.
  *
- * It verifies on GET, unlike /reset-password: a mail scanner that opens the
- * link first does confirm the email, which is harmless, and the member's own
- * click then gets the "sign in" message rather than a dead end.
+ * It confirms the email but signs nobody in. The link carries no proof of
+ * who opened it, so creating a session here would let someone send their own
+ * confirmation link to another person and leave them signed in to the
+ * sender's account (login CSRF). Verifying with a client that keeps no cookies
+ * leaves whoever opened it exactly as they were; the member then signs in.
+ *
+ * A mail scanner opening the link first still confirms the email, which is
+ * harmless: the member's own click then gets the "sign in" message.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -27,22 +30,27 @@ export async function GET(request: NextRequest) {
 
   const destination = request.nextUrl.clone();
   destination.search = "";
+  destination.pathname = "/login";
 
   if (tokenHash && CONFIRM_TYPES.includes(type)) {
-    const supabase = await createClient();
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type,
     });
     if (!error) {
+      // Revoke the session verifyOtp created; nobody will use it.
+      await supabase.auth.signOut({ scope: "local" });
       // Shows the "email confirmed" notice (EmailConfirmedNotice).
-      destination.pathname = "/";
       destination.searchParams.set("confirmed", "1");
       return NextResponse.redirect(destination);
     }
   }
 
-  destination.pathname = "/login";
   destination.searchParams.set("message", EXPIRED_MESSAGE);
   return NextResponse.redirect(destination);
 }

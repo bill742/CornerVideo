@@ -8,11 +8,11 @@ const VISIBLE_MS = 10_000;
 
 /**
  * The toast after a "Confirm signup" link: /auth/confirm redirects to
- * `/?confirmed=1`. Read in the browser rather than through searchParams, so
- * the home page stays static and CDN-cached.
+ * `/login?confirmed=1`. It lives in the root layout and reads the flag in the
+ * browser, so it works on any page without making it dynamic.
  *
  * The flag is dropped from the address straight away, so a reload or a
- * bookmark doesn't confirm again. The live region is rendered empty first and
+ * bookmark doesn't show it again. The live region is rendered empty first and
  * filled after mount, which is what makes screen readers announce it.
  */
 function EmailConfirmedNotice() {
@@ -46,12 +46,11 @@ function EmailConfirmedNotice() {
             className="text-new-release mt-0.5 size-5 shrink-0"
           />
           <div className="space-y-1 text-sm">
-            <p className="font-semibold">
-              Your email is confirmed and you&apos;re signed in.
-            </p>
-            <p className="text-muted-foreground">
-              Signed up in the app? Sign in there with your email and password.
-            </p>
+            <p className="font-semibold">Your email is confirmed.</p>
+            {/* TODO(app launch): mention the app again, e.g. "Sign in to get
+                started, here or in the app." Left out while there's no app to
+                point to. */}
+            <p className="text-muted-foreground">Sign in to get started.</p>
           </div>
           <button
             className="text-muted-foreground hover:text-foreground -mt-1 -mr-2 rounded p-1"

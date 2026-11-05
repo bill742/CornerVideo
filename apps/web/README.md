@@ -84,7 +84,7 @@ Locally, `stripe listen --forward-to https://<project-ref>.supabase.co/functions
 
 ### Email confirmation
 
-New accounts confirm their email before signing in, from either app. The "Confirm signup" email links to `/auth/confirm`, which confirms the account with the link's one-time `token_hash`, signs the member in on the web, and shows a "Your email is confirmed" notice on the home page (`EmailConfirmedNotice`). A link that has expired or was already used (a mail scanner may have opened it first, which still confirms the email) goes to `/login` with a message to sign in. Unlike the default link, it works on any device and for sign-ups from the mobile app.
+New accounts confirm their email before signing in, from either app. The "Confirm signup" email links to `/auth/confirm`, which confirms the account with the link's one-time `token_hash` and sends the member to sign in, with a "Your email is confirmed" notice (`EmailConfirmedNotice`). It deliberately signs nobody in: the link doesn't prove who opened it, so a session here would let someone send their own confirmation link to another person and leave them signed in to the sender's account. A link that has expired or was already used (a mail scanner may have opened it first, which still confirms the email) goes to `/login` with a message to sign in. Unlike the default link, it works on any device and for sign-ups from the mobile app.
 
 One-time Supabase setup (needs the custom SMTP described under "Password reset" below): in **Authentication → Emails → Confirm signup**, replace the link in the template with
 

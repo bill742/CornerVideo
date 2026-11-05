@@ -30,15 +30,14 @@ test.describe("Email confirmation", () => {
   test("Shows the confirmed notice once and is accessible", async ({
     page,
   }) => {
-    // Scoped to the notice: the home page behind it is covered by its own
-    // spec, and its loading animation can still be running here.
+    // Scoped to the notice; the page behind it has its own checks.
     const scanNotice = () =>
       new AxeBuilder({ page }).include("#email-confirmed-notice").analyze();
     const notice = page
       .getByRole("status")
       .filter({ hasText: "Your email is confirmed" });
 
-    await page.goto("/?confirmed=1");
+    await page.goto("/login?confirmed=1");
     await expect(notice).toBeVisible();
     // The flag is dropped, so a reload doesn't show it again.
     await expect(page).toHaveURL((url) => !url.searchParams.has("confirmed"));
@@ -51,13 +50,13 @@ test.describe("Email confirmation", () => {
     // arrive from the confirmation link again.
     await switchToDarkMode(page);
     await expect(notice).toHaveCount(0);
-    await page.goto("/?confirmed=1");
+    await page.goto("/login?confirmed=1");
     await expect(notice).toBeVisible();
     expect((await scanNotice()).violations).toEqual([]);
   });
 
   test("Shows nothing without the flag", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/login");
     await expect(page.getByText("Your email is confirmed")).toHaveCount(0);
   });
 });
