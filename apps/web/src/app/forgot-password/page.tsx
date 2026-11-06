@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { requestPasswordReset } from "@/app/auth/actions";
 
 export const metadata: Metadata = {
+  // Not the root layout's "/", which would claim this is the homepage.
+  alternates: { canonical: "/forgot-password" },
   description: "Get an email with a link to choose a new password.",
   title: "Forgot password",
 };

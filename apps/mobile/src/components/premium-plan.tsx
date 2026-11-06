@@ -14,6 +14,7 @@ import {
   type SubscriptionPlatform,
 } from "@moviewatchlist/shared";
 
+import { APPLE_EULA_URL, PRIVACY_URL, TERMS_URL } from "@/lib/legal";
 import type { Membership } from "@/lib/premium";
 import {
   getPremiumOptions,
@@ -25,13 +26,6 @@ import {
 } from "@/lib/purchases";
 import { useBrand } from "@/lib/theme";
 
-// Required on the purchase screen by App Review (guideline 3.1.2). Apple's
-// standard licence agreement serves as the Terms of Use.
-const TERMS_URL =
-  "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
-// TODO(release): this page doesn't exist yet — publish it on the web app
-// before submitting to either store.
-const PRIVACY_URL = "https://cornervideo.app/privacy";
 
 // Only what is actually gated today, matching the web Premium section.
 const PERKS = [
@@ -238,7 +232,14 @@ function PremiumPlan({ membership, onChanged }: PremiumPlanProps) {
               <Text
                 accessibilityRole="link"
                 className="text-xs font-semibold text-fg underline"
-                onPress={() => Linking.openURL(TERMS_URL)}
+                // Required on the purchase screen by App Review (3.1.2).
+                // Apple's licence agreement covers App Store purchases;
+                // Google Play buyers get our own Terms.
+                onPress={() =>
+                  Linking.openURL(
+                    Platform.OS === "ios" ? APPLE_EULA_URL : TERMS_URL,
+                  )
+                }
               >
                 Terms of Use
               </Text>
