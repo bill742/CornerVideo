@@ -303,8 +303,17 @@ and the premium rule are duplicated in that SQL: change them together.
 **Email confirmation** also goes through the web app for both apps: the
 Supabase "Confirm signup" template links to `/auth/confirm?token_hash=…`
 (`src/app/auth/confirm/route.ts`), which verifies with a cookie-less client
-and redirects to `/login?confirmed=1` for `EmailConfirmedNotice` in the root
+and redirects to `/login?confirmed=1` for `SiteNotice` in the root
 layout. It must not sign anyone in (login CSRF); the member signs in after.
+
+**Account deletion** is in both apps' Membership screens and goes through the
+`delete-account` Edge Function, called with the member's own session (web calls
+it from the browser, not a server action). It closes the Stripe customer first
+and aborts if that fails, then deletes the RevenueCat subscriber and the auth
+user; every table cascades from `auth.users`. A new member table must reference
+`auth.users ON DELETE CASCADE` too, and a new webhook that writes member rows
+must treat `isDeletedMember()` (`_shared/deleted-member.ts`) as "acknowledge,
+don't retry". The success notice is `SiteNotice` (root layout, `?account=deleted`).
 
 **Password reset** goes through the web app for both apps: `requestPasswordReset`
 and `resetPassword` in `src/app/auth/actions.ts`, pages `/forgot-password` and

@@ -106,7 +106,7 @@ test.describe("Profile", () => {
       "the Premium section is hidden without Stripe"
     );
 
-    // The root layout always renders EmailConfirmedNotice's empty live
+    // The root layout always renders SiteNotice's empty live
     // region (role="status"), so only statuses with text count.
     const notice = page.getByRole("status").filter({ hasText: /\S/ });
 

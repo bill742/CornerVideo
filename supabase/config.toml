@@ -13,6 +13,11 @@ verify_jwt = false
 # Authorization header set in the RevenueCat dashboard instead.
 verify_jwt = false
 
+[functions.delete-account]
+# Called by both apps with the member's session. The function verifies it
+# itself with auth.getUser(), and only ever deletes that member.
+verify_jwt = false
+
 [functions.revenuecat-sync]
 # Called by the app with the member's session. The function verifies it
 # itself with auth.getUser(), which also handles asymmetric signing keys.

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // Revoke the session verifyOtp created; nobody will use it.
       await supabase.auth.signOut({ scope: "local" });
-      // Shows the "email confirmed" notice (EmailConfirmedNotice).
+      // Shows the "email confirmed" notice (SiteNotice).
       destination.searchParams.set("confirmed", "1");
       return NextResponse.redirect(destination);
     }

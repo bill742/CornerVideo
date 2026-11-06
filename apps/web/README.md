@@ -82,9 +82,24 @@ One-time setup, in **test mode** until the Worker moves to Workers Paid (PLAN.md
 
 Locally, `stripe listen --forward-to https://<project-ref>.supabase.co/functions/v1/stripe-webhook` prints a `whsec_` to use instead, and test card `4242 4242 4242 4242` completes checkout.
 
+### Account deletion
+
+Members delete their own account from the Membership page (web) or Membership tab (mobile); App Review guideline 5.1.1(v) requires it in the app. Both call the `delete-account` Edge Function (`supabase/functions/delete-account`) with the member's session. It deletes their Stripe customer first (cancelling any web subscription; if that fails, nothing is deleted), then their RevenueCat subscriber, then the auth user, which cascades to every app table. App Store and Google Play subscriptions can't be cancelled from the server, so both screens tell the member to cancel those first.
+
+Late Stripe and RevenueCat webhooks for a deleted member hit a foreign-key error on write; the webhooks acknowledge those (`_shared/deleted-member.ts`) instead of retrying.
+
+Deploy it, and redeploy the functions that share the deleted-member check (it uses the `STRIPE_SECRET_KEY` and `REVENUECAT_SECRET_KEY` secrets already set for billing):
+
+```bash
+supabase functions deploy delete-account   # verify_jwt = false comes from supabase/config.toml
+supabase functions deploy stripe-webhook
+supabase functions deploy revenuecat-webhook
+supabase functions deploy revenuecat-sync
+```
+
 ### Email confirmation
 
-New accounts confirm their email before signing in, from either app. The "Confirm signup" email links to `/auth/confirm`, which confirms the account with the link's one-time `token_hash` and sends the member to sign in, with a "Your email is confirmed" notice (`EmailConfirmedNotice`). It deliberately signs nobody in: the link doesn't prove who opened it, so a session here would let someone send their own confirmation link to another person and leave them signed in to the sender's account. A link that has expired or was already used (a mail scanner may have opened it first, which still confirms the email) goes to `/login` with a message to sign in. Unlike the default link, it works on any device and for sign-ups from the mobile app.
+New accounts confirm their email before signing in, from either app. The "Confirm signup" email links to `/auth/confirm`, which confirms the account with the link's one-time `token_hash` and sends the member to sign in, with a "Your email is confirmed" notice (`SiteNotice`). It deliberately signs nobody in: the link doesn't prove who opened it, so a session here would let someone send their own confirmation link to another person and leave them signed in to the sender's account. A link that has expired or was already used (a mail scanner may have opened it first, which still confirms the email) goes to `/login` with a message to sign in. Unlike the default link, it works on any device and for sign-ups from the mobile app.
 
 One-time Supabase setup (needs the custom SMTP described under "Password reset" below): in **Authentication → Emails → Confirm signup**, replace the link in the template with
 

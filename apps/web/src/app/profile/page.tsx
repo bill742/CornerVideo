@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { DeleteAccount } from "@/components/membership/delete-account";
 import { MembershipCard } from "@/components/membership/membership-card";
 import {
   type BillingNotice,
@@ -58,6 +59,7 @@ export default async function ProfilePage({ searchParams }: Props) {
           initialTheme={profile?.theme ?? "system"}
         />
       </div>
+      <DeleteAccount storePlatform={membership.storePlatform} />
     </div>
   );
 }
