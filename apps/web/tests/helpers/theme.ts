@@ -19,4 +19,7 @@ export async function switchToDarkMode(page: Page) {
   // reports a page with no content. Every page's title is its <h1>, so its
   // arrival means the streamed content has landed.
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  // Pages that load content in the browser show a VhsLoader that fades in;
+  // scanned mid-fade, its half-opaque text fails colour contrast.
+  await expect(page.locator(".vhs-loader")).toHaveCount(0);
 }

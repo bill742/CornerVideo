@@ -9,10 +9,13 @@ import {
   TextInput,
   View,
 } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { FREE_WATCHLIST_LIMIT } from "@moviewatchlist/shared";
 
 import { PasswordField } from "@/components/password-field";
 import { useAuth } from "@/lib/auth-context";
+import { PRIVACY_URL, TERMS_URL } from "@/lib/legal";
 import { useBrand } from "@/lib/theme";
 
 export default function SignupScreen() {
@@ -53,8 +56,12 @@ export default function SignupScreen() {
         <Text className="mb-2 font-display text-4xl text-fg">
           Create account
         </Text>
-        <Text className="mb-8 text-base text-muted">
+        <Text className="mb-1 text-base text-muted">
           Keep every movie and show you want to see on one shelf.
+        </Text>
+        {/* State the cap up front, as the web sign-up page does. */}
+        <Text className="mb-8 text-sm text-muted">
+          Free: {FREE_WATCHLIST_LIMIT} titles on your shelf.
         </Text>
 
         <TextInput
@@ -93,6 +100,26 @@ export default function SignupScreen() {
             </Text>
           )}
         </Pressable>
+
+        <Text className="mt-4 text-center text-xs text-muted">
+          By creating an account, you agree to the{" "}
+          <Text
+            accessibilityRole="link"
+            className="font-semibold text-fg underline"
+            onPress={() => WebBrowser.openBrowserAsync(TERMS_URL)}
+          >
+            Terms of Service
+          </Text>{" "}
+          and{" "}
+          <Text
+            accessibilityRole="link"
+            className="font-semibold text-fg underline"
+            onPress={() => WebBrowser.openBrowserAsync(PRIVACY_URL)}
+          >
+            Privacy Policy
+          </Text>
+          .
+        </Text>
 
         <View className="mt-6 flex-row justify-center">
           <Text className="text-muted">Have an account? </Text>

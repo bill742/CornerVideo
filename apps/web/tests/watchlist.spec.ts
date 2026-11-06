@@ -124,7 +124,8 @@ test.describe("Watchlist", () => {
   test("Item count matches the rows shown", async ({ page }) => {
     await page.goto("/watchlist");
 
-    const rows = await page.getByRole("listitem").count();
+    // Scoped to main: the footer's nav is a list too.
+    const rows = await page.getByRole("main").getByRole("listitem").count();
     await expect(page.getByText(new RegExp(`^${rows} items?$`))).toBeVisible();
   });
 
