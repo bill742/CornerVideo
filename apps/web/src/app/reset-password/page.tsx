@@ -9,6 +9,8 @@ import { resetPassword } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
+  // Not the root layout's "/", which would claim this is the homepage.
+  alternates: { canonical: "/reset-password" },
   description: "Choose a new password for your account.",
   // Reset links carry a one-time token in the URL.
   referrer: "no-referrer",

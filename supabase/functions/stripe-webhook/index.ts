@@ -14,6 +14,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@23";
 
+import { isDeletedMember } from "../_shared/deleted-member.ts";
+
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!);
 // Deno has no synchronous Node crypto, so signatures go through SubtleCrypto.
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
@@ -66,14 +68,20 @@ async function resolveUserId(sub: Stripe.Subscription): Promise<string | null> {
   return data?.user_id ?? null;
 }
 
-async function linkCustomer(userId: string, customer: string) {
+/** Resolves false when the member's account has been deleted. */
+async function linkCustomer(
+  userId: string,
+  customer: string,
+): Promise<boolean> {
   const { error } = await supabase
     .from("stripe_customers")
     .upsert(
       { customer_id: customer, user_id: userId },
       { onConflict: "user_id" },
     );
+  if (isDeletedMember(error)) return false;
   if (error) throw new Error(`stripe_customers upsert: ${error.message}`);
+  return true;
 }
 
 async function syncSubscription(subscriptionId: string) {
@@ -86,7 +94,13 @@ async function syncSubscription(subscriptionId: string) {
     return;
   }
 
-  await linkCustomer(userId, customerId(sub.customer));
+  // delete-account removes the member's auth user (deleting their Stripe
+  // customer first), and Stripe still reports the cancellation afterwards.
+  // Writing for them fails the foreign key; acknowledge instead of retrying.
+  if (!(await linkCustomer(userId, customerId(sub.customer)))) {
+    console.warn(`Member ${userId} was deleted; skipping ${sub.id}.`);
+    return;
+  }
 
   // The period now lives on each item. Every item renews together on one
   // plan, so the latest end is the subscription's.
@@ -120,11 +134,15 @@ async function handle(event: Stripe.Event) {
       if (session.mode !== "subscription" || !session.subscription) return;
       // Link first: the customer exists before the subscription row does, and
       // client_reference_id is the one place the member's id is guaranteed.
-      if (session.client_reference_id && session.customer) {
-        await linkCustomer(
+      if (
+        session.client_reference_id &&
+        session.customer &&
+        !(await linkCustomer(
           session.client_reference_id,
           customerId(session.customer),
-        );
+        ))
+      ) {
+        return;
       }
       const id =
         typeof session.subscription === "string"

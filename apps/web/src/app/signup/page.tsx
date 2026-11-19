@@ -94,6 +94,19 @@ export default async function SignupPage({ searchParams }: Props) {
           </Button>
         </form>
 
+        {/* Covers the Google and Apple buttons above as well as the form. */}
+        <p className="text-muted-foreground text-center text-xs">
+          By creating an account, you agree to the{" "}
+          <Link className="underline" href="/terms">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link className="underline" href="/privacy">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+
         <p className="text-muted-foreground text-center text-sm">
           Already have an account?{" "}
           <Link className="underline" href="/login">

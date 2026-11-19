@@ -13,6 +13,8 @@
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 
+import { isDeletedMember } from "./deleted-member.ts";
+
 export type StorePlatform = "apple" | "google" | "test";
 
 /** Every platform this module owns. Stripe rows belong to stripe-webhook. */
@@ -183,6 +185,9 @@ export async function syncMember(
       })),
       { onConflict: "user_id,platform" },
     );
+    // The member deleted their account (delete-account); a late store event
+    // has nothing to attach to. Report nothing synced rather than retrying.
+    if (isDeletedMember(error)) return [];
     if (error) throw new Error(`subscriptions upsert: ${error.message}`);
   }
 

@@ -4,12 +4,16 @@
  * tokens; every text pair passes WCAG 2.1 AA on its background.
  */
 export const BRAND = {
+  /** Where people reach a person: support, privacy requests, press. */
+  contactEmail: "hello@cornervideo.app",
   description:
     "Track movies and TV shows in one watchlist, see premiere dates for what's coming, and find your next watch. Your neighbourhood video store, minus the late fees.",
   name: "Corner Video",
   positioning:
     "One shelf for every movie and show you want to see, with premiere dates so nothing slips by.",
   tagline: "Your neighbourhood video store, minus the late fees.",
+  /** Public web address; the Privacy Policy and Terms live here for both apps. */
+  url: "https://cornervideo.app",
 } as const;
 
 export interface BrandPalette {

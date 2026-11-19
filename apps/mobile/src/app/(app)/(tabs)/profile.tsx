@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BRAND, REGIONS } from "@moviewatchlist/shared";
 
 import { AppearanceSetting } from "@/components/appearance-setting";
+import { DeleteAccountSetting } from "@/components/delete-account-setting";
 import { PremiumPlan } from "@/components/premium-plan";
 import { ReleaseRemindersSetting } from "@/components/release-reminders-setting";
 import { ReminderDevTools } from "@/components/reminder-dev-tools";
@@ -160,6 +161,8 @@ export default function ProfileScreen() {
         >
           <Text className="text-base font-semibold text-fg">Sign out</Text>
         </Pressable>
+
+        <DeleteAccountSetting membership={membership} />
       </ScrollView>
     </SafeAreaView>
   );

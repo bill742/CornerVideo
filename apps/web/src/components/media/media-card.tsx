@@ -54,7 +54,7 @@ function MediaCard({ item, titleLevel = 3 }: Props) {
   return (
     <Link className="group flex flex-col no-underline" href={href}>
       {/* The tape stands on the shelf; pb leaves room for the plank. */}
-      <div className="shelf-slot relative pb-[5px]">
+      <div className="shelf-slot relative pb-1.25">
         <div className="bg-muted relative aspect-2/3 overflow-hidden rounded-sm shadow-md transition-transform duration-200 group-hover:-translate-y-2 group-focus-visible:-translate-y-2 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0">
           {item.poster_path ? (
             <Image

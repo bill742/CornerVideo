@@ -32,7 +32,7 @@ test.describe("Email confirmation", () => {
   }) => {
     // Scoped to the notice; the page behind it has its own checks.
     const scanNotice = () =>
-      new AxeBuilder({ page }).include("#email-confirmed-notice").analyze();
+      new AxeBuilder({ page }).include("#site-notice").analyze();
     const notice = page
       .getByRole("status")
       .filter({ hasText: "Your email is confirmed" });

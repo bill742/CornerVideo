@@ -29,6 +29,11 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  /**
+   * Permanently deletes the member's account through the delete-account Edge
+   * Function, then signs out on this device. Throws if the server refuses.
+   */
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -88,10 +93,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   }
 
-  async function signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    // Otherwise the next account to sign in on this device inherits these.
+  /** Otherwise the next account to sign in on this device inherits these. */
+  async function clearDeviceState() {
     clearRegionCache();
     await Promise.all([
       cancelReminders(),
@@ -102,9 +105,28 @@ function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  async function signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    await clearDeviceState();
+  }
+
+  async function deleteAccount() {
+    const { error } = await supabase.functions.invoke("delete-account", {
+      method: "POST",
+    });
+    if (error) throw error;
+    // The user no longer exists, so a global sign-out would fail; clearing
+    // the local session is all that's left. It also fires SIGNED_OUT, which
+    // sends the root layout back to the auth screens.
+    await supabase.auth.signOut({ scope: "local" });
+    await clearDeviceState();
+  }
+
   return (
     <AuthContext.Provider
       value={{
+        deleteAccount,
         initializing,
         requestPasswordReset,
         session,

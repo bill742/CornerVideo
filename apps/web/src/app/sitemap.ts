@@ -16,6 +16,11 @@ function sitemap(): MetadataRoute.Sitemap {
       // Same form as the canonical and og:url: origin plus "/".
       url: new URL("/", siteUrl).href,
     },
+    ...["/privacy", "/terms"].map((path) => ({
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+      url: new URL(path, siteUrl).href,
+    })),
   ];
 }
 
