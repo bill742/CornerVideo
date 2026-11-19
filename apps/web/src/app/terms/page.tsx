@@ -19,34 +19,33 @@ export default function TermsPage() {
     <LegalDocument title="Terms of Service" updated="November 5, 2026">
       <p>
         These terms are an agreement between you and 742 Studios, the business
-        name of Bill Dean, a sole proprietor in Ontario, Canada (&quot;we&quot;
-        or &quot;us&quot;). They cover your use of {BRAND.name} on the web,
-        iPhone and Android. By creating an account or using {BRAND.name}, you
-        agree to them. Our <Link href="/privacy">Privacy Policy</Link> explains
-        how we handle your information.
+        name of Bill Dean, a sole proprietor in Ontario, Canada (“we” or “us”).
+        They cover your use of {BRAND.name} on the web, iPhone and Android. By
+        creating an account or using {BRAND.name}, you agree to them. Our{" "}
+        <Link href="/privacy">Privacy Policy</Link> explains how we handle your
+        information.
       </p>
 
       <h2>What {BRAND.name} is</h2>
       <p>
         {BRAND.name} helps you keep track of movies and TV shows you want to see
-        and have watched, and shows when they&apos;re released. It doesn&apos;t
-        stream or sell video. Titles, dates, images and other details come from
-        The Movie Database (TMDB) and may be incomplete or change. {BRAND.name}{" "}
-        uses the TMDB API but is not endorsed or certified by TMDB, and
-        isn&apos;t affiliated with any studio, streaming service or video store.
+        and have watched, and shows when they’re released. It doesn’t stream or
+        sell video. Titles, dates, images and other details come from The Movie
+        Database (TMDB) and may be incomplete or change. {BRAND.name} uses the
+        TMDB API but is not endorsed or certified by TMDB, and isn’t affiliated
+        with any studio, streaming service or video store.
       </p>
 
       <h2>Your account</h2>
       <ul>
         <li>
-          You need to be at least 13 to use {BRAND.name}. If you&apos;re under
-          the age of majority where you live, you need a parent or
-          guardian&apos;s permission.
+          You need to be at least 13 to use {BRAND.name}. If you’re under the
+          age of majority where you live, you need a parent or guardian’s
+          permission.
         </li>
         <li>
           Give a real email address you can receive mail at, and keep your
-          password to yourself. You&apos;re responsible for activity on your
-          account.
+          password to yourself. You’re responsible for activity on your account.
         </li>
         <li>
           An account is for one person. Tell us at{" "}
@@ -60,36 +59,36 @@ export default function TermsPage() {
         A free account keeps up to {FREE_WATCHLIST_LIMIT} titles on your shelf.
         Premium is an optional paid subscription that removes that limit and
         adds features described where you buy it. We may change what each plan
-        includes; if we take away a Premium feature you&apos;re paying for,
-        we&apos;ll tell you first.
+        includes; if we take away a Premium feature you’re paying for, we’ll
+        tell you first.
       </p>
 
       <h3>Billing and renewal</h3>
       <ul>
         <li>
           On the web, Premium is billed by Stripe. In the iPhone and Android
-          apps, it&apos;s billed to your Apple Account or Google Play account.
+          apps, it’s billed to your Apple Account or Google Play account.
         </li>
         <li>
           Premium renews automatically at the end of each monthly or yearly
           period, at the price shown when you subscribed, until you cancel.
         </li>
         <li>
-          If a plan starts with a free trial, you&apos;re charged when the trial
-          ends unless you cancel before then. Free trials are for new
-          subscribers only.
+          If a plan starts with a free trial, you’re charged when the trial ends
+          unless you cancel before then. Free trials are for new subscribers
+          only.
         </li>
         <li>
-          If the price changes, we&apos;ll tell you before your next renewal,
-          and you can cancel before the new price applies.
+          If the price changes, we’ll tell you before your next renewal, and you
+          can cancel before the new price applies.
         </li>
       </ul>
 
       <h3>Cancelling</h3>
       <ul>
         <li>
-          Web: on your Membership page, choose <strong>Manage billing</strong>
-          to open Stripe&apos;s billing portal.
+          Web: on your Membership page, choose <strong>Manage billing</strong>{" "}
+          to open Stripe’s billing portal.
         </li>
         <li>
           iPhone: Settings, then your name, then Subscriptions. Android: Google
@@ -97,21 +96,21 @@ export default function TermsPage() {
         </li>
         <li>
           Cancelling stops the next renewal. You keep Premium until the end of
-          the period you&apos;ve paid for. If your shelf has more titles than
-          the free limit, they stay on it, but you can&apos;t add more until
-          you&apos;re back under the limit.
+          the period you’ve paid for. If your shelf has more titles than the
+          free limit, they stay on it, but you can’t add more until you’re back
+          under the limit.
         </li>
       </ul>
 
       <h3>Refunds</h3>
       <p>
-        For web subscriptions, email us within 14 days of a charge and
-        we&apos;ll consider a refund. Purchases made through Apple or Google
-        follow their refund policies, and refund requests go to them. Nothing
-        here limits a refund you&apos;re entitled to by law.
+        For web subscriptions, email us within 14 days of a charge and we’ll
+        consider a refund. Purchases made through Apple or Google follow their
+        refund policies, and refund requests go to them. Nothing here limits a
+        refund you’re entitled to by law.
       </p>
       <p>
-        Purchases through the App Store are also subject to Apple&apos;s{" "}
+        Purchases through the App Store are also subject to Apple’s{" "}
         <a
           href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
           rel="noopener noreferrer"
@@ -123,7 +122,7 @@ export default function TermsPage() {
       </p>
 
       <h2>Using {BRAND.name} fairly</h2>
-      <p>Please don&apos;t:</p>
+      <p>Please don’t:</p>
       <ul>
         <li>
           scrape, copy or bulk-download the service or its data, or use it to
@@ -133,14 +132,14 @@ export default function TermsPage() {
           get around the free limit, Premium checks or other technical limits;
         </li>
         <li>
-          interfere with the service, try to access other people&apos;s
-          accounts, or probe it for weaknesses without our permission;
+          interfere with the service, try to access other people’s accounts, or
+          probe it for weaknesses without our permission;
         </li>
         <li>use it for anything illegal.</li>
       </ul>
       <p>
-        We may suspend or close an account that breaks these rules. Unless
-        it&apos;s urgent or the law prevents it, we&apos;ll tell you why first.
+        We may suspend or close an account that breaks these rules. Unless it’s
+        urgent or the law prevents it, we’ll tell you why first.
       </p>
 
       <h2>Ownership</h2>
@@ -164,23 +163,22 @@ export default function TermsPage() {
       <h2>Changes to the service and these terms</h2>
       <p>
         {BRAND.name} will change over time, and we may update these terms. If a
-        change matters, we&apos;ll tell you by email or in the app before it
-        takes effect. If you keep using {BRAND.name} after that, the new terms
-        apply.
+        change matters, we’ll tell you by email or in the app before it takes
+        effect. If you keep using {BRAND.name} after that, the new terms apply.
       </p>
 
       <h2>Disclaimers and liability</h2>
       <p>
         {BRAND.name} is provided as is. We work to keep it accurate and
-        available, but we can&apos;t promise that release dates and other
-        details will be correct, or that the service will never be interrupted.
+        available, but we can’t promise that release dates and other details
+        will be correct, or that the service will never be interrupted.
       </p>
       <p>
-        To the extent the law allows, we&apos;re not liable for indirect or
+        To the extent the law allows, we’re not liable for indirect or
         consequential losses, and our total liability to you is limited to the
         amount you paid us for Premium in the 12 months before the claim.
         Nothing in these terms takes away rights you have under consumer
-        protection law that can&apos;t be waived.
+        protection law that can’t be waived.
       </p>
 
       <h2>Governing law</h2>

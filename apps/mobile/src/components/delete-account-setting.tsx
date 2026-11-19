@@ -73,7 +73,7 @@ function DeleteAccountSetting({ membership }: DeleteAccountSettingProps) {
       </Text>
       {store ? (
         <Text className="mt-2 text-sm font-semibold text-fg">
-          Your Premium subscription through {store} isn&apos;t cancelled by
+          Your Premium subscription through {store} isn’t cancelled by
           deleting your account. Cancel it in your subscription settings first,
           or it will keep renewing.
         </Text>

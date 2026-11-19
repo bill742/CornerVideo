@@ -26,8 +26,7 @@ export default function PrivacyPage() {
         {BRAND.name} is a movie and TV watchlist for the web, iPhone and
         Android. This policy explains what we collect when you use it, why, who
         we share it with, and the choices you have. We collect only what the app
-        needs to work, we don&apos;t sell your information, and we don&apos;t
-        show ads.
+        needs to work, we don’t sell your information, and we don’t show ads.
       </p>
 
       <h2>Who we are</h2>
@@ -43,7 +42,7 @@ export default function PrivacyPage() {
       <ul>
         <li>
           Your email address and a password. The password is stored only in a
-          hashed form by our authentication provider; we can&apos;t read it.
+          hashed form by our authentication provider; we can’t read it.
         </li>
         <li>
           If you sign in with Google or Apple on the web, the email address and
@@ -67,7 +66,7 @@ export default function PrivacyPage() {
       <h3>When you subscribe to Premium</h3>
       <ul>
         <li>
-          Your subscription&apos;s status, which store or service it was bought
+          Your subscription’s status, which store or service it was bought
           through, and when it renews or ends.
         </li>
         <li>
@@ -77,7 +76,7 @@ export default function PrivacyPage() {
         <li>
           In the iPhone and Android apps, purchases are handled by Apple or
           Google. RevenueCat tells us whether your subscription is active, using
-          your account&apos;s ID rather than your name or email.
+          your account’s ID rather than your name or email.
         </li>
       </ul>
 
@@ -89,9 +88,8 @@ export default function PrivacyPage() {
           running and secure.
         </li>
         <li>
-          We use Cloudflare Web Analytics to count visits. It doesn&apos;t use
-          cookies or follow you across other sites, and it doesn&apos;t identify
-          you.
+          We use Cloudflare Web Analytics to count visits. It doesn’t use
+          cookies or follow you across other sites, and it doesn’t identify you.
         </li>
       </ul>
 
@@ -99,9 +97,8 @@ export default function PrivacyPage() {
       <ul>
         <li>
           In the mobile apps, New release alerts are scheduled on your phone as
-          local notifications. Whether they&apos;re on, and which alerts
-          you&apos;ve already received, is stored on the device and not sent to
-          us.
+          local notifications. Whether they’re on, and which alerts you’ve
+          already received, is stored on the device and not sent to us.
         </li>
         <li>
           Your browser or phone stores your sign-in session and theme so you
@@ -122,8 +119,8 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p>
-        We don&apos;t sell or rent your personal information, use it for
-        advertising, or share it with anyone except the service providers below.
+        We don’t sell or rent your personal information, use it for advertising,
+        or share it with anyone except the service providers below.
       </p>
 
       <h2>Who we share it with</h2>
@@ -150,7 +147,7 @@ export default function PrivacyPage() {
         <li>
           <strong>TMDB (The Movie Database):</strong> supplies the movie and TV
           information and images. Your browser or phone loads posters directly
-          from TMDB, so TMDB receives your IP address. We don&apos;t send TMDB
+          from TMDB, so TMDB receives your IP address. We don’t send TMDB
           anything about your account.
         </li>
       </ul>
@@ -184,11 +181,11 @@ export default function PrivacyPage() {
           <strong>Delete account</strong> on your Membership page or the
           Membership tab in the app. You can also email{" "}
           <a href={`mailto:${email}`}>{email}</a> from the address on your
-          account and we&apos;ll do it for you.
+          account and we’ll do it for you.
         </li>
         <li>
           <strong>Turn off alerts.</strong> New release alerts can be switched
-          off on the Membership tab or in your phone&apos;s settings.
+          off on the Membership tab or in your phone’s settings.
         </li>
         <li>
           <strong>Cancel Premium.</strong> See our{" "}
@@ -197,7 +194,7 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p>
-        We answer requests within 30 days. If you&apos;re not satisfied with our
+        We answer requests within 30 days. If you’re not satisfied with our
         answer, you can contact the{" "}
         <a
           href="https://www.priv.gc.ca/"
@@ -211,23 +208,23 @@ export default function PrivacyPage() {
 
       <h2>Security</h2>
       <p>
-        Information is sent over encrypted connections, and each member&apos;s
-        data can be read only by that member. No service is perfectly secure, so
-        please use a password you don&apos;t use anywhere else.
+        Information is sent over encrypted connections, and each member’s data
+        can be read only by that member. No service is perfectly secure, so
+        please use a password you don’t use anywhere else.
       </p>
 
       <h2>Children</h2>
       <p>
-        {BRAND.name} isn&apos;t meant for children under 13, and we don&apos;t
-        knowingly collect information from them. If you believe a child has
-        given us information, contact us and we&apos;ll delete it.
+        {BRAND.name} isn’t meant for children under 13, and we don’t knowingly
+        collect information from them. If you believe a child has given us
+        information, contact us and we’ll delete it.
       </p>
 
       <h2>Changes to this policy</h2>
       <p>
-        When this policy changes, we&apos;ll update the date at the top. If a
-        change affects how we use information you&apos;ve already given us,
-        we&apos;ll tell you by email or in the app before it takes effect.
+        When this policy changes, we’ll update the date at the top. If a change
+        affects how we use information you’ve already given us, we’ll tell you
+        by email or in the app before it takes effect.
       </p>
 
       <h2>Contact</h2>

@@ -25,6 +25,16 @@ for (const { heading, path } of PAGES) {
       expect(new URL(canonical!).pathname).toBe(path);
     });
 
+    test("never runs the name into the next word", async ({ page }) => {
+      await page.goto(path);
+
+      // SWC drops the leading space from a JSX text run that contains an HTML
+      // entity (&apos;) when it follows an expression, rendering e.g.
+      // "Corner Videois". The pages use ’ instead; this keeps it that way.
+      const text = await page.getByRole("main").innerText();
+      expect(text).not.toMatch(new RegExp(`${BRAND.name}[A-Za-z]`));
+    });
+
     test("names the contact address", async ({ page }) => {
       await page.goto(path);
 
