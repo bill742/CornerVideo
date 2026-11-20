@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Oswald, Public_Sans } from "next/font/google";
 
+import { AttributionCapture } from "@/components/attribution-capture";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { SiteNotice } from "@/components/site-notice";
@@ -96,6 +97,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <SiteNotice />
+          <AttributionCapture />
         </ThemeProvider>
       </body>
     </html>

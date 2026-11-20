@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ChevronDown } from "lucide-react";
+
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { signup } from "@/app/auth/actions";
-import { FREE_WATCHLIST_LIMIT } from "@/types";
+import {
+  APP_NEWS_CONSENT_TEXT,
+  FREE_WATCHLIST_LIMIT,
+  HEARD_FROM_OPTIONS,
+} from "@/types";
 
 // The root layout's canonical is "/", which every page inherits unless it sets
 // its own; without this the sign-up page claimed to be the homepage.
@@ -88,6 +94,48 @@ export default async function SignupPage({ searchParams }: Props) {
               name="password"
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="heard_from">
+              How did you hear about us?{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
+            </Label>
+            <div className="relative">
+              <select
+                className="border-input bg-background text-foreground w-full appearance-none rounded-md border py-2 pr-9 pl-3 text-sm"
+                defaultValue=""
+                id="heard_from"
+                name="heard_from"
+              >
+                <option value="">Choose one</option>
+                {HEARD_FROM_OPTIONS.map(({ label, value }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                aria-hidden
+                className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2"
+              />
+            </div>
+          </div>
+          {/* Unticked by default: CASL needs the member to opt in. */}
+          <div className="flex items-start gap-2">
+            <input
+              className="accent-primary mt-0.5 size-4 shrink-0"
+              id="app_news_opt_in"
+              name="app_news_opt_in"
+              type="checkbox"
+            />
+            <Label
+              className="leading-snug font-normal"
+              htmlFor="app_news_opt_in"
+            >
+              {APP_NEWS_CONSENT_TEXT}
+            </Label>
           </div>
           <Button className="w-full" type="submit">
             Create account

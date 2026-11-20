@@ -69,7 +69,8 @@ MovieWatchlist/
 │   └── shared/              # @moviewatchlist/shared — TS types, constants, TMDB client
 ├── supabase/
 │   ├── migrations/          # SQL schema (RLS policies, triggers)
-│   └── functions/           # Edge Functions (Deno): stripe-webhook, revenuecat-webhook/-sync
+│   ├── functions/           # Edge Functions (Deno): stripe-webhook, revenuecat-webhook/-sync, delete-account
+│   └── queries/             # saved read-only SQL (weekly-metrics.sql)
 ├── turbo.json               # task pipeline (build, lint, dev)
 ├── pnpm-workspace.yaml
 └── PLAN.md                  # expansion roadmap
@@ -314,6 +315,21 @@ user; every table cascades from `auth.users`. A new member table must reference
 `auth.users ON DELETE CASCADE` too, and a new webhook that writes member rows
 must treat `isDeletedMember()` (`_shared/deleted-member.ts`) as "acknowledge,
 don't retry". The success notice is `SiteNotice` (root layout, `?account=deleted`).
+
+**Launch measurement** (migration 005). The app `waitlist` has RLS on and no
+policies: write only through `join_waitlist()` (SECURITY DEFINER, granted to
+anon), which returns nothing so the form can't reveal who's listed; store the
+exact consent wording (`APP_NEWS_CONSENT_TEXT`) with each row for CASL. Sign-up
+source lives on `profiles` (`utm_*`, `heard_from`, `app_news_opt_in`):
+`AttributionCapture` (root layout, browser-only) keeps first-touch UTM tags
+in the `cv_attribution` cookie, the signup action passes them in
+`signUp`'s `options.data`, and `handle_new_user` copies them after cleaning
+every value, because a failed CHECK there would block the sign-up itself.
+Google/Apple sign-ups get the tags in `/auth/callback`. Refused adds go to
+`shelf_limit_hits` from both apps' `addToWatchlist` (the limit trigger can't log
+them; its exception rolls back). `heard_from` values live in
+`HEARD_FROM_OPTIONS` and the migration's CHECK; change both together. The
+Monday numbers are `supabase/queries/weekly-metrics.sql`.
 
 **Password reset** goes through the web app for both apps: `requestPasswordReset`
 and `resetPassword` in `src/app/auth/actions.ts`, pages `/forgot-password` and

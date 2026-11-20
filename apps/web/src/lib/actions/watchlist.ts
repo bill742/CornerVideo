@@ -35,6 +35,23 @@ function revalidateWatchlist() {
 }
 
 /**
+ * Records a refused add for the weekly metrics (shelf_limit_hits, migration
+ * 005). Best-effort: a failed log is reported but never replaces the
+ * shelf-full message the member needs to see.
+ */
+async function logShelfLimitHit(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  tmdbId: number,
+  mediaType: MediaType
+) {
+  const { error } = await supabase
+    .from("shelf_limit_hits")
+    .insert({ media_type: mediaType, tmdb_id: tmdbId, user_id: userId });
+  if (error) console.error("logShelfLimitHit failed:", error.message);
+}
+
+/**
  * Returns `{ error }` rather than throwing. A production build replaces a
  * thrown action error's message with a generic "Server Components render"
  * notice, so a full shelf read as a crash instead of saying why.
@@ -65,6 +82,7 @@ export async function addToWatchlist(
     (count ?? 0) >= FREE_WATCHLIST_LIMIT &&
     !(await userHasPremium(supabase, user.id))
   ) {
+    await logShelfLimitHit(supabase, user.id, tmdbId, mediaType);
     return { error: SHELF_FULL_MESSAGE };
   }
 
@@ -79,6 +97,7 @@ export async function addToWatchlist(
     // The database enforces the limit too (migration 003), which catches a
     // subscription that lapsed between the check above and this write.
     if (error.message === WATCHLIST_LIMIT_ERROR) {
+      await logShelfLimitHit(supabase, user.id, tmdbId, mediaType);
       return { error: SHELF_FULL_MESSAGE };
     }
     console.error("addToWatchlist upsert failed:", error.message);
