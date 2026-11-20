@@ -29,6 +29,11 @@ CREATE TABLE public.waitlist (
   -- once the first email goes out.
   unsubscribe_token UUID        NOT NULL UNIQUE DEFAULT gen_random_uuid(),
   unsubscribed_at   TIMESTAMPTZ,
+  -- Set when the person clicks the link in a confirmation email (double
+  -- opt-in). The form proves nothing about who owns the address, so no news
+  -- goes to a row until this is set. The confirmation flow ships with the
+  -- first email (marketing Phase 2).
+  confirmed_at      TIMESTAMPTZ,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -38,8 +43,12 @@ ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 
 -- Adds an email to the waitlist. Returns nothing, whether the email is new or
 -- already listed, so the form can't be used to find out who has signed up.
--- An email already on the list keeps its original consent record; one that
--- had unsubscribed and signs up again is resubscribed with the new consent.
+--
+-- An email already on the list is left exactly as it is. In particular this
+-- never clears unsubscribed_at: anyone can call it with anyone's address, so
+-- letting it re-subscribe would let a stranger undo someone's unsubscribe.
+-- Coming back after unsubscribing has to go through the confirmation email
+-- (double opt-in), which proves the person owns the address.
 CREATE OR REPLACE FUNCTION public.join_waitlist(
   p_email        TEXT,
   p_consent_text TEXT,
@@ -76,11 +85,7 @@ BEGIN
     left(p_utm_medium, 100),
     left(p_utm_campaign, 100)
   )
-  ON CONFLICT (email) DO UPDATE
-    SET consent_text    = excluded.consent_text,
-        consented_at    = now(),
-        unsubscribed_at = NULL
-    WHERE public.waitlist.unsubscribed_at IS NOT NULL;
+  ON CONFLICT (email) DO NOTHING;
 END;
 $$;
 

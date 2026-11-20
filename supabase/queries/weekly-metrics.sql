@@ -92,10 +92,17 @@ SELECT '4 waitlist', 'new accounts opting in to app news',
 FROM new_members
 
 UNION ALL
-SELECT '4 waitlist', 'total reachable (waitlist + opted-in accounts, deduplicated)',
+SELECT '4 waitlist', 'waitlist emails still waiting on confirmation', count(*)::text
+FROM public.waitlist WHERE confirmed_at IS NULL AND unsubscribed_at IS NULL
+
+-- Only confirmed waitlist emails count: an unconfirmed one may not belong to
+-- whoever typed it. Opted-in accounts confirmed their email to sign in.
+UNION ALL
+SELECT '4 waitlist', 'total reachable (confirmed waitlist + opted-in accounts, deduplicated)',
        count(*)::text
 FROM (
-  SELECT email FROM public.waitlist WHERE unsubscribed_at IS NULL
+  SELECT email FROM public.waitlist
+  WHERE confirmed_at IS NOT NULL AND unsubscribed_at IS NULL
   UNION
   SELECT lower(u.email)
   FROM public.profiles p JOIN auth.users u ON u.id = p.id
