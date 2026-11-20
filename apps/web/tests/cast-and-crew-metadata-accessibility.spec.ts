@@ -14,6 +14,10 @@ test.describe("Cast and crew person page does not have accessibility issues", ()
     page,
   }) => {
     await page.goto(`/cast-and-crew/${KNOWN_PERSON_ID}`);
+    // loading.tsx shows only the VhsLoader (the person's name, the H1, isn't
+    // known yet). When TMDB is slow the scan caught that state and reported
+    // "page-has-heading-one". Scan the loaded page.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     console.log("Running accessibility scan on cast and crew person page");
 

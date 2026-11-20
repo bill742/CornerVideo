@@ -10,6 +10,22 @@ import {
 import { isPremium } from "./premium";
 import { supabase } from "./supabase";
 
+/**
+ * Records a refused add for the weekly metrics (shelf_limit_hits, migration
+ * 005), mirroring the web server action. Best-effort: never replaces the
+ * shelf-full message the member needs to see.
+ */
+async function logShelfLimitHit(
+  userId: string,
+  tmdbId: number,
+  mediaType: MediaType,
+): Promise<void> {
+  const { error } = await supabase
+    .from("shelf_limit_hits")
+    .insert({ media_type: mediaType, tmdb_id: tmdbId, user_id: userId });
+  if (error) console.warn("logShelfLimitHit failed:", error.message);
+}
+
 async function requireUserId(): Promise<string> {
   const {
     data: { user },
@@ -64,6 +80,7 @@ export async function addToWatchlist(
     .eq("user_id", userId);
 
   if ((count ?? 0) >= FREE_WATCHLIST_LIMIT && !(await isPremium())) {
+    await logShelfLimitHit(userId, tmdbId, mediaType);
     throw new Error(SHELF_FULL_MESSAGE);
   }
 
@@ -76,6 +93,7 @@ export async function addToWatchlist(
   // The database enforces the limit too (migration 003), which catches a
   // subscription that lapsed between the check above and this write.
   if (error?.message === WATCHLIST_LIMIT_ERROR) {
+    await logShelfLimitHit(userId, tmdbId, mediaType);
     throw new Error(SHELF_FULL_MESSAGE);
   }
   if (error) throw new Error(error.message);
