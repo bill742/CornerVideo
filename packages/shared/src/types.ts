@@ -1,3 +1,5 @@
+import type { HeardFrom } from "./attribution";
+
 // ─── TMDB — Movies ────────────────────────────────────────────────────────────
 
 export interface Genre {
@@ -193,6 +195,13 @@ export interface Profile {
   avatar_url: string | null;
   region: string;
   theme: Theme;
+  /** First-touch UTM tags and the sign-up survey answer (migration 005). */
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  heard_from: HeardFrom | null;
+  app_news_opt_in: boolean;
+  app_news_opted_in_at: string | null;
   created_at: string;
   updated_at: string;
 }

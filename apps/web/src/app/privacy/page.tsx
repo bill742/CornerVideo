@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { LegalDocument } from "@/components/legal/legal-document";
 
-import { BRAND } from "@/types";
+import { BRAND, FREE_WATCHLIST_LIMIT } from "@/types";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
   const email = BRAND.contactEmail;
 
   return (
-    <LegalDocument title="Privacy Policy" updated="November 5, 2026">
+    <LegalDocument title="Privacy Policy" updated="November 20, 2026">
       <p>
         {BRAND.name} is a movie and TV watchlist for the web, iPhone and
         Android. This policy explains what we collect when you use it, why, who
@@ -49,6 +49,29 @@ export default function PrivacyPage() {
           basic profile details that service shares with us. With Apple, you can
           choose to hide your real email address.
         </li>
+        <li>
+          If you answer it, the optional “How did you hear about us?” question
+          on the sign-up form.
+        </li>
+        <li>
+          If you tick the box, your choice to get email news about
+          {BRAND.name}, including when the iPhone and Android apps launch, and
+          when you made it.
+        </li>
+        <li>
+          If you arrived from a link that carries campaign tags (for example
+          from a Reddit post we made), those tags, such as “reddit” or “launch”.
+          They tell us which posts bring people in, not anything about you.
+        </li>
+      </ul>
+
+      <h3>When you join the waitlist</h3>
+      <ul>
+        <li>
+          Your email address, the exact wording you agreed to, when you agreed,
+          where on the site the form was, and any campaign tags from the link
+          that brought you. You don’t need an account to join.
+        </li>
       </ul>
 
       <h3>When you use the app</h3>
@@ -60,6 +83,11 @@ export default function PrivacyPage() {
         <li>
           Your settings: region (used to show the right release dates) and light
           or dark theme.
+        </li>
+        <li>
+          When a free account reaches the {FREE_WATCHLIST_LIMIT}-title limit and
+          an add is refused, which title it was and when. We use this to decide
+          whether the free limit is set right.
         </li>
       </ul>
 
@@ -104,6 +132,11 @@ export default function PrivacyPage() {
           Your browser or phone stores your sign-in session and theme so you
           stay signed in and the app looks the way you chose.
         </li>
+        <li>
+          If you arrive from a tagged link, the website stores those campaign
+          tags in a cookie for 30 days, so they can be recorded if you sign up.
+          The cookie holds only the tags.
+        </li>
       </ul>
 
       <h2>How we use it</h2>
@@ -116,6 +149,16 @@ export default function PrivacyPage() {
         <li>
           To send emails you need, such as confirming your address or resetting
           your password.
+        </li>
+        <li>
+          To send you {BRAND.name} news, such as app launches and new features,
+          only if you asked us to. Every one of those emails has a link to
+          unsubscribe.
+        </li>
+        <li>
+          To count, in total, how people find {BRAND.name} and how they use it,
+          so we know what to improve. We look at these as totals, not to watch
+          what any one person does.
         </li>
       </ul>
       <p>
@@ -169,6 +212,11 @@ export default function PrivacyPage() {
         backups expire within 30 days. Payment records held by Stripe, Apple or
         Google are kept as long as tax and accounting law requires.
       </p>
+      <p>
+        A waitlist email is kept until you unsubscribe or ask us to remove it.
+        If you delete your account, we remove a waitlist entry with the same
+        email address too.
+      </p>
 
       <h2>Your choices and rights</h2>
       <ul>
@@ -182,6 +230,10 @@ export default function PrivacyPage() {
           Membership tab in the app. You can also email{" "}
           <a href={`mailto:${email}`}>{email}</a> from the address on your
           account and we’ll do it for you.
+        </li>
+        <li>
+          <strong>Stop news emails.</strong> Use the unsubscribe link in any of
+          them, or email us.
         </li>
         <li>
           <strong>Turn off alerts.</strong> New release alerts can be switched

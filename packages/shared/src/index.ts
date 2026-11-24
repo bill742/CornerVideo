@@ -1,3 +1,4 @@
+export * from "./attribution";
 export * from "./brand";
 export * from "./premium";
 export * from "./tmdb/client";

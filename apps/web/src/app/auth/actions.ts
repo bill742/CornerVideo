@@ -2,8 +2,10 @@
 
 import { redirect } from "next/navigation";
 
+import { readAttribution } from "@/lib/attribution";
 import { safeNextPath } from "@/lib/safe-next-path";
 import { createClient } from "@/lib/supabase/server";
+import { isHeardFrom } from "@/types";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -34,10 +36,18 @@ export async function signup(formData: FormData) {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const heardFrom = formData.get("heard_from");
 
   const { error } = await supabase.auth.signUp({
     email,
     options: {
+      // handle_new_user (migration 005) copies these onto the new profile,
+      // cleaning each one, so nothing here needs to be trusted.
+      data: {
+        ...(await readAttribution()),
+        app_news_opt_in: formData.get("app_news_opt_in") === "on",
+        heard_from: isHeardFrom(heardFrom) ? heardFrom : null,
+      },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
     password,

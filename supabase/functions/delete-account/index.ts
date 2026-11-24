@@ -13,8 +13,9 @@
 //    billed by the store and can't be cancelled from here, which the apps
 //    tell the member before they confirm.
 // 3. Supabase: deletes the auth user. Every app table references auth.users
-//    ON DELETE CASCADE, so the shelf, episodes, profile, subscriptions and
-//    stripe_customers rows go with it.
+//    ON DELETE CASCADE, so the shelf, episodes, profile, subscriptions,
+//    stripe_customers and shelf_limit_hits rows go with it. The app waitlist
+//    isn't keyed by member, so its row for their email is removed first.
 //
 // Late Stripe or RevenueCat webhooks for the deleted member hit a foreign-key
 // error on write; both webhooks treat that as "member gone" and acknowledge
@@ -107,6 +108,19 @@ Deno.serve(async (req) => {
     await deleteRevenueCatSubscriber(user.id);
   } catch (err) {
     console.warn(`delete-account: RevenueCat step failed for ${user.id}:`, err);
+  }
+
+  if (user.email) {
+    const { error: waitlistError } = await supabase
+      .from("waitlist")
+      .delete()
+      .eq("email", user.email.toLowerCase());
+    if (waitlistError) {
+      console.warn(
+        `delete-account: waitlist cleanup failed for ${user.id}:`,
+        waitlistError.message,
+      );
+    }
   }
 
   const { error } = await supabase.auth.admin.deleteUser(user.id);
