@@ -41,22 +41,18 @@ Notifications.setNotificationHandler({
 /**
  * Signed-out people browse as guests: Browse, Search and the detail screens
  * work without an account, and anything that needs one opens the sign-in
- * prompt (`useSignInPrompt`). `Stack.Protected` does the routing:
+ * prompt (`useSignInPrompt`).
  *
- * - `welcome` shows on first launch until they sign in or choose to browse.
- * - `(auth)` is a modal over the app, open only while signed out. Signing in
- *   removes it, which drops the member back on the screen they came from.
+ * - `welcome` shows on first launch until they sign in or choose to browse
+ *   (`Stack.Protected`, so `(app)` opens once it's seen).
+ * - `(auth)` is a modal over the app or the welcome. Its layout dismisses it
+ *   once there's a session, which drops the member back on the screen they
+ *   came from. It isn't guarded on the session: a guard removes the modal
+ *   while it's still presented, which left every touch in the app dead.
  */
 function RootNavigator() {
   const { initializing, session } = useAuth();
-  const { markSeen, seen } = useWelcome();
   const router = useRouter();
-  const showWelcome = !seen && !session;
-
-  // Signing in counts as getting past the welcome.
-  useEffect(() => {
-    if (session && !seen) markSeen();
-  }, [markSeen, seen, session]);
 
   // Tapping a release reminder opens that title. Covers a cold start too: the
   // hook reports a tap that launched the app. A tap made while signed out waits
@@ -92,18 +88,32 @@ function RootNavigator() {
 
   return (
     <SignInPromptProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={showWelcome}>
-          <Stack.Screen name="welcome" />
-        </Stack.Protected>
-        <Stack.Protected guard={!showWelcome}>
-          <Stack.Screen name="(app)" />
-        </Stack.Protected>
-        <Stack.Protected guard={!session}>
-          <Stack.Screen name="(auth)" options={{ presentation: "modal" }} />
-        </Stack.Protected>
-      </Stack>
+      <RootStack signedInAtLaunch={session !== null} />
     </SignInPromptProvider>
+  );
+}
+
+function RootStack({ signedInAtLaunch }: { signedInAtLaunch: boolean }) {
+  const { markSeen, seen } = useWelcome();
+  // Read once: a member already signed in (say, from before the welcome
+  // existed) never sees it. Signing in from the welcome marks it seen there.
+  const [skipWelcome] = useState(signedInAtLaunch);
+  const showWelcome = !seen && !skipWelcome;
+
+  useEffect(() => {
+    if (skipWelcome && !seen) markSeen();
+  }, [markSeen, seen, skipWelcome]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={showWelcome}>
+        <Stack.Screen name="welcome" />
+      </Stack.Protected>
+      <Stack.Protected guard={!showWelcome}>
+        <Stack.Screen name="(app)" />
+      </Stack.Protected>
+      <Stack.Screen name="(auth)" options={{ presentation: "modal" }} />
+    </Stack>
   );
 }
 

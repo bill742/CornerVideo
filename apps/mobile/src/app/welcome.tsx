@@ -1,8 +1,10 @@
-import { useRouter } from "expo-router";
+import { useCallback } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BRAND, LANDING_STEPS } from "@moviewatchlist/shared";
 
+import { useAuth } from "@/lib/auth-context";
 import { useWelcome } from "@/lib/welcome";
 
 /**
@@ -13,6 +15,15 @@ import { useWelcome } from "@/lib/welcome";
 export default function WelcomeScreen() {
   const router = useRouter();
   const { markSeen } = useWelcome();
+  const { session } = useAuth();
+
+  // Back from signing in (the sign-in modal has closed): the welcome is done,
+  // and marking it seen opens the app in its place.
+  useFocusEffect(
+    useCallback(() => {
+      if (session) markSeen();
+    }, [markSeen, session]),
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-bg">

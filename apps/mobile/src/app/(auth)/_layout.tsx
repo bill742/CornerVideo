@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Stack, useNavigation, useRouter } from "expo-router";
-import { Pressable, Text } from "react-native";
+import { Keyboard, Pressable, Text } from "react-native";
 
+import { useAuth } from "@/lib/auth-context";
 import { useSignInPrompt } from "@/lib/sign-in-prompt";
 import { useBrand } from "@/lib/theme";
 
@@ -11,6 +12,7 @@ import { useBrand } from "@/lib/theme";
  */
 export default function AuthLayout() {
   const { colors } = useBrand();
+  const { session } = useAuth();
   const { cancelPendingIfSignedOut } = useSignInPrompt();
   // In a layout, this is the root stack's navigation for the whole group.
   const navigation = useNavigation();
@@ -23,6 +25,20 @@ export default function AuthLayout() {
     if (navigation.canGoBack()) navigation.goBack();
     else router.replace("/");
   }
+
+  // Signed in (or opened by a link while signed in): dismiss the modal the
+  // normal way, keyboard first, so the screen underneath gets touches back.
+  // Once only: the effect re-runs while the modal animates away, and a second
+  // goBack pops the screen the member came from as well.
+  const signedIn = session !== null;
+  const dismissed = useRef(false);
+  useEffect(() => {
+    if (!signedIn || dismissed.current) return;
+    dismissed.current = true;
+    Keyboard.dismiss();
+    if (navigation.canGoBack()) navigation.goBack();
+    else router.replace("/");
+  }, [navigation, router, signedIn]);
 
   return (
     <Stack

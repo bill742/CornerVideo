@@ -137,8 +137,10 @@ Expo changes fast. Key facts:
   `src/app/_layout.tsx` is a Stack using `Stack.Protected` guards, not redirects:
   `welcome` (first launch only, until sign-in or "Browse without an account"; seen
   flag `welcome:seen` in AsyncStorage, `src/lib/welcome.tsx`), `(app)`, and `(auth)`
-  as a modal open only while signed out — signing in removes it and drops the member
-  back on the screen they came from. The `(app)` group is a Stack: `(app)/(tabs)`
+  as a modal. `(auth)/_layout.tsx` dismisses itself once there's a session (once,
+  with `goBack`), dropping the member back on the screen they came from. Don't put
+  `(auth)` behind a session guard: removing the modal while it's presented left
+  every touch in the app dead. The `(app)` group is a Stack: `(app)/(tabs)`
   holds Browse / Search / My Shelf / Membership, and detail screens push over them
   (`(app)/movie/[id]`, `(app)/tv/[id]`, `(app)/tv/[id]/season/[season]`). Anything
   that needs an account (the My Shelf and Membership tabs, Add to shelf, episode
