@@ -8,6 +8,7 @@ import {
 } from "@moviewatchlist/shared";
 
 import { isPremium } from "./premium";
+import { requireUserId, signedInUserId } from "./session";
 import { supabase } from "./supabase";
 
 /**
@@ -26,18 +27,10 @@ async function logShelfLimitHit(
   if (error) console.warn("logShelfLimitHit failed:", error.message);
 }
 
-async function requireUserId(): Promise<string> {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) throw new Error("Not authenticated");
-  return user.id;
-}
-
-/** All watchlist rows for the current user, newest first. */
+/** All watchlist rows for the current user, newest first; empty for a guest. */
 export async function getWatchlist(): Promise<WatchlistItem[]> {
-  const userId = await requireUserId();
+  const userId = await signedInUserId();
+  if (!userId) return [];
   const { data, error } = await supabase
     .from("watchlist_items")
     .select("*")
@@ -48,12 +41,16 @@ export async function getWatchlist(): Promise<WatchlistItem[]> {
   return (data as WatchlistItem[]) ?? [];
 }
 
-/** The saved status for one title, or null when it isn't on the watchlist. */
+/**
+ * The saved status for one title, or null when it isn't on the watchlist (or
+ * nobody is signed in).
+ */
 export async function getWatchlistStatus(
   tmdbId: number,
   mediaType: MediaType,
 ): Promise<WatchStatus | null> {
-  const userId = await requireUserId();
+  const userId = await signedInUserId();
+  if (!userId) return null;
   const { data, error } = await supabase
     .from("watchlist_items")
     .select("status")

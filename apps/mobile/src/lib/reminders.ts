@@ -4,6 +4,7 @@ import type { WatchlistItem } from "@moviewatchlist/shared";
 import { Platform } from "react-native";
 
 import { isPremium } from "./premium";
+import { signedInUserId } from "./session";
 import { tmdb } from "./tmdb";
 import { getWatchlist } from "./watchlist";
 
@@ -18,6 +19,11 @@ import { getWatchlist } from "./watchlist";
  *
  * Premium-only (see PLAN.md). The on/off switch is a per-device preference —
  * the notifications themselves only ever exist on this device.
+ *
+ * Notification permission is asked for in context, never at launch: when the
+ * member turns New release alerts on in Membership, or when a Premium member
+ * who has never chosen adds a title with a release still to come
+ * (`shouldOfferAlerts`).
  */
 
 const ENABLED_KEY = "reminders:enabled";
@@ -79,6 +85,14 @@ export async function setRemindersEnabled(enabled: boolean): Promise<void> {
 }
 
 /**
+ * Forget the on/off choice, so the next member to sign in on this device is
+ * offered alerts afresh. Called on sign-out and account deletion.
+ */
+export async function resetRemindersPreference(): Promise<void> {
+  await AsyncStorage.removeItem(ENABLED_KEY);
+}
+
+/**
  * Ask for notification permission if it hasn't been decided yet. Returns
  * whether notifications can be shown.
  */
@@ -87,6 +101,9 @@ export async function requestReminderPermission(): Promise<boolean> {
   if (current.granted) return true;
   if (!current.canAskAgain) return false;
 
+  // Android 13+ shows the permission prompt only once the app has a
+  // notification channel; without one the request resolves as denied.
+  await ensureChannel();
   const next = await Notifications.requestPermissionsAsync();
   return next.granted;
 }
@@ -230,6 +247,7 @@ function fireTime(
 
 async function runSync(): Promise<void> {
   const enabled =
+    (await signedInUserId()) !== null &&
     (await getRemindersEnabled()) &&
     (await hasReminderPermission()) &&
     (await isPremium());
@@ -296,6 +314,44 @@ export function syncReminders(): Promise<void> {
     .then(runSync)
     .catch((error) => console.warn("Reminder sync failed:", error));
   return inFlight;
+}
+
+/**
+ * Whether to offer New release alerts right after this title was added: only
+ * to a Premium member who has never turned them on or off on this device, for
+ * a release still to come, and while the system would still show its
+ * permission prompt (or has already granted it). Never throws.
+ */
+export async function shouldOfferAlerts(
+  tmdbId: number,
+  mediaType: WatchlistItem["media_type"],
+): Promise<{ title: string } | null> {
+  try {
+    if ((await AsyncStorage.getItem(ENABLED_KEY)) !== null) return null;
+    const permission = await Notifications.getPermissionsAsync();
+    if (!permission.granted && !permission.canAskAgain) return null;
+    if (!(await isPremium())) return null;
+
+    const release = await lookupRelease({
+      media_type: mediaType,
+      tmdb_id: tmdbId,
+    } as WatchlistItem);
+    if (!release || release.date.getTime() <= Date.now()) return null;
+    return { title: release.title };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The member's answer to the offer: asks for notification permission on yes,
+ * saves the choice either way, then syncs. Resolves to whether alerts are on.
+ */
+export async function answerAlertsOffer(accepted: boolean): Promise<boolean> {
+  const enabled = accepted && (await requestReminderPermission());
+  await setRemindersEnabled(enabled);
+  await syncReminders();
+  return enabled;
 }
 
 /** The deep link a tapped reminder should open, or null if it isn't one of ours. */

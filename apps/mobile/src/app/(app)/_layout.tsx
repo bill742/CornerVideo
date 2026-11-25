@@ -13,15 +13,16 @@ export default function AppLayout() {
   const userId = session?.user.id;
 
   // The profile's theme (possibly set on the web or another device) overrides
-  // the device's copy. Keyed on the user rather than run once on mount: this
-  // layout can mount for a moment before the signed-out redirect, and a sync
-  // made then fails and would never be retried after sign-in.
+  // the device's copy. Keyed on the user rather than run once on mount: guests
+  // use this layout too, and a sync made signed out would never be retried
+  // after sign-in.
   useEffect(() => {
     if (userId) syncThemeFromProfile();
   }, [userId]);
 
   // Scheduled reminders only know the dates TMDB had at the last sync, so
-  // re-sync whenever the signed-in app opens or comes back to the foreground.
+  // re-sync whenever the app opens or comes back to the foreground. For a
+  // guest the sync just clears any leftovers.
   useEffect(() => {
     syncReminders();
     const subscription = AppState.addEventListener("change", (state) => {

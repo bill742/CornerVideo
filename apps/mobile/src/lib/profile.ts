@@ -4,26 +4,20 @@ import {
   type Theme,
 } from "@moviewatchlist/shared";
 
+import { requireUserId, signedInUserId } from "./session";
 import { supabase } from "./supabase";
 
-async function requireUserId(): Promise<string> {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) throw new Error("Not authenticated");
-  return user.id;
-}
-
 /**
- * The signed-in user's profile row, or null if it has not been created yet.
+ * The signed-in user's profile row, or null for a guest or if it has not been
+ * created yet.
  *
  * A `handle_new_user` trigger inserts one per auth user, so this is normally
  * present — but returning null rather than throwing keeps a first run from
  * blocking the whole screen.
  */
 export async function getProfile(): Promise<Profile | null> {
-  const userId = await requireUserId();
+  const userId = await signedInUserId();
+  if (!userId) return null;
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
@@ -48,9 +42,8 @@ export async function getRegion(): Promise<string> {
   if (cachedRegion !== null) return cachedRegion;
 
   const profile = await getProfile().catch(() => null);
-  // Only a real read is cached. Browse renders for a moment before the auth
-  // redirect on a signed-out launch, and caching that failed read pinned the
-  // default region for the whole session after sign-in.
+  // Only a real read is cached. A guest browses with the default region, and
+  // caching that pinned the default for the whole session after sign-in.
   if (!profile) return DEFAULT_REGION;
 
   cachedRegion = profile.region ?? DEFAULT_REGION;

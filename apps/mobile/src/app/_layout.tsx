@@ -5,10 +5,9 @@ import { Oswald_600SemiBold, useFonts } from "@expo-google-fonts/oswald";
 import {
   DarkTheme,
   DefaultTheme,
-  Slot,
+  Stack,
   ThemeProvider,
   useRouter,
-  useSegments,
   type Href,
 } from "expo-router";
 import * as Notifications from "expo-notifications";
@@ -20,6 +19,8 @@ import { View } from "react-native";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { reminderUrl } from "@/lib/reminders";
 import { restoreTheme } from "@/lib/appearance";
+import { SignInPromptProvider } from "@/lib/sign-in-prompt";
+import { readWelcomeSeen, useWelcome, WelcomeProvider } from "@/lib/welcome";
 import { useBrand } from "@/lib/theme";
 import { VhsLoader } from "@/components/vhs-loader";
 
@@ -37,22 +38,21 @@ Notifications.setNotificationHandler({
   }),
 });
 
+/**
+ * Signed-out people browse as guests: Browse, Search and the detail screens
+ * work without an account, and anything that needs one opens the sign-in
+ * prompt (`useSignInPrompt`).
+ *
+ * - `welcome` shows on first launch until they sign in or choose to browse
+ *   (`Stack.Protected`, so `(app)` opens once it's seen).
+ * - `(auth)` is a modal over the app or the welcome. Its layout dismisses it
+ *   once there's a session, which drops the member back on the screen they
+ *   came from. It isn't guarded on the session: a guard removes the modal
+ *   while it's still presented, which left every touch in the app dead.
+ */
 function RootNavigator() {
   const { initializing, session } = useAuth();
-  const segments = useSegments();
   const router = useRouter();
-
-  useEffect(() => {
-    if (initializing) return;
-
-    const inAuthGroup = segments[0] === "(auth)";
-
-    if (!session && !inAuthGroup) {
-      router.replace("/login");
-    } else if (session && inAuthGroup) {
-      router.replace("/");
-    }
-  }, [initializing, router, segments, session]);
 
   // Tapping a release reminder opens that title. Covers a cold start too: the
   // hook reports a tap that launched the app. A tap made while signed out waits
@@ -86,7 +86,35 @@ function RootNavigator() {
     );
   }
 
-  return <Slot />;
+  return (
+    <SignInPromptProvider>
+      <RootStack signedInAtLaunch={session !== null} />
+    </SignInPromptProvider>
+  );
+}
+
+function RootStack({ signedInAtLaunch }: { signedInAtLaunch: boolean }) {
+  const { markSeen, seen } = useWelcome();
+  // Read once: a member already signed in (say, from before the welcome
+  // existed) never sees it. Signing in from the welcome marks it seen there.
+  const [skipWelcome] = useState(signedInAtLaunch);
+  const showWelcome = !seen && !skipWelcome;
+
+  useEffect(() => {
+    if (skipWelcome && !seen) markSeen();
+  }, [markSeen, seen, skipWelcome]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={showWelcome}>
+        <Stack.Screen name="welcome" />
+      </Stack.Protected>
+      <Stack.Protected guard={!showWelcome}>
+        <Stack.Screen name="(app)" />
+      </Stack.Protected>
+      <Stack.Screen name="(auth)" options={{ presentation: "modal" }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
@@ -118,14 +146,20 @@ export default function RootLayout() {
   }, [colors.bg]);
   const [fontsLoaded, fontError] = useFonts({ Oswald_600SemiBold });
   const [themeRestored, setThemeRestored] = useState(false);
+  const [welcomeSeen, setWelcomeSeen] = useState<boolean | null>(null);
   // A font that fails to load falls back to the system face; don't strand the
   // user on the splash over it.
-  const ready = (fontsLoaded || fontError !== null) && themeRestored;
+  const ready =
+    (fontsLoaded || fontError !== null) &&
+    themeRestored &&
+    welcomeSeen !== null;
 
   // Apply the saved light/dark choice while the splash is still up, so the
-  // first frame is already in the right scheme.
+  // first frame is already in the right scheme; likewise whether to open on
+  // the welcome screen.
   useEffect(() => {
     restoreTheme().finally(() => setThemeRestored(true));
+    readWelcomeSeen().then(setWelcomeSeen);
   }, []);
 
   useEffect(() => {
@@ -136,12 +170,14 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <StatusBar style="auto" />
-      <ThemeProvider value={navigationTheme}>
-        <View className="flex-1 bg-bg" style={themeVars}>
-          <RootNavigator />
-        </View>
-      </ThemeProvider>
+      <WelcomeProvider initialSeen={welcomeSeen}>
+        <StatusBar style="auto" />
+        <ThemeProvider value={navigationTheme}>
+          <View className="flex-1 bg-bg" style={themeVars}>
+            <RootNavigator />
+          </View>
+        </ThemeProvider>
+      </WelcomeProvider>
     </AuthProvider>
   );
 }

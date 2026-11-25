@@ -1,5 +1,6 @@
 import type { WatchStatus } from "@moviewatchlist/shared";
 
+import { requireUserId, signedInUserId } from "./session";
 import { supabase } from "./supabase";
 import { tmdb } from "./tmdb";
 import {
@@ -8,21 +9,13 @@ import {
   updateWatchStatus,
 } from "./watchlist";
 
-async function requireUserId(): Promise<string> {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) throw new Error("Not authenticated");
-  return user.id;
-}
-
-/** Episode numbers the user has marked watched for one season. */
+/** Episode numbers the user has marked watched for one season; none for a guest. */
 export async function getWatchedEpisodes(
   showTmdbId: number,
   seasonNumber: number,
 ): Promise<number[]> {
-  const userId = await requireUserId();
+  const userId = await signedInUserId();
+  if (!userId) return [];
   const { data, error } = await supabase
     .from("episode_watches")
     .select("episode_number")
@@ -66,11 +59,9 @@ export async function markSeasonWatched(
     show_tmdb_id: showTmdbId,
     user_id: userId,
   }));
-  const { error } = await supabase
-    .from("episode_watches")
-    .upsert(rows, {
-      onConflict: "user_id,show_tmdb_id,season_number,episode_number",
-    });
+  const { error } = await supabase.from("episode_watches").upsert(rows, {
+    onConflict: "user_id,show_tmdb_id,season_number,episode_number",
+  });
   if (error) throw new Error(error.message);
 }
 
@@ -101,7 +92,9 @@ export async function unmarkEpisodeWatched(
 export async function syncShowWatchStatus(
   showTmdbId: number,
 ): Promise<WatchStatus | null> {
-  const userId = await requireUserId();
+  // A guest has no shelf to reconcile.
+  const userId = await signedInUserId();
+  if (!userId) return null;
   const { count, error } = await supabase
     .from("episode_watches")
     .select("episode_number", { count: "exact", head: true })

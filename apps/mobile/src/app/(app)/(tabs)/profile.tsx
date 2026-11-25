@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +12,7 @@ import { BRAND, REGIONS } from "@moviewatchlist/shared";
 
 import { AppearanceSetting } from "@/components/appearance-setting";
 import { DeleteAccountSetting } from "@/components/delete-account-setting";
+import { GuestTab } from "@/components/sign-in-prompt-panel";
 import { PremiumPlan } from "@/components/premium-plan";
 import { ReleaseRemindersSetting } from "@/components/release-reminders-setting";
 import { ReminderDevTools } from "@/components/reminder-dev-tools";
@@ -23,6 +24,7 @@ import { useBrand } from "@/lib/theme";
 export default function ProfileScreen() {
   const { colors } = useBrand();
   const { session, signOut } = useAuth();
+  const router = useRouter();
   const [region, setRegion] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +70,14 @@ export default function ProfileScreen() {
       setSaving(false);
     }
   }
+
+  // Signing out leaves a guest, who browses on; send them back to Browse.
+  async function onSignOut() {
+    await signOut();
+    router.navigate("/");
+  }
+
+  if (!session) return <GuestTab title="Membership" />;
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={["top"]}>
@@ -157,7 +167,7 @@ export default function ProfileScreen() {
 
         <Pressable
           className="mt-10 items-center rounded-md border border-line px-4 py-3"
-          onPress={() => signOut()}
+          onPress={onSignOut}
         >
           <Text className="text-base font-semibold text-fg">Sign out</Text>
         </Pressable>
