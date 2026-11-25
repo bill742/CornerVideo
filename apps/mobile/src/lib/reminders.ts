@@ -101,6 +101,9 @@ export async function requestReminderPermission(): Promise<boolean> {
   if (current.granted) return true;
   if (!current.canAskAgain) return false;
 
+  // Android 13+ shows the permission prompt only once the app has a
+  // notification channel; without one the request resolves as denied.
+  await ensureChannel();
   const next = await Notifications.requestPermissionsAsync();
   return next.granted;
 }
