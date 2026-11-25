@@ -64,6 +64,16 @@ Staff Picks is the AI assistant for natural-language search and streaming recomm
 - **Sample prompts:** "Something cozy under 90 minutes", "A show like Slow Horses on a service I have", "What's premiering this weekend that I'd like?"
 - **Empty state:** "Tell us what you're in the mood for, and we'll pull something off the shelf."
 
+## Landing page and Browse
+
+The web home page (`/`) is a landing page for people who don't know Corner Video yet; members are sent straight to Browse. Browse lives at `/movies` and `/tv` (nav label **Browse**, heading **Browse the aisles**).
+
+- **H1:** the tagline. The positioning line follows it, after one plain sentence saying it's a watchlist for movies and TV.
+- **Primary call to action:** **Start your shelf — free**. Secondary: **Browse the aisles**.
+- **Steps and pillars** come from `LANDING_STEPS` and `LANDING_PILLARS` in `packages/shared/src/landing.ts`, so the mobile welcome screen can reuse them.
+- **Free tier, stated plainly:** "Your first 25 titles are free. No card needed." (from `FREE_WATCHLIST_LIMIT`).
+- **Waitlist:** plain copy, since it's a consent form. The opt-in wording is `APP_NEWS_CONSENT_TEXT`.
+
 ## Store listings
 
 The subtitle carries the descriptive keywords the name leaves out, so nobody mistakes Corner Video for a streaming service. Character counts are measured.

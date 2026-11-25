@@ -5,6 +5,10 @@ import { expect, test } from "@playwright/test";
 
 import { switchToDarkMode } from "./helpers/theme";
 
+// "/" is the landing page for new visitors; signed-in members are redirected
+// to /movies (middleware), so these run signed out.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("Homepage does not have accessibility issues", () => {
   test("Should not have any automatically detectable accessibility issues", async ({
     page,

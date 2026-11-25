@@ -53,7 +53,29 @@ async function withinTimeout<T>(work: Promise<T>, fallback: T): Promise<T> {
   }
 }
 
+/**
+ * True when the request carries a Supabase session cookie (`sb-<ref>-auth-token`,
+ * possibly split into `.0`, `.1`… chunks). Presence only: nothing is verified.
+ */
+function hasSessionCookie(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some(({ name }) => name.startsWith("sb-") && name.includes("-auth-token"));
+}
+
 export async function middleware(request: NextRequest) {
+  // The landing page is for people who don't know the app yet. Members go
+  // straight to Browse. This is a routing hint, not an auth check, so it
+  // skips getUser() — no Supabase round trip, almost no CPU on the Workers
+  // free plan. A stale cookie just lands someone on /movies signed out,
+  // which is a fine place to be.
+  if (request.nextUrl.pathname === "/") {
+    if (!hasSessionCookie(request)) return NextResponse.next();
+    const browse = request.nextUrl.clone();
+    browse.pathname = "/movies";
+    return NextResponse.redirect(browse);
+  }
+
   let response = NextResponse.next({ request });
 
   // Refresh the Supabase session on every request so it never expires silently.
@@ -118,5 +140,8 @@ export const config = {
   // server-side session refresh. supabase-js refreshes in the browser, and the
   // refresh still happens the moment they touch a protected route, so the
   // session outliving its access token is not a practical concern.
-  matcher: ["/watchlist/:path*", "/profile/:path*", "/auth/callback"],
+  //
+  // "/" only checks for a session cookie and never calls Supabase; see the
+  // top of middleware().
+  matcher: ["/", "/watchlist/:path*", "/profile/:path*", "/auth/callback"],
 };

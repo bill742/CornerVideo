@@ -179,9 +179,12 @@ Expo changes fast. Key facts:
 > deprecated filename, not Next 16's `proxy.ts`. Next 16 pins `proxy.ts` to the
 > Node runtime, while the OpenNext Cloudflare adapter only supports edge
 > middleware, and Next 16 still honours `middleware.ts` for that case. It runs
-> only on `/watchlist`, `/profile` and `/auth/callback` (an allowlist `matcher`,
-> so public pages cost no invocation). There it refreshes the Supabase session
-> and redirects signed-out visitors to `/login`. The pages still call
+> only on `/`, `/watchlist`, `/profile` and `/auth/callback` (an allowlist
+> `matcher`, so other public pages cost no invocation). On `/` it only checks
+> whether a Supabase session cookie is present and redirects members to
+> `/movies`; it never calls Supabase there. On the others it refreshes the
+> Supabase session and redirects signed-out visitors to `/login`. Sign-in
+> lands on `/movies` by default (`safeNextPath`). The pages still call
 > `requireUser()` from `src/lib/auth.ts` themselves: a new protected route must
 > call it and be added to the matcher.
 
@@ -191,7 +194,7 @@ Expo changes fast. Key facts:
 apps/web/src/
 ├── app/                     # App Router routes
 │   ├── layout.tsx           # Root layout: ThemeProvider + RegionProvider + Header/Footer
-│   ├── page.tsx             # Home (browse)
+│   ├── page.tsx             # Landing page (signed-in members are redirected to /movies)
 │   ├── auth/
 │   │   ├── actions.ts       # login / signup / signout server actions
 │   │   ├── callback/route.ts# OAuth callback (PKCE code exchange)
@@ -200,8 +203,8 @@ apps/web/src/
 │   ├── forgot-password/, reset-password/  # password reset (shared with mobile)
 │   ├── profile/             # user profile (protected)
 │   ├── watchlist/           # user watchlist (protected)
-│   ├── movies/[id]/         # movie detail
-│   ├── tv/[id]/             # TV detail
+│   ├── movies/              # Browse: movies aisle (page.tsx), detail at [id]/
+│   ├── tv/                  # Browse: TV aisle (page.tsx), detail at [id]/
 │   │   └── season/[season]/ # season + episode tracking
 │   ├── cast-and-crew/[id]/  # person detail
 │   └── search/              # search (client-driven)

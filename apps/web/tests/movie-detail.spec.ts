@@ -40,12 +40,12 @@ test.describe("Movie detail page", () => {
     ).toBeVisible();
   });
 
-  test("Navigating to a movie from the home page loads its detail page", async ({
+  test("Navigating to a movie from Browse loads its detail page", async ({
     page,
   }) => {
-    await page.goto("./");
+    await page.goto("/movies");
 
-    // Click the first movie card on the home page
+    // Click the first movie card in the movies aisle
     const firstMovieLink = page
       .getByRole("heading", { name: "In Theatres" })
       .locator("xpath=ancestor::section[1]")
