@@ -1,5 +1,6 @@
 export * from "./attribution";
 export * from "./brand";
+export * from "./landing";
 export * from "./premium";
 export * from "./tmdb/client";
 export * from "./tmdb/filmography";

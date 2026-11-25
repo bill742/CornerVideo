@@ -60,7 +60,7 @@ export default async function LoginPage({ searchParams }: Props) {
         </div>
 
         <form action={login} className="space-y-4">
-          <input type="hidden" name="next" value={next ?? "/"} />
+          <input type="hidden" name="next" value={next ?? "/movies"} />
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
