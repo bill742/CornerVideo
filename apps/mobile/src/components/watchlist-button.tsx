@@ -1,12 +1,25 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import type { MediaType, WatchStatus } from "@moviewatchlist/shared";
 import {
   WATCH_STATUS_LABELS,
   WATCH_STATUS_OPTIONS,
 } from "@moviewatchlist/shared";
 
-import { syncReminders } from "@/lib/reminders";
+import { useAuth } from "@/lib/auth-context";
+import {
+  answerAlertsOffer,
+  shouldOfferAlerts,
+  syncReminders,
+} from "@/lib/reminders";
+import { useSignInPrompt } from "@/lib/sign-in-prompt";
 import {
   addToWatchlist,
   getWatchlistStatus,
@@ -20,32 +33,77 @@ interface WatchlistButtonProps {
   mediaType: MediaType;
 }
 
+/**
+ * After the first add of a title with a release still to come, offer New
+ * release alerts to a Premium member who hasn't chosen yet. This is where the
+ * notification permission is first asked for (besides the Membership switch),
+ * so the system prompt follows a reason the member can see.
+ */
+async function offerAlerts(tmdbId: number, mediaType: MediaType) {
+  const offer = await shouldOfferAlerts(tmdbId, mediaType);
+  if (!offer) return;
+  Alert.alert(
+    "Turn on New release alerts?",
+    `Get a notification at 9am on the day ${offer.title} comes out.`,
+    [
+      {
+        onPress: () => answerAlertsOffer(false),
+        style: "cancel",
+        text: "Not now",
+      },
+      { onPress: () => answerAlertsOffer(true), text: "Turn on" },
+    ],
+  );
+}
+
 function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
   const { colors } = useBrand();
+  const { session } = useAuth();
+  const { runWithAccount } = useSignInPrompt();
+  const userId = session?.user.id ?? null;
+  // Bumped by every write, so a status read that started before one can't
+  // overwrite its result (sign-in reloads the status while the add it
+  // resumes is in flight).
+  const writes = useRef(0);
   const [status, setStatus] = useState<WatchStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Re-read when the member changes: signing in may reveal the title is
+  // already on their shelf, and signing out empties it.
   useEffect(() => {
     let active = true;
+    const startedAt = writes.current;
     getWatchlistStatus(tmdbId, mediaType)
-      .then((next) => active && setStatus(next))
-      .catch(() => active && setStatus(null))
+      .then((next) => active && writes.current === startedAt && setStatus(next))
+      .catch(() => active && writes.current === startedAt && setStatus(null))
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
-  }, [mediaType, tmdbId]);
+  }, [mediaType, tmdbId, userId]);
 
-  async function onAdd() {
+  /**
+   * Adds the title. Also the action resumed after a guest signs in from the
+   * prompt, when the account may already have it shelved: keep that status
+   * rather than resetting it to "Want to watch".
+   */
+  async function add() {
+    writes.current += 1;
     setBusy(true);
     setError(null);
     try {
+      const existing = await getWatchlistStatus(tmdbId, mediaType);
+      if (existing) {
+        setStatus(existing);
+        return;
+      }
       await addToWatchlist(tmdbId, mediaType);
       setStatus("want_to_watch");
       syncReminders();
+      offerAlerts(tmdbId, mediaType);
     } catch (actionError) {
       // Say why (e.g. the free-tier limit) rather than failing silently.
       // Status only changes after a successful write, so it's still accurate.
@@ -59,7 +117,12 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
     }
   }
 
+  function onAdd() {
+    runWithAccount(add);
+  }
+
   async function onSelectStatus(next: WatchStatus) {
+    writes.current += 1;
     setPickerOpen(false);
     setBusy(true);
     setError(null);
@@ -81,6 +144,7 @@ function WatchlistButton({ mediaType, tmdbId }: WatchlistButtonProps) {
   }
 
   async function onRemove() {
+    writes.current += 1;
     setPickerOpen(false);
     setBusy(true);
     setError(null);

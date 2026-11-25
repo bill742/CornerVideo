@@ -132,11 +132,21 @@ Scoped to the mobile app:
 TypeScript). Read the versioned docs at <https://docs.expo.dev/versions/v56.0.0/> —
 Expo changes fast. Key facts:
 
-- **Routing:** Expo Router with `src/app` as the route root. Auth gating lives in
-  `src/app/_layout.tsx` (redirects between the `(auth)` and `(app)` route groups based
-  on Supabase session). The `(app)` group is a Stack: `(app)/(tabs)` holds the
-  Browse / Search / Watchlist tabs, and detail screens push over them
-  (`(app)/movie/[id]`, `(app)/tv/[id]`, `(app)/tv/[id]/season/[season]`). Route files
+- **Routing:** Expo Router with `src/app` as the route root. Signed-out people
+  browse as **guests** (App Review 5.1.1: browsing TMDB needs no account). The root
+  `src/app/_layout.tsx` is a Stack using `Stack.Protected` guards, not redirects:
+  `welcome` (first launch only, until sign-in or "Browse without an account"; seen
+  flag `welcome:seen` in AsyncStorage, `src/lib/welcome.tsx`), `(app)`, and `(auth)`
+  as a modal open only while signed out — signing in removes it and drops the member
+  back on the screen they came from. The `(app)` group is a Stack: `(app)/(tabs)`
+  holds Browse / Search / My Shelf / Membership, and detail screens push over them
+  (`(app)/movie/[id]`, `(app)/tv/[id]`, `(app)/tv/[id]/season/[season]`). Anything
+  that needs an account (the My Shelf and Membership tabs, Add to shelf, episode
+  ticks) goes through `runWithAccount(action)` from `src/lib/sign-in-prompt.tsx`: it
+  runs the action when signed in, otherwise opens the "Create a free account to keep
+  a shelf" sheet and runs the action after sign-in — so write resumed actions to cope
+  with an account that already has the data. User-data reads return their empty value
+  for a guest; writes throw `SignInRequiredError` (`src/lib/session.ts`). Route files
   use `export default` (Expo Router requirement); detail screens set their own header
   via `<Stack.Screen options={{ ... }} />` rendered inside the screen.
 - **Styling:** **NativeWind v4.2** (Tailwind **v3** — not v4 like web). Config in
@@ -158,8 +168,12 @@ Expo changes fast. Key facts:
   watchlist, looks up each title's next date on TMDB, and replaces every scheduled
   reminder (ids prefixed `release:`, capped at 60 for iOS's 64-pending limit). It runs
   on launch/foreground (`(app)/_layout.tsx`) and after watchlist writes; call it after
-  any new watchlist mutation. Gated by `isPremium()` (`src/lib/premium.ts`, reads the
-  `subscriptions` table) plus a per-device on/off flag in AsyncStorage.
+  any new watchlist mutation. Gated by a session, `isPremium()` (`src/lib/premium.ts`,
+  reads the `subscriptions` table) and a per-device on/off flag in AsyncStorage
+  (unset until the member chooses; cleared on sign-out). Notification permission is
+  asked in context only: the Membership switch, or the "Turn on New release alerts?"
+  offer after a Premium member who hasn't chosen adds a title with a release still
+  to come (`shouldOfferAlerts`). Never at launch, welcome or sign-in.
 - **TMDB reads:** the shared `createTmdbClient` (`packages/shared/src/tmdb/client.ts`)
   is the single source for both apps — it now covers movies, TV, season detail, credits,
   and multi-search. Add new TMDB endpoints there, not in app-local code.

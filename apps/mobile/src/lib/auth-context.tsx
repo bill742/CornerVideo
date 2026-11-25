@@ -12,7 +12,7 @@ import { identifyPurchaser } from "./purchases";
 import {
   cancelReminders,
   clearReminderHistory,
-  setRemindersEnabled,
+  resetRemindersPreference,
 } from "./reminders";
 import { supabase } from "./supabase";
 
@@ -99,7 +99,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     await Promise.all([
       cancelReminders(),
       clearReminderHistory(),
-      setRemindersEnabled(false),
+      resetRemindersPreference(),
     ]).catch((err) =>
       console.warn("Could not clear reminders on sign-out:", err),
     );
@@ -118,7 +118,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
     // The user no longer exists, so a global sign-out would fail; clearing
     // the local session is all that's left. It also fires SIGNED_OUT, which
-    // sends the root layout back to the auth screens.
+    // leaves the app in its guest state.
     await supabase.auth.signOut({ scope: "local" });
     await clearDeviceState();
   }

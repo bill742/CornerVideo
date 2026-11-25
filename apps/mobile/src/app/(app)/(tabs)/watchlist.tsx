@@ -16,9 +16,11 @@ import {
   WATCH_STATUS_OPTIONS,
 } from "@moviewatchlist/shared";
 
+import { useAuth } from "@/lib/auth-context";
 import { tmdb } from "@/lib/tmdb";
 import { getWatchlist } from "@/lib/watchlist";
 import { useBrand } from "@/lib/theme";
+import { GuestTab } from "@/components/sign-in-prompt-panel";
 import { VhsLoader } from "@/components/vhs-loader";
 
 interface ResolvedItem {
@@ -73,6 +75,7 @@ async function resolveWatchlist(): Promise<ResolvedItem[]> {
 
 export default function WatchlistScreen() {
   const { colors } = useBrand();
+  const { session } = useAuth();
   const router = useRouter();
   const [items, setItems] = useState<ResolvedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,10 +96,12 @@ export default function WatchlistScreen() {
     }
   }, []);
 
+  // Keyed on the user too, so signing in over this tab loads the new shelf.
+  const userId = session?.user.id;
   useFocusEffect(
     useCallback(() => {
-      load();
-    }, [load]),
+      if (userId) load();
+    }, [load, userId]),
   );
 
   const mediaItems = useMemo(
@@ -116,6 +121,8 @@ export default function WatchlistScreen() {
     const pathname = item.mediaType === "tv" ? "/tv/[id]" : "/movie/[id]";
     router.push({ params: { id: String(item.tmdbId) }, pathname });
   }
+
+  if (!session) return <GuestTab title="My Shelf" />;
 
   return (
     <SafeAreaView className="flex-1 bg-bg" edges={["top"]}>

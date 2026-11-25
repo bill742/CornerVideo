@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import {
@@ -18,6 +18,8 @@ import {
   syncShowWatchStatus,
   unmarkEpisodeWatched,
 } from "@/lib/episodes";
+import { useAuth } from "@/lib/auth-context";
+import { useSignInPrompt } from "@/lib/sign-in-prompt";
 import { tmdb } from "@/lib/tmdb";
 import { useBrand } from "@/lib/theme";
 import { VhsLoader } from "@/components/vhs-loader";
@@ -35,24 +37,37 @@ export default function SeasonScreen() {
   const [pending, setPending] = useState<Set<number>>(new Set());
   const [markingAll, setMarkingAll] = useState(false);
 
+  const { session } = useAuth();
+  const { runWithAccount } = useSignInPrompt();
+  const userId = session?.user.id ?? null;
+  // Bumped by every tick, so a read that started before one can't undo its
+  // optimistic update (sign-in re-reads while the resumed tick is in flight).
+  const writes = useRef(0);
+
+  // Keyed on the member too: signing in shows their progress, signing out
+  // clears it. A guest has none.
   useEffect(() => {
     let active = true;
+    const startedAt = writes.current;
     Promise.all([
       tmdb.getTVSeason(id, season),
-      getWatchedEpisodes(showId, seasonNumber),
+      getWatchedEpisodes(showId, seasonNumber).catch(() => []),
     ]).then(([seasonResult, watchedNumbers]) => {
       if (!active) return;
       setData(seasonResult);
-      setWatched(new Set(watchedNumbers));
+      if (writes.current === startedAt) setWatched(new Set(watchedNumbers));
       setLoading(false);
     });
     return () => {
       active = false;
     };
-  }, [id, season, seasonNumber, showId]);
+  }, [id, season, seasonNumber, showId, userId]);
 
   const toggle = useCallback(
     async (episodeNumber: number) => {
+      writes.current += 1;
+      // A guest's ticks wait for sign-in (runWithAccount below), and they
+      // could only see unticked episodes, so a resumed tick always marks.
       const isWatched = watched.has(episodeNumber);
 
       // Optimistic update; revert on failure.
@@ -100,6 +115,7 @@ export default function SeasonScreen() {
     const episodeNumbers = data.episodes.map((e) => e.episode_number);
     if (episodeNumbers.length === 0) return;
 
+    writes.current += 1;
     const previous = watched;
     setMarkingAll(true);
     // Optimistic: every episode in this season is now watched.
@@ -153,7 +169,7 @@ export default function SeasonScreen() {
             accessibilityState={{ checked: isWatched }}
             className="h-8 w-8 items-center justify-center self-center rounded-full border"
             disabled={isPending}
-            onPress={() => toggle(item.episode_number)}
+            onPress={() => runWithAccount(() => toggle(item.episode_number))}
             style={{
               backgroundColor: isWatched ? colors.accent : "transparent",
               borderColor: isWatched ? colors.accent : colors.muted,
@@ -175,7 +191,7 @@ export default function SeasonScreen() {
         </View>
       );
     },
-    [colors, pending, toggle, watched],
+    [colors, pending, runWithAccount, toggle, watched],
   );
 
   if (loading) {
@@ -221,7 +237,7 @@ export default function SeasonScreen() {
           <Pressable
             className="items-center justify-center rounded-md py-3.5 active:opacity-80"
             disabled={allWatched || markingAll}
-            onPress={markAll}
+            onPress={() => runWithAccount(markAll)}
             style={{
               backgroundColor: allWatched ? colors.line : colors.primary,
             }}

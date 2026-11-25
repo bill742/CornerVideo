@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "expo-router";
 import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
 import { BRAND } from "@moviewatchlist/shared";
 
@@ -21,6 +22,7 @@ interface DeleteAccountSettingProps {
 function DeleteAccountSetting({ membership }: DeleteAccountSettingProps) {
   const { colors } = useBrand();
   const { deleteAccount } = useAuth();
+  const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +38,9 @@ function DeleteAccountSetting({ membership }: DeleteAccountSettingProps) {
     setError(null);
     try {
       await deleteAccount();
-      // The session is gone, so the root layout is already heading back to
-      // the sign-in screens; this confirms what happened.
+      // The session is gone, leaving a guest; send them back to Browse and
+      // confirm what happened.
+      router.navigate("/");
       Alert.alert(
         "Your account has been deleted.",
         "Everything on your shelf has been removed.",
@@ -73,9 +76,9 @@ function DeleteAccountSetting({ membership }: DeleteAccountSettingProps) {
       </Text>
       {store ? (
         <Text className="mt-2 text-sm font-semibold text-fg">
-          Your Premium subscription through {store} isn’t cancelled by
-          deleting your account. Cancel it in your subscription settings first,
-          or it will keep renewing.
+          Your Premium subscription through {store} isn’t cancelled by deleting
+          your account. Cancel it in your subscription settings first, or it
+          will keep renewing.
         </Text>
       ) : null}
 

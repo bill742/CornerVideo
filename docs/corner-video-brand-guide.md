@@ -72,6 +72,7 @@ The web home page (`/`) is a landing page for people who don't know Corner Video
 - **Primary call to action:** **Start your shelf — free**. Secondary: **Browse the aisles**.
 - **Steps and pillars** come from `LANDING_STEPS` and `LANDING_PILLARS` in `packages/shared/src/landing.ts`, so the mobile welcome screen can reuse them.
 - **Free tier, stated plainly:** "Your first 25 titles are free. No card needed." (from `FREE_WATCHLIST_LIMIT`).
+- **Mobile welcome screen** (first launch, signed out): the tagline, "Corner Video is a watchlist for movies and TV.", the three `LANDING_STEPS`, then **Create account**, **Sign in** and **Browse without an account**. One screen, no carousel. The guest sign-in prompt is plain: "Create a free account to keep a shelf".
 - **Waitlist:** plain copy, since it's a consent form. The opt-in wording is `APP_NEWS_CONSENT_TEXT`.
 
 ## Store listings
