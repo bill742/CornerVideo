@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, Tv } from "lucide-react";
 import { EpisodeList } from "@/components/episodes/episode-list";
 
 import { getTVSeason, getTVShow } from "@/data/tv-loaders";
+import { shareMetadata } from "@/lib/share-metadata";
 import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
@@ -20,9 +21,21 @@ export async function generateMetadata({
     getTVSeason(id, season),
   ]);
   if (!show || !seasonData) return { title: "Season Not Found" };
+  const title = `${show.name}: ${seasonData.name}`;
+  const description =
+    seasonData.overview || `${show.name} — ${seasonData.name}`;
   return {
-    description: seasonData.overview || `${show.name} — ${seasonData.name}`,
-    title: `${show.name}: ${seasonData.name}`,
+    description,
+    title,
+    ...shareMetadata({
+      // The show's backdrop makes the wider card; seasons have only posters.
+      backdropPath: show.backdrop_path,
+      description,
+      path: `/tv/${id}/season/${season}`,
+      posterPath: seasonData.poster_path ?? show.poster_path,
+      title,
+      type: "video.tv_show",
+    }),
   };
 }
 

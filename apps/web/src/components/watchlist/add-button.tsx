@@ -2,11 +2,15 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import { BookMarked, BookPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 import { addToWatchlist, removeFromWatchlist } from "@/lib/actions/watchlist";
+import { SHELF_CHANGED_EVENT, savePendingAdd } from "@/lib/pending-add";
 import { createClient } from "@/lib/supabase/client";
 import type { MediaType } from "@/types";
 
@@ -24,6 +28,7 @@ interface Props {
  * invocation per view. Reading it here keeps the surrounding page static.
  */
 function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
+  const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   // `undefined` while loading, `null` when signed out. Nothing renders until
   // both sign-in and shelf state are known: showing "Add to shelf" while the
@@ -75,6 +80,9 @@ function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
     resync.current = sync;
     sync();
 
+    // PendingAddCompleter may add this very title after sign-in.
+    window.addEventListener(SHELF_CHANGED_EVENT, sync);
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
@@ -86,12 +94,30 @@ function AddToWatchlistButton({ mediaType, tmdbId }: Props) {
 
     return () => {
       active = false;
+      window.removeEventListener(SHELF_CHANGED_EVENT, sync);
       subscription.unsubscribe();
     };
   }, [mediaType, tmdbId]);
 
-  if (onShelf === undefined || onShelf === null) {
+  if (onShelf === undefined) {
     return null;
+  }
+
+  // Signed out: the same label, leading to sign-up. The title is remembered
+  // and added once they've signed in (PendingAddCompleter), even if that
+  // happens after confirming their email.
+  if (onShelf === null) {
+    return (
+      <Button asChild size="lg" variant="outline">
+        <Link
+          href={`/signup?next=${encodeURIComponent(pathname)}`}
+          onClick={() => savePendingAdd(mediaType, tmdbId)}
+        >
+          <BookPlus className="mr-1.5 h-4 w-4" />
+          Add to shelf
+        </Link>
+      </Button>
+    );
   }
 
   const handleClick = () => {

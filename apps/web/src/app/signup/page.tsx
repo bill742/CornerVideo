@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { signup } from "@/app/auth/actions";
+import { safeNextPath } from "@/lib/safe-next-path";
 import {
   APP_NEWS_CONSENT_TEXT,
   FREE_WATCHLIST_LIMIT,
@@ -26,11 +27,18 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }
 
 export default async function SignupPage({ searchParams }: Props) {
-  const { error, message } = await searchParams;
+  const { error, message, next: rawNext } = await searchParams;
+  // Where to go after signing in, e.g. the title whose Add to shelf brought
+  // them here. Only kept when it was asked for, so the plain sign-up and
+  // sign-in links stay clean.
+  const next = rawNext ? safeNextPath(rawNext) : undefined;
+  const signInHref = next
+    ? `/login?next=${encodeURIComponent(next)}`
+    : "/login";
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
@@ -60,7 +68,7 @@ export default async function SignupPage({ searchParams }: Props) {
           </p>
         )}
 
-        <OAuthButtons />
+        <OAuthButtons next={next} />
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -74,6 +82,7 @@ export default async function SignupPage({ searchParams }: Props) {
         </div>
 
         <form action={signup} className="space-y-4">
+          {next && <input name="next" type="hidden" value={next} />}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -157,7 +166,7 @@ export default async function SignupPage({ searchParams }: Props) {
 
         <p className="text-muted-foreground text-center text-sm">
           Already have an account?{" "}
-          <Link className="underline" href="/login">
+          <Link className="underline" href={signInHref}>
             Sign in
           </Link>
         </p>

@@ -37,6 +37,13 @@ export async function signup(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const heardFrom = formData.get("heard_from");
+  const next = formData.get("next");
+  // Kept on the redirects back to /signup so the sign-in link still returns
+  // the member to the title they came from.
+  const nextQuery =
+    typeof next === "string" && next
+      ? `&next=${encodeURIComponent(safeNextPath(next))}`
+      : "";
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -54,7 +61,7 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+    redirect(`/signup?error=${encodeURIComponent(error.message)}${nextQuery}`);
   }
 
   // Supabase reports success without sending anything when the email is
@@ -62,7 +69,7 @@ export async function signup(formData: FormData) {
   redirect(
     `/signup?message=${encodeURIComponent(
       "If this email is new to us, check your inbox for a link to confirm your account. Already have an account? Sign in, or reset your password."
-    )}`
+    )}${nextQuery}`
   );
 }
 

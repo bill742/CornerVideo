@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { login } from "@/app/auth/actions";
+import { safeNextPath } from "@/lib/safe-next-path";
 import { BRAND } from "@/types";
 
 export const metadata: Metadata = {
@@ -96,7 +97,14 @@ export default async function LoginPage({ searchParams }: Props) {
 
         <p className="text-muted-foreground text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link className="underline" href="/signup">
+          <Link
+            className="underline"
+            href={
+              next
+                ? `/signup?next=${encodeURIComponent(safeNextPath(next))}`
+                : "/signup"
+            }
+          >
             Sign up
           </Link>
         </p>

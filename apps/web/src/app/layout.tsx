@@ -4,6 +4,7 @@ import { Oswald, Public_Sans } from "next/font/google";
 import { AttributionCapture } from "@/components/attribution-capture";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { PendingAddCompleter } from "@/components/pending-add-completer";
 import { SiteNotice } from "@/components/site-notice";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -97,6 +98,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <SiteNotice />
+          <PendingAddCompleter />
           <AttributionCapture />
         </ThemeProvider>
       </body>

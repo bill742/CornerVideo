@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddToWatchlistButton } from "@/components/watchlist/add-button";
 
 import { getTVCastAndCrew, getTVShow, getTVTrailer } from "@/data/tv-loaders";
+import { shareMetadata } from "@/lib/share-metadata";
 import type { Genre } from "@/types";
 
 /** See the notes on the movie detail page — same reasoning for both exports. */
@@ -29,10 +30,21 @@ export async function generateMetadata({
   const { id } = await params;
   const show = await getTVShow(id);
   if (!show) return { title: "Show Not Found" };
+  const title = `${show.name} (${show.first_air_date ? new Date(show.first_air_date).getFullYear() : "TBA"})`;
+  const description =
+    show.overview || `Episodes and premiere dates for ${show.name}.`;
   return {
     alternates: { canonical: `/tv/${id}` },
-    description: show.overview,
-    title: `${show.name} (${show.first_air_date ? new Date(show.first_air_date).getFullYear() : "TBA"})`,
+    description,
+    title,
+    ...shareMetadata({
+      backdropPath: show.backdrop_path,
+      description,
+      path: `/tv/${id}`,
+      posterPath: show.poster_path,
+      title,
+      type: "video.tv_show",
+    }),
   };
 }
 
