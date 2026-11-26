@@ -356,6 +356,15 @@ and `resetPassword` in `src/app/auth/actions.ts`, pages `/forgot-password` and
 `/reset-password?token_hash=…` (web README → "Password reset"). The token is
 spent only on form submit, never on page load, because mail scanners open links.
 
+**Add to shelf while signed out** links to `/signup?next=<title>` and saves the
+title in localStorage (`src/lib/pending-add.ts`). `PendingAddCompleter` (root
+layout) adds it once a session exists, wherever sign-in lands, and fires
+`SHELF_CHANGED_EVENT` so a mounted `AddToWatchlistButton` re-reads its state.
+localStorage, not `next`, carries it through email confirmation, which drops
+query parameters. Title pages build their link previews with `shareMetadata()`
+(`src/lib/share-metadata.ts`, TMDB backdrop or poster); no generated per-title
+image until Workers Paid.
+
 The database schema, RLS policies, and the `handle_new_user` trigger (auto-creates a
 `profiles` row per auth user) live in `supabase/migrations/`.
 

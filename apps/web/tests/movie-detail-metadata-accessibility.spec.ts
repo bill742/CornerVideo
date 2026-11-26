@@ -58,4 +58,62 @@ test.describe("Page Metadata and Document Structure", () => {
       `${process.env.NEXT_PUBLIC_SITE_URL}/movies/${KNOWN_MOVIE_ID}`
     );
   });
+
+  test("Link previews use the movie's own title and TMDB image", async ({
+    page,
+  }) => {
+    await page.goto(`/movies/${KNOWN_MOVIE_ID}`);
+
+    const meta = (attr: string, name: string) =>
+      page.locator(`meta[${attr}="${name}"]`);
+
+    await expect(meta("property", "og:title")).toHaveAttribute(
+      "content",
+      `${KNOWN_MOVIE_TITLE} (${KNOWN_MOVIE_YEAR})`
+    );
+    await expect(meta("property", "og:type")).toHaveAttribute(
+      "content",
+      "video.movie"
+    );
+    await expect(meta("property", "og:site_name")).toHaveAttribute(
+      "content",
+      BRAND.name
+    );
+    await expect(meta("property", "og:url")).toHaveAttribute(
+      "content",
+      new RegExp(`/movies/${KNOWN_MOVIE_ID}$`)
+    );
+    // The backdrop, not the site-wide card: exactly one og:image.
+    await expect(meta("property", "og:image")).toHaveCount(1);
+    await expect(meta("property", "og:image")).toHaveAttribute(
+      "content",
+      /^https:\/\/image\.tmdb\.org\/t\/p\/w780\//
+    );
+    await expect(meta("name", "twitter:card")).toHaveAttribute(
+      "content",
+      "summary_large_image"
+    );
+    await expect(meta("name", "twitter:image")).toHaveAttribute(
+      "content",
+      /^https:\/\/image\.tmdb\.org\//
+    );
+  });
+
+  test("TV pages get their own link preview too", async ({ page }) => {
+    // Breaking Bad
+    await page.goto("/tv/1396");
+
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      "Breaking Bad (2008)"
+    );
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+      "content",
+      "video.tv_show"
+    );
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      "content",
+      /^https:\/\/image\.tmdb\.org\/t\/p\/w780\//
+    );
+  });
 });

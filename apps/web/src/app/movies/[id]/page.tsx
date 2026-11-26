@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddToWatchlistButton } from "@/components/watchlist/add-button";
 
 import { getCastAndCrew, getMovie, getMovieTrailer } from "@/data/loaders";
+import { shareMetadata } from "@/lib/share-metadata";
 import type { Genre } from "@/types";
 
 /**
@@ -52,14 +53,25 @@ export async function generateMetadata({
     };
   }
 
+  const title = `${movie.title} (${movie.release_date ? new Date(movie.release_date).getFullYear() : "TBA"})`;
+  const description =
+    movie.overview ||
+    `Watch ${movie.title} and discover more information about this film.`;
+
   return {
     alternates: {
       canonical: `/movies/${id}`,
     },
-    description:
-      movie.overview ||
-      `Watch ${movie.title} and discover more information about this film.`,
-    title: `${movie.title} (${movie.release_date ? new Date(movie.release_date).getFullYear() : "TBA"})`,
+    description,
+    title,
+    ...shareMetadata({
+      backdropPath: movie.backdrop_path,
+      description,
+      path: `/movies/${id}`,
+      posterPath: movie.poster_path,
+      title,
+      type: "video.movie",
+    }),
   };
 }
 
